@@ -95,6 +95,18 @@ friends: [
     },{
         title: "book诗意",
         href: "http://bookshiyi.com/archives/2072"
+    },{
+        title: "Robotics Lecture Course",
+        href: "http://www.doc.ic.ac.uk/~ajd/Robotics/index.html"
+    },{
+        title: "machine-learning",
+        href: "https://developers.google.com/machine-learning/crash-course/?hl=zh-cn"
+    } ,{
+        title: "反馈系统",
+        href: "http://www.cds.caltech.edu/~murray/amwiki/index.php?title=First_Edition"
+    } ,{
+        title: "KCF_ROS",
+        href: "https://blog.csdn.net/david_han008/article/details/72967588"
+    } 
     
-    }
 ]
