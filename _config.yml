@@ -110,6 +110,8 @@ friends: [
     }  ,{
         title: "OCW",
         href: "http://ocw.nctu.edu.tw/"
+    } ,{
+        title: "Machine Learning",
+        href: "http://speech.ee.ntu.edu.tw/~tlkagk/courses.html"
     }
-    
 ]
