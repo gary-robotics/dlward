@@ -1,0 +1,46 @@
+##双线性插值  
+###双线性插值(Bilinear interpolation)
+
+目录
+1 什么是双线性插值
+2 相关条目
+>什么是双线性插值
+　　双线性插值又称为双线性内插.在数学上，双线性插值是有两个变量的插值函数的线性插值扩展，其核心思想是在两个方向分别进行一次线性插值。
+
+>红色的数据点与待插值得到的绿色点假如我们想得到未知函数f在点P=(x,y)的值，假设我们已知函数f在Q11 = (x1,y1)、Q12 = (x1.y2),Q21 = (x2,y1)以及Q22 = (x2,y2)四个点的值。
+
+双线性插值图像
+   ![双线性插值图像](http://wiki.mbalib.com/w/images/6/69/Bilinear_interpolation.jpg)  
+
+　　首先在x方向进行线性插值，得到  
+   ![](http://wiki.mbalib.com/w/images/math/3/3/f/33f432915bf918f105c8ae6b918cb466.png)  
+　 ![](http://wiki.mbalib.com/w/images/math/2/2/1/2210cfd7a7b5a2f556139aa65b209dc6.png)
+
+　　然后在y方向进行线性插值，得到    
+   ![](http://wiki.mbalib.com/w/images/math/b/d/b/bdb2ca518e3ec51328e8bf6d0f894a41.png)
+
+　　这样就得到所要的结果f(x,y)，  
+
+   ![](http://wiki.mbalib.com/w/images/math/9/b/5/9b5b70b3453520f5699e2b9ac09b6f5e.png)
+
+　　如果选择一个坐标系统使得f的四个已知点坐标分别为(0,0)、(0,1)、(1, 0) 和 (1, 1)，那么插值公式就可以化简为
+
+　　![](http://wiki.mbalib.com/w/images/math/6/5/1/651c8c7727458ce55bc021b5a88ea40b.png)
+
+　　或者用矩阵运算表示为
+
+　　![](http://wiki.mbalib.com/w/images/math/d/3/1/d31cf1a0dfa4db1a4d57836b4d44bc1d.png)
+
+　　与这种插值方法名称不同的是，这种插值方法并不是线性的，它的形式是
+
+　　(a1x + a2)(a3y + a4)
+
+　　它是两个线性函数的乘积。另外，插值也可以表示为
+
+　　b1 + b2x + b3y + b4xy
+
+　　在这两种情况下，常数的数目]都对应于给定的f的数据点数目。
+
+　　线性插值的结果与插值的顺序无关。首先进行y方向的插值，然后进行x方向的插值，所得到的结果是一样的。
+
+　　双线性插值的一个显然的三维空间延伸是三线性插值。
