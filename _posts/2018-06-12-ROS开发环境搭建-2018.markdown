@@ -1,16 +1,16 @@
 ---
 layout:     post                    # 使用的布局（不需要改）
-title:      ROS开发环境搭建          # 标题 
-subtitle:   ROS初步                  #副标题
-date:       2018-06-12              # 时间
+title:      卷积                    # 标题 
+subtitle:   opencv                    #副标题
+date:       2018-06-20              # 时间
 author:     BY Edlward              # 作者
 header-img: img/post-bg-2015.jpg    #这篇文章标题背景图片
 catalog: true                       # 是否归档
 tags:                               #标签
-    - ROS
+    - opencv
 ---
 
-## ROS
+## 卷积
 >离散信号为例，连续信号同理。 
 
 已知 x[0] = a, x[1] = b, x[2]=c  
