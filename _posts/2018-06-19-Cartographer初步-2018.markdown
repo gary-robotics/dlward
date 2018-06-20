@@ -22,4 +22,7 @@ tags:                               #标签
 
 >[2D激光SLAM算法比较+cartographer](https://blog.csdn.net/hjwang1/article/details/62236432)
 
+>[蓝鲸智能机器人](http://www.bwbot.org/zh-cn/)
+[购买链接](https://item.taobao.com/item.htm?spm=0.0.0.0.4RIgI2&id=527426530377)
+
 ![软件分析架构图](http://p3.pstatp.com/large/191800014597caf46e29)
