@@ -33,8 +33,8 @@ tags:                               #标签
 
 ![软件分析架构图](http://p3.pstatp.com/large/191800014597caf46e29)
 ## 4.IMU
-[MPU6050内部DMP固件移植解析，STM32获取欧拉角串口显示](https://blog.csdn.net/haha1fan/article/details/72440574)  
-
+[MPU6050内部DMP固件移植解析，STM32获取欧拉角串口显示](https://blog.csdn.net/haha1fan/article/details/72440574)    
+[Arduino教程：MPU6050的数据获取、分析与处理](https://zhuanlan.zhihu.com/p/20082486?columnSlug=devymex)  
 ## 5.参考资料  
 [蓝鲸智能机器人](http://www.bwbot.org/zh-cn/)  
 [购买链接](https://item.taobao.com/item.htm?spm=0.0.0.0.4RIgI2&id=527426530377)
