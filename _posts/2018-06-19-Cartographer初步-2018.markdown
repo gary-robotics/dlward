@@ -11,17 +11,17 @@ tags:                               #标签
 ---
 
 ## 1.ROS
-[ROS MOOC](https://www.icourse163.org/course/ISCAS-1002580008)  
-[讲义](https://legacy.gitbook.com/book/sychaichangkun/ros-tutorial-icourse163/details)  
-[code](https://github.com/DroidAITech/ROS-Academy-for-Beginners)    
+[ROS MOOC](https://www.icourse163.org/course/ISCAS-1002580008)    
+[讲义](https://legacy.gitbook.com/book/sychaichangkun/ros-tutorial-icourse163/details)    
+[code](https://github.com/DroidAITech/ROS-Academy-for-Beginners)      
 
 ## 2.SLAM
 [ORB_SLAM](https://github.com/raulmur/ORB_SLAM)  
 
 ## 3.cartographer
-[代码原始地址](https://github.com/googlecartographer/cartographer)
-[视频讲解](https://www.youtube.com/watch?v=wVsfCnyt5jA)
-安装教程:[hitcm](https://www.cnblogs.com/hitcm/p/5939507.html)   
+[代码原始地址](https://github.com/googlecartographer/cartographer)  
+[视频讲解](https://www.youtube.com/watch?v=wVsfCnyt5jA)  
+安装教程:[hitcm](https://www.cnblogs.com/hitcm/p/5939507.html)     
 
 >环境搭建
 [ROS_Kinetic_27 在ROS中使用Cartographer进行SLAM](https://blog.csdn.net/zhangrelay/article/details/52757573)    
@@ -32,7 +32,9 @@ tags:                               #标签
 [2D激光SLAM算法比较+cartographer](https://blog.csdn.net/hjwang1/article/details/62236432)  
 
 ![软件分析架构图](http://p3.pstatp.com/large/191800014597caf46e29)
+## 4.IMU
+[MPU6050内部DMP固件移植解析，STM32获取欧拉角串口显示](https://blog.csdn.net/haha1fan/article/details/72440574)  
 
-## 4.参考资料  
+## 5.参考资料  
 [蓝鲸智能机器人](http://www.bwbot.org/zh-cn/)  
 [购买链接](https://item.taobao.com/item.htm?spm=0.0.0.0.4RIgI2&id=527426530377)
