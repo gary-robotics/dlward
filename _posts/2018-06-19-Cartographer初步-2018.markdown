@@ -11,9 +11,9 @@ tags:                               #标签
 ---
 
 ## 1.ROS
-[ROS MOOC](https://www.icourse163.org/course/ISCAS-1002580008)
-[讲义](https://legacy.gitbook.com/book/sychaichangkun/ros-tutorial-icourse163/details)
-[code](https://github.com/DroidAITech/ROS-Academy-for-Beginners)  
+[ROS MOOC](https://www.icourse163.org/course/ISCAS-1002580008)  
+[讲义](https://legacy.gitbook.com/book/sychaichangkun/ros-tutorial-icourse163/details)  
+[code](https://github.com/DroidAITech/ROS-Academy-for-Beginners)    
 
 ## 2.SLAM
 [ORB_SLAM](https://github.com/raulmur/ORB_SLAM)  
@@ -21,15 +21,18 @@ tags:                               #标签
 ## 3.cartographer
 [代码原始地址](https://github.com/googlecartographer/cartographer)
 [视频讲解](https://www.youtube.com/watch?v=wVsfCnyt5jA)
-安装教程:[hitcm](https://www.cnblogs.com/hitcm/p/5939507.html)  
+安装教程:[hitcm](https://www.cnblogs.com/hitcm/p/5939507.html)   
+
+>环境搭建
+[ROS_Kinetic_27 在ROS中使用Cartographer进行SLAM](https://blog.csdn.net/zhangrelay/article/details/52757573)    
 
 
-[Scan Matching in 2D SLAM ](https://mp.weixin.qq.com/s?__biz=MzI5MTM1MTQwMw==&mid=2247484537&idx=1&sn=86200d961cf933896a9781bbe58442cc&chksm=ec10ba7ddb67336ba920a3c6b7e6414a0131bb775d6695e526d25dc6d377e31578684e83f802&scene=1&srcid=0925Vlxe9psorns6CY8O4sC7#rd)  
+[Scan Matching in 2D SLAM ](https://mp.weixin.qq.com/s?__biz=MzI5MTM1MTQwMw==&mid=2247484537&idx=1&sn=86200d961cf933896a9781bbe58442cc&chksm=ec10ba7ddb67336ba920a3c6b7e6414a0131bb775d6695e526d25dc6d377e31578684e83f802&scene=1&srcid=0925Vlxe9psorns6CY8O4sC7#rd)    
 
-[2D激光SLAM算法比较+cartographer](https://blog.csdn.net/hjwang1/article/details/62236432)
+[2D激光SLAM算法比较+cartographer](https://blog.csdn.net/hjwang1/article/details/62236432)  
 
 ![软件分析架构图](http://p3.pstatp.com/large/191800014597caf46e29)
 
 ## 4.参考资料  
-[蓝鲸智能机器人](http://www.bwbot.org/zh-cn/)
+[蓝鲸智能机器人](http://www.bwbot.org/zh-cn/)  
 [购买链接](https://item.taobao.com/item.htm?spm=0.0.0.0.4RIgI2&id=527426530377)
