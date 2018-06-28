@@ -21,6 +21,8 @@ tags:                               #标签
 [Gmapping、hector、Cartographer三种激光SLAM算法简单对比](https://blog.csdn.net/jeff_lee_/article/details/77869987)  
 [Karto SLAM](https://blog.csdn.net/qq_24893115/article/details/52965410?locationNum=4&fps=1)
 
+## Navigation Stack
+[Navigation Stack](https://github.com/ros-planning/navigation)  
 
 ## 3.cartographer
 [代码原始地址](https://github.com/googlecartographer/cartographer)  
