@@ -21,7 +21,7 @@ tags:                               #标签
 [Gmapping、hector、Cartographer三种激光SLAM算法简单对比](https://blog.csdn.net/jeff_lee_/article/details/77869987)  
 [Karto SLAM](https://blog.csdn.net/qq_24893115/article/details/52965410?locationNum=4&fps=1)  
 [Bundle adjustment 光束平差法](https://blog.csdn.net/x_r_su/article/details/55270838)  
-
+[SLAM求职经验帖](https://zhuanlan.zhihu.com/p/28565563)  
 [视觉SLAM方向找工作经历](https://www.cnblogs.com/xtl9/p/8053331.html)   
 
 >书籍：
