@@ -22,8 +22,85 @@ tags:                               #标签
 [Karto SLAM](https://blog.csdn.net/qq_24893115/article/details/52965410?locationNum=4&fps=1)  
 [Bundle adjustment 光束平差法](https://blog.csdn.net/x_r_su/article/details/55270838)  
 
-[视觉SLAM方向找工作经历](https://www.cnblogs.com/xtl9/p/8053331.html)  
+[视觉SLAM方向找工作经历](https://www.cnblogs.com/xtl9/p/8053331.html)   
 
+>书籍：
+1.必读经典
+Thrun S, Burgard W, Fox D. 《Probabilistic robotics》[M]. Cambridge, USA: MIT Press, 2005
+《Principles of Robot Motion Theory，Algorithms and Implementation》
+2.有很多期，跟着会议一起出的文集
+《Robotics: Science and Systems》. Cambridge, USA: MIT Press
+会议进展网站http://www.roboticsproceedings.org/
+3.入门书籍，简单实现及代码
+《SLAM for Dummies》
+4.SLAM入门教材吐血推荐，对深入理解SLAM实质非常有帮助
+《STATE ESTIMATION FOR ROBOTICS》
+5.作者Joan Sola关于Graph-SLAM的教程，包含位姿变换、传感器模型、图优化以及SLAM中的稀疏性求解
+《Course on SLAM》
+6.加州伯克利的一本2D LIDAR SLAM小书
+《Loop Closure Transformation Estimation and Verification Using 2D LiDAR Scanners》
+ 
+公开课：
+1.内含大量SLAM公开课相关资料（PPT、音视频文件）
+http://ais.informatik.uni-freiburg.de/teaching/ws15/mapping/
+2.YouTube的Cyrill Stachniss主页（课堂讲授SLAM的视频集）
+https://www.youtube.com/channel/UCi1TC2fLRvgBQNe-T4dp8Eg
+3.内含Andrew Davison的SLAM公开课资料
+http://www.doc.ic.ac.uk/~ajd/Robotics/index.html
+ 
+网站：
+1.大量优秀代码和框架，权威资料
+http://www.openslam.org/
+2.MRPT库官方网站，有MRPT相关文档和最新下载
+http://www.mrpt.org/
+3.中文SLAM技术交流网站，将最新进展和相关解决方案链接在里边，还有知名博客、公众号、实验室、数据集等资料，强烈推荐的一个网站
+http://www.slamcn.org/index.php/
+4.维基百科的SLAM介绍，里边有SLAM的发展综述和大量参考文献
+https://en.wikipedia.org/wiki/Simultaneous_localization_and_mapping#External_links
+5.ROS官网
+http://www.ros.org/
+ 
+博客：
+1.半闲居士，高翔博士的博客，SLAMCN的创始人，内含大量干货（以视觉SLAM为主）
+http://www.cnblogs.com/gaoxiang12/
+2.一个国外的路径规划算法网站（包含一些可交互演示的小工具）
+http://www.redblobgames.com/
+对应这个网站中的寻路算法的中文翻译博文（12篇）
+http://blog.jobbole.com/71044/
+3.泡泡机器人SLAM公众号（内含泡泡机器人公开课），专题讲解，有PPT和Video
+4.知行合一，内含Graph SLAM tutorial：从推导到应用、Mono SLAM理论基础等一些理论推导
+http://blog.csdn.net/heyijia0327
+5.Sebastian Thrun领导的斯坦福大学机器人研究团队主页
+http://robots.stanford.edu/
+ 
+会议：
+IEEE International Conference on Robotics and Automation（ICRA）
+IEEE/RSJ International Conference on Intelligent Robots and Systems（IROS）
+International Symposium on Robotics Research
+Robotics: Science and Systems Conference（RSS）
+IEEE Conference on Computer Vision and Pattern Recognition（CVPR）
+ 
+期刊：
+IEEE Robotics and Automation Magazine
+IEEE Transactions on Robotics
+International Journal of Robotics Research
+Robotics and Autonomous Systems
+Journal of Field Robotics
+ 
+大牛：
+1.Sebastian Thrun（署名Thrun S，斯坦福大学）
+2.Andrew Davison（牛津大学）
+3.Tim Beily 及所在的 悉尼大学一些研究者
+4.Giorgio Grisetti、Cyrill Stachniss、Wolfram Burgard (GridMapping 算法及概率机器人一书作者)
+5.M. Montemerlo、Dirk Haehnel、Sebastian Thrun (FastSLAM创始者，理论水平和实际应用能力非常强)。参加过DARPA的智能车挑战赛，取得最好成绩。
+6.Austin Eliazar、Ronald Parr (DP-SLAM创始者,从文章到数据,程序都公开的牛人)
+http://www.cs.duke.edu/~eliazar
+http://www.cs.duke.edu/~parr
+7.以Jose Neira和Jose luis Blanco为代表的一批西班牙学者.
+8.Andrew Davison 视觉SLAM领域的权威。
+9.John Leonard 侧重于应用。目前主要在做水下SLAM的项目。参加过DARPA的智能车挑战赛。
+http://cml.mit.edu/~jleonard
+  
 ## Navigation Stack
 [Navigation Stack](https://github.com/ros-planning/navigation)  
 
