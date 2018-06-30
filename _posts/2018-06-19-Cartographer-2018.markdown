@@ -2,7 +2,7 @@
 layout:     post                    # 使用的布局（不需要改）
 title:      Cartographer         # 标题 
 subtitle:   cartographer            #副标题
-date:       2018-06-19              # 时间
+date:       2018-06-30              # 时间
 author:     BY Edlward              # 作者
 header-img: img/post-bg-2015.jpg    #这篇文章标题背景图片
 catalog: true                       # 是否归档
@@ -24,7 +24,7 @@ tags:                               #标签
 [SLAM求职经验帖](https://zhuanlan.zhihu.com/p/28565563)  
 [视觉SLAM方向找工作经历](https://www.cnblogs.com/xtl9/p/8053331.html)   
 
-书籍：
+书籍：  
 1.必读经典
 Thrun S, Burgard W, Fox D. 《Probabilistic robotics》[M]. Cambridge, USA: MIT Press, 2005
 《Principles of Robot Motion Theory，Algorithms and Implementation》  
