@@ -28,6 +28,8 @@ tags:
 [Bundle adjustment 光束平差法](https://blog.csdn.net/x_r_su/article/details/55270838)  
 [SLAM求职经验帖](https://zhuanlan.zhihu.com/p/28565563)  
 [视觉SLAM方向找工作经历](https://www.cnblogs.com/xtl9/p/8053331.html)   
+[SLAM资源收集](https://blog.csdn.net/scliu12345/article/details/50813735)  
+
 
 ### 书籍：  
 1.必读经典
