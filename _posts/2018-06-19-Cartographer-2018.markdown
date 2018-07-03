@@ -14,6 +14,7 @@ tags:
 
 ### UBUNTU
 [安装工具](http://www.upantool.com/qidong/2011/UltraISO_v9.5.0.2800.html)  
+[VNC](https://www.cnblogs.com/xuliangxing/p/7642650.html)  
 
 ### ROS
 [ROS MOOC](https://www.icourse163.org/course/ISCAS-1002580008)    
