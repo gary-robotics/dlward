@@ -1,14 +1,16 @@
 ---
-layout:     post                    # 使用的布局（不需要改）
-title:      Cartographer         # 标题 
-subtitle:   cartographer            #副标题
-date:       2018-06-30              # 时间
-author:     BY Edlward              # 作者
-header-img: img/post-bg-2015.jpg    #这篇文章标题背景图片
-catalog: true                       # 是否归档
-tags:                               #标签
+layout:     post
+title:      "Cartographer"
+subtitle:   "cartographer"
+date:       2018-07-03 12:00:00
+author:     "Edlward"
+header-img: "img/post-bg-2015.jpg"
+header-mask: 0.3
+catalog:    true
+tags:
     - cartographer
 ---
+
 ### UBUNTU
 [安装工具](http://www.upantool.com/qidong/2011/UltraISO_v9.5.0.2800.html)  
 
