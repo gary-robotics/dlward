@@ -9,15 +9,15 @@ catalog: true                       # 是否归档
 tags:                               #标签
     - cartographer
 ---
-## UBUNTU
+### UBUNTU
 [安装工具](http://www.upantool.com/qidong/2011/UltraISO_v9.5.0.2800.html)  
 
-## ROS
+### ROS
 [ROS MOOC](https://www.icourse163.org/course/ISCAS-1002580008)    
 [讲义](https://legacy.gitbook.com/book/sychaichangkun/ros-tutorial-icourse163/details)    
 [code](https://github.com/DroidAITech/ROS-Academy-for-Beginners)      
 
-## SLAM
+### SLAM
 [ORB_SLAM](https://github.com/raulmur/ORB_SLAM)  
 >Gmapping hector Cartographer  Karto SLAM  
 [Gmapping、hector、Cartographer三种激光SLAM算法简单对比](https://blog.csdn.net/jeff_lee_/article/details/77869987)  
@@ -26,7 +26,7 @@ tags:                               #标签
 [SLAM求职经验帖](https://zhuanlan.zhihu.com/p/28565563)  
 [视觉SLAM方向找工作经历](https://www.cnblogs.com/xtl9/p/8053331.html)   
 
-书籍：  
+### 书籍：  
 1.必读经典
 Thrun S, Burgard W, Fox D. 《Probabilistic robotics》[M]. Cambridge, USA: MIT Press, 2005
 《Principles of Robot Motion Theory，Algorithms and Implementation》  
@@ -42,7 +42,7 @@ Thrun S, Burgard W, Fox D. 《Probabilistic robotics》[M]. Cambridge, USA: MIT 
 6.加州伯克利的一本2D LIDAR SLAM小书
 《Loop Closure Transformation Estimation and Verification Using 2D LiDAR Scanners》
    
-公开课：  
+### 公开课：  
 1.内含大量SLAM公开课相关资料（PPT、音视频文件） 
 http://ais.informatik.uni-freiburg.de/teaching/ws15/mapping/  
 2.YouTube的Cyrill Stachniss主页（课堂讲授SLAM的视频集）
@@ -50,7 +50,7 @@ https://www.youtube.com/channel/UCi1TC2fLRvgBQNe-T4dp8Eg
 3.内含Andrew Davison的SLAM公开课资料
 http://www.doc.ic.ac.uk/~ajd/Robotics/index.html  
  
-网站：  
+### 网站：  
 1.大量优秀代码和框架，权威资料
 http://www.openslam.org/  
 2.MRPT库官方网站，有MRPT相关文档和最新下载
@@ -62,7 +62,7 @@ https://en.wikipedia.org/wiki/Simultaneous_localization_and_mapping#External_lin
 5.ROS官网  
 http://www.ros.org/
    
-博客：  
+### 博客：  
 1.半闲居士，高翔博士的博客，SLAMCN的创始人，内含大量干货（以视觉SLAM为主）
 http://www.cnblogs.com/gaoxiang12/  
 2.一个国外的路径规划算法网站（包含一些可交互演示的小工具）
@@ -75,21 +75,21 @@ http://blog.csdn.net/heyijia0327
 5.Sebastian Thrun领导的斯坦福大学机器人研究团队主页
 http://robots.stanford.edu/  
    
-会议：  
+### 会议：  
 IEEE International Conference on Robotics and Automation（ICRA）  
 IEEE/RSJ International Conference on Intelligent Robots and Systems（IROS）  
 International Symposium on Robotics Research  
 Robotics: Science and Systems Conference（RSS）  
 IEEE Conference on Computer Vision and Pattern Recognition（CVPR）  
    
-期刊：  
+### 期刊：  
 IEEE Robotics and Automation Magazine  
 IEEE Transactions on Robotics  
 International Journal of Robotics Research  
 Robotics and Autonomous Systems  
 Journal of Field Robotics  
    
-大牛：  
+### 大牛：  
 1.Sebastian Thrun（署名Thrun S，斯坦福大学）  
 2.Andrew Davison（牛津大学）  
 3.Tim Beily 及所在的 悉尼大学一些研究者  
@@ -103,10 +103,10 @@ http://www.cs.duke.edu/~parr
 9.John Leonard 侧重于应用。目前主要在做水下SLAM的项目。参加过DARPA的智能车挑战赛。  
 http://cml.mit.edu/~jleonard  
     
-## Navigation Stack
+### Navigation Stack
 [Navigation Stack](https://github.com/ros-planning/navigation)  
 
-## cartographer
+### cartographer
 [代码原始地址](https://github.com/googlecartographer/cartographer)  
 [视频讲解](https://www.youtube.com/watch?v=wVsfCnyt5jA)  
 安装教程:[hitcm](https://www.cnblogs.com/hitcm/p/5939507.html)     
@@ -120,9 +120,9 @@ http://cml.mit.edu/~jleonard
 [2D激光SLAM算法比较+cartographer](https://blog.csdn.net/hjwang1/article/details/62236432)  
 
 ![软件分析架构图](http://p3.pstatp.com/large/191800014597caf46e29)
-## IMU
+### IMU
 [MPU6050内部DMP固件移植解析，STM32获取欧拉角串口显示](https://blog.csdn.net/haha1fan/article/details/72440574)    
 [Arduino教程：MPU6050的数据获取、分析与处理](https://zhuanlan.zhihu.com/p/20082486?columnSlug=devymex)  
-## 参考资料  
+### 参考资料  
 [蓝鲸智能机器人](http://www.bwbot.org/zh-cn/)  
 [购买链接](https://item.taobao.com/item.htm?spm=0.0.0.0.4RIgI2&id=527426530377)
