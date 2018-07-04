@@ -14,3 +14,4 @@ tags:
 ### Android  
 [Android应用程序通过JNI调用驱动程序(友善Smart210)](https://blog.csdn.net/xie0812/article/details/19628109)  
 [Android 源码编译及常见错误及解决方法](https://www.cnblogs.com/kyyblabla/p/3603931.html)  
+[Ubuntu12.04 制作Smart210的编译环境](https://blog.csdn.net/kanchuan1905/article/details/51239702)
