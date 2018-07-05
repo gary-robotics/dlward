@@ -1,0 +1,14 @@
+---
+layout:     post
+title:      "数值分析"
+subtitle:   "数值分析"
+date:       2018-07-05 12:00:00
+author:     "Edlward"
+header-img: "img/post-bg-2015.jpg"
+header-mask: 0.3
+catalog:    true
+tags:
+    - 数值分析
+---
+
+### 数值分析
