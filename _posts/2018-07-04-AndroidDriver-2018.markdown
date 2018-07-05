@@ -17,3 +17,4 @@ tags:
 [Ubuntu12.04 制作Smart210的编译环境](https://blog.csdn.net/kanchuan1905/article/details/51239702)  
 [Smart210一键部署运行qt程序](https://blog.csdn.net/westlor/article/details/50481109)   
 [Qt-5.3.2 在友善Smart210开发板的移植记录](https://blog.csdn.net/newthinker_wei/article/details/39560109)
+[车载实时路况信息接收终端移植于Smart210开发板 --- 综合教程](https://blog.csdn.net/geng823/article/details/31898369)  
