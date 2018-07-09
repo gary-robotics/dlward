@@ -18,4 +18,5 @@ tags:
 [Smart210一键部署运行qt程序](https://blog.csdn.net/westlor/article/details/50481109)     
 [Qt-5.3.2 在友善Smart210开发板的移植记录](https://blog.csdn.net/newthinker_wei/article/details/39560109)  
 [车载实时路况信息接收终端移植于Smart210开发板 --- 综合教程](https://blog.csdn.net/geng823/article/details/31898369)    
-[Qt移植以及QT creator一键调试](https://blog.csdn.net/kunkliu/article/details/78740933)  
+[Qt移植以及QT creator一键调试](https://blog.csdn.net/kunkliu/article/details/78740933)   
+[关于友善之臂Tiny210电容屏移植tslib](https://blog.csdn.net/embed_coder/article/details/52156427)  
