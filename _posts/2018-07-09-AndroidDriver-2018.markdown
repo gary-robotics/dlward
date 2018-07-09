@@ -24,3 +24,8 @@ tags:
 [tiny210 tslib 测试（基于 ft5x06 触摸屏），解决触摸无效问题](https://www.cnblogs.com/GyForever1004/p/8955673.html)
 
 ### LINUX 根文件系统    
+
+
+
+### LINUX 项目   
+[基于S5pv210流媒体服务器的实现之网络摄像头](https://blog.csdn.net/liukun321/article/details/24390379)  
