@@ -22,3 +22,5 @@ tags:
 [关于友善之臂Tiny210电容屏移植tslib](https://blog.csdn.net/embed_coder/article/details/52156427)  
 [移植 Qt 至 tiny210 详细过程](http://www.cnblogs.com/GyForever1004/p/8955665.html)  
 [tiny210 tslib 测试（基于 ft5x06 触摸屏），解决触摸无效问题](https://www.cnblogs.com/GyForever1004/p/8955673.html)
+
+### LINUX 根文件系统    
