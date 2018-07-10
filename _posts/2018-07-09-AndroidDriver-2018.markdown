@@ -26,6 +26,7 @@ tags:
 ### LINUX 根文件系统    
 
 
-
+  
 ### LINUX 项目   
 [基于S5pv210流媒体服务器的实现之网络摄像头](https://blog.csdn.net/liukun321/article/details/24390379)  
+[串口编程](https://wenku.baidu.com/view/152473048e9951e79b8927cc.html)  
