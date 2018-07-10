@@ -15,7 +15,7 @@ tags:
 
 
 
-### LINUX QT  
+## LINUX QT  
 [Android应用程序通过JNI调用驱动程序(友善Smart210)](https://blog.csdn.net/xie0812/article/details/19628109)  
 [Android 源码编译及常见错误及解决方法](https://www.cnblogs.com/kyyblabla/p/3603931.html)  
 [Ubuntu12.04 制作Smart210的编译环境](https://blog.csdn.net/kanchuan1905/article/details/51239702)  
@@ -27,15 +27,15 @@ tags:
 [移植 Qt 至 tiny210 详细过程](http://www.cnblogs.com/GyForever1004/p/8955665.html)  
 [tiny210 tslib 测试（基于 ft5x06 触摸屏），解决触摸无效问题](https://www.cnblogs.com/GyForever1004/p/8955673.html)
 
-### LINUX 根文件系统    
+## LINUX 根文件系统    
 
 
-### Linux Driver
+## Linux Driver
 [linux的串口驱动分析](https://www.cnblogs.com/chd-zhangbo/p/5410336.html)  
   
-### LINUX 项目   
+## LINUX 项目   
 [基于S5pv210流媒体服务器的实现之网络摄像头](https://blog.csdn.net/liukun321/article/details/24390379)  
 [串口编程](https://wenku.baidu.com/view/152473048e9951e79b8927cc.html)  
 
-### Debug  
+## Debug  
 [Linux下CodeBlocks远程调试ARM程序环境搭建](https://blog.csdn.net/wcl719236538/article/details/52314231)  
