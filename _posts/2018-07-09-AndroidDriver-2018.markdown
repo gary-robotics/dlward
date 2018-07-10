@@ -26,6 +26,8 @@ tags:
 ### LINUX 根文件系统    
 
 
+### Linux Driver
+[linux的串口驱动分析](https://www.cnblogs.com/chd-zhangbo/p/5410336.html)  
   
 ### LINUX 项目   
 [基于S5pv210流媒体服务器的实现之网络摄像头](https://blog.csdn.net/liukun321/article/details/24390379)  
