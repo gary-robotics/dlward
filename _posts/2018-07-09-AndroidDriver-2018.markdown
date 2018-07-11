@@ -11,6 +11,10 @@ tags:
     - android
 ---
 
+# OPENCV 
+[OpenCV移植到ARM全过程-III](https://blog.csdn.net/kaychangeek/article/details/78552418)  
+
+
 # Android Driver  
 
 
