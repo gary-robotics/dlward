@@ -15,8 +15,10 @@ tags:
 ### UBUNTU
 [安装工具](http://www.upantool.com/qidong/2011/UltraISO_v9.5.0.2800.html)  
 [VNC](https://www.cnblogs.com/xuliangxing/p/7642650.html)    
+
 ### OPENCV  
 [根据相机旋转矩阵求解三个轴的旋转角/欧拉角/姿态角](http://www.cnblogs.com/singlex/p/RotateMatrix2Euler.html)
+[旋转矩阵（Rotation Matrix）的推导及其应用](https://www.cnblogs.com/meteoric_cry/p/7987548.html)  
 
 ### ROS
 [ROS MOOC](https://www.icourse163.org/course/ISCAS-1002580008)    
