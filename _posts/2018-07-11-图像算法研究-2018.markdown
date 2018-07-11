@@ -1,0 +1,15 @@
+---
+layout:     post
+title:      "图像算法研究"
+subtitle:   "图像算法研究"
+date:       2018-07-11 12:00:00
+author:     "Edlward"
+header-img: "img/post-bg-2015.jpg"
+header-mask: 0.3
+catalog:    true
+tags:
+    - 图像算法研究
+---
+
+
+# C-COT
