@@ -13,7 +13,7 @@ tags:
 
 # OPENCV 
 [OpenCV移植到ARM全过程-III](https://blog.csdn.net/kaychangeek/article/details/78552418)  
-
+[tiny4412移植opencv2.4.7手记](https://blog.csdn.net/u010606097/article/details/41316271)    
 
 # Android Driver  
 
