@@ -10,6 +10,8 @@ catalog:    true
 tags:
     - android
 ---
+# 路线
+[如何选择单片机和Android-LInux-ARM开发板？](https://www.zhihu.com/question/41812528)  
 
 # OPENCV 
 [OpenCV移植到ARM全过程-III](https://blog.csdn.net/kaychangeek/article/details/78552418)  
