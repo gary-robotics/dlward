@@ -15,3 +15,4 @@ tags:
 [矩阵特征值](https://www.zhihu.com/question/21874816/answer/181864044)  
 [向量和矩阵的各种范数比较（1范数、2范数、无穷范数等等）](https://blog.csdn.net/Michael__Corleone/article/details/75213123)  
 [向量卷积与多项式乘法](https://www.cnblogs.com/larch18/p/4569495.html)  
+[我对卷积的理解](http://mengqi92.github.io/2015/10/06/convolution/)  
