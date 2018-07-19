@@ -2,7 +2,7 @@
 layout:     post
 title:      "AndroidDriver"
 subtitle:   "android"
-date:       2018-07-09 12:00:00
+date:       2018-07-19 12:00:00
 author:     "Edlward"
 header-img: "img/post-bg-2015.jpg"
 header-mask: 0.3
@@ -19,6 +19,9 @@ tags:
 [tiny4412移植opencv2.4.7手记](https://blog.csdn.net/u010606097/article/details/41316271)    
 [OpenCV结合V4l2实现人脸检测](https://blog.csdn.net/wr132/article/details/54564044)  
 [V4l编程以及Qt相关应用](https://blog.csdn.net/wr132/article/details/54348465)  
+
+# Camera
+[S5PV210 camera 驱动分析（android）](https://blog.csdn.net/liuying_0408/article/details/7532470)  
 
 # Android Driver  
 
