@@ -24,7 +24,9 @@ tags:
 [S5PV210 camera 驱动分析（android）](https://blog.csdn.net/liuying_0408/article/details/7532470)  
 
 # Android Driver  
-
+[ARM Tiny210v2开发板Android系统读写串口设备](https://blog.csdn.net/chenxupro/article/details/12249641)  
+[FriendlyARM Tiny210v2 SPI接口Android平台测试](https://blog.csdn.net/chenxupro/article/details/8746544)  
+[哇咔咔！用Android手机控制电脑](https://blog.csdn.net/chenxupro/article/details/7225530)  
 
 
 ## LINUX QT  
