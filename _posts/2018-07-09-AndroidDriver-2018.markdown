@@ -51,6 +51,7 @@ tags:
 [OK210-uvc摄像头采集并显示在屏幕上（v4l2编程）](https://blog.csdn.net/kevin_mr/article/details/51470215)  
 [Linux 下V4l2摄像头采集图片，实现yuyv转RGB,RGB转BMP，RGB伸缩，jpeglib 库实现压缩RGB到内存中，JPEG经UDP发送功](https://blog.csdn.net/xuyangwyw/article/details/40476653)  
 [设备模型(device-model)之平台总线（bus），驱动（driver），设备（device）](http://www.cnblogs.com/hackfun/p/5951235.html)  
+[基于Linux3.0.8+smart210的DS18B20驱动移植](https://blog.csdn.net/gz_go/article/details/45952879)  
 
 ## LINUX 项目   
 [基于S5pv210流媒体服务器的实现之网络摄像头](https://blog.csdn.net/liukun321/article/details/24390379)  
