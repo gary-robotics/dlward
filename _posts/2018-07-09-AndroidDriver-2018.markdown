@@ -27,6 +27,7 @@ tags:
 [ARM Tiny210v2开发板Android系统读写串口设备](https://blog.csdn.net/chenxupro/article/details/12249641)  
 [FriendlyARM Tiny210v2 SPI接口Android平台测试](https://blog.csdn.net/chenxupro/article/details/8746544)  
 [哇咔咔！用Android手机控制电脑](https://blog.csdn.net/chenxupro/article/details/7225530)  
+[和菜鸟一起学android4.0.3源码之wifi的简单分析](https://blog.csdn.net/andrinux/article/details/38418243)  
 
 
 ## LINUX QT  
