@@ -61,3 +61,24 @@ tags:
 
 ## Debug  
 [Linux下CodeBlocks远程调试ARM程序环境搭建](https://blog.csdn.net/wcl719236538/article/details/52314231)  
+
+## GHOTO
+[windows+Ubuntu双系统引导修复（终极版）](https://blog.csdn.net/lhj_168/article/details/75212421)  
+[你必须安装libtool和autopoint：](https://sourceforge.net/p/gphoto/mailman/message/11167978/)  
+
+sudo apt-get install autoreconf
+
+sudo apt-get update
+sudo apt-get install libtool autopoint
+
+如果你不能只用你的安装libpopt-dev或popt-devel包
+系统的标准包机制，手动安装到一些前缀
+然后设置
+
+   POPT_CFLAGS = 3D-I $ {PREFIX} /包括
+   POPT_LIBS = 3D“-L $ {prefix} / lib -lpopt”
+
+在运行gphoto2的配置之前。
+
+但是，只需从您的安装适当的popt开发包
+分配是推荐的方式。
