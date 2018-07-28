@@ -82,3 +82,5 @@ sudo apt-get install libtool autopoint
 
 但是，只需从您的安装适当的popt开发包
 分配是推荐的方式。
+
+[linux下USB数据包分析(usbmon + wireshark)](http://www.lnsign.com/2018/03/06/usb-packet-capture-usbmon-wireshark/)  
