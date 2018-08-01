@@ -28,6 +28,8 @@ tags:
 [FriendlyARM Tiny210v2 SPI接口Android平台测试](https://blog.csdn.net/chenxupro/article/details/8746544)  
 [哇咔咔！用Android手机控制电脑](https://blog.csdn.net/chenxupro/article/details/7225530)  
 [和菜鸟一起学android4.0.3源码之wifi的简单分析](https://blog.csdn.net/andrinux/article/details/38418243)  
+[Android驱动（一）硬件访问服务学习之（一）Android通过JNI访问硬件](https://blog.csdn.net/fengyuwuzu0519/article/details/55224423)  
+
 
 
 ## LINUX QT  
