@@ -57,6 +57,7 @@ tags:
 [设备模型(device-model)之平台总线（bus），驱动（driver），设备（device）](http://www.cnblogs.com/hackfun/p/5951235.html)  
 [基于Linux3.0.8+smart210的DS18B20驱动移植](https://blog.csdn.net/gz_go/article/details/45952879)  
 [Smart210学习-----lcd驱动](https://www.cnblogs.com/qigaohua/p/5469192.html)  
+[移植tiny210的 触摸屏驱动](https://blog.csdn.net/u014600130/article/details/35268873)  
 
 
 ## LINUX 项目   
