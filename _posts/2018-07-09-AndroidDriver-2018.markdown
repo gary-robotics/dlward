@@ -14,6 +14,7 @@ tags:
 [如何选择单片机和Android-LInux-ARM开发板？](https://www.zhihu.com/question/41812528)  
 [嵌入式开发职业课程](http://www.makeru.com.cn/roadmap/emb)   
 
+
 # OPENCV 
 [OpenCV移植到ARM全过程-III](https://blog.csdn.net/kaychangeek/article/details/78552418)  
 [tiny4412移植opencv2.4.7手记](https://blog.csdn.net/u010606097/article/details/41316271)    
@@ -64,6 +65,8 @@ tags:
 [基于S5pv210流媒体服务器的实现之网络摄像头](https://blog.csdn.net/liukun321/article/details/24390379)  
 [串口编程](https://wenku.baidu.com/view/152473048e9951e79b8927cc.html)  
 [ARM（s5pv210）采用V4L2采集USB摄像头图像，送入OPENCV做图像识别，然后经过h264硬件编码后经过ORTP编码通过wifi传输到PC端，在vlc媒体播放器实时播放视频-ARM（s5pv210）使用V4L2 USB相机图像捕获，图像识别](http://www.codeforge.cn/article/303362/)   
+[远程视频监控之应用篇（mjpg-streamer）](https://www.cnblogs.com/wanghuaijun/p/8098460.html)  
+
 
 ## Debug  
 [Linux下CodeBlocks远程调试ARM程序环境搭建](https://blog.csdn.net/wcl719236538/article/details/52314231)  
