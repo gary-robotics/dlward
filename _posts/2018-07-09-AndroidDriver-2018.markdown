@@ -73,6 +73,7 @@ tags:
 
 ## GHOTO
 [windows+Ubuntu双系统引导修复（终极版）](https://blog.csdn.net/lhj_168/article/details/75212421)  
+[Tiny210移植mjpeg-streamer](https://www.linuxidc.com/Linux/2015-05/116962.htm)  
 [你必须安装libtool和autopoint：](https://sourceforge.net/p/gphoto/mailman/message/11167978/)  
 
 sudo apt-get install autoreconf
