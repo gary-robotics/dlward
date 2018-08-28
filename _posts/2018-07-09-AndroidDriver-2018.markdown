@@ -13,6 +13,7 @@ tags:
 # 路线
 [如何选择单片机和Android-LInux-ARM开发板？](https://www.zhihu.com/question/41812528)  
 [嵌入式开发职业课程](http://www.makeru.com.cn/roadmap/emb)   
+[LTE](https://cn0xroot.com/2018/06/15/sdr-developer-guild-part-1/)   
 
 
 # OPENCV 
