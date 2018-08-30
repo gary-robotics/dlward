@@ -99,7 +99,7 @@ sudo apt-get install libtool autopoint
 ## 摄像头
 [USB摄像头(V4L2接口)的图片采集](https://www.cnblogs.com/surpassal/archive/2012/12/19/zed_webcam_lab1.html)  
 [嵌入式Linux驱动笔记(十八)------浅析V4L2框架之ioctl](https://blog.csdn.net/guet_kite/article/details/78574781) 
-(详解V4L2框架(UVC驱动))[https://blog.csdn.net/Guet_Kite/article/details/78570059]  
+[详解V4L2框架(UVC驱动)](https://blog.csdn.net/Guet_Kite/article/details/78570059)  
 
 ## I2C
 
