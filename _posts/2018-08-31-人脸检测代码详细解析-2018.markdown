@@ -1,0 +1,314 @@
+---
+layout:     post
+title:      "人脸检测代码详细解析"
+subtitle:   "opencv"
+date:       2018-08-31 12:00:00
+author:     "Edlward"
+header-img: "img/post-bg-2015.jpg"
+header-mask: 0.3
+catalog:    true
+tags:
+    - android
+---
+# 分析
+[code](https://blog.csdn.net/u012906122/article/details/26847447)  
+
+```
+#include "widget.h"
+#include "ui_widget.h"
+#include <QtGui>
+ 
+ 
+#ifndef PROPERTY
+#define PROPERTY
+ 
+ 
+#define image_width 320 								//图片显示宽度
+#define image_height 240    								//图片显示高度
+#define image_Format QImage::Format_RGB888 						//图片显示格式
+#define cameraDevice "/dev/video3"  							//摄像头设备
+#define haarXML "./data/haarcascade_frontalface_alt2.xml"   				//人脸正脸模型级联分类器文件
+#define haarXML_profile "./data/haarcascade_profileface.xml"   				//人脸侧脸模型级联分类器文件
+#define imgSizeScaleSmall 0.7    							//图像放缩比例
+#define imgSizeScaleBig 2    								//图像放缩比例 
+ 
+ 
+#endif  //PROPERTY
+ 
+ 
+Widget::Widget(QWidget *parent) :
+    QWidget(parent),
+    ui(new Ui::Widget)
+{
+    ui->setupUi(this);
+ 
+ 
+    imgBuf = (unsigned char *)malloc(image_width * image_height* 3 * sizeof(char));		//申请图片总空间，共image_width * image_height个像素，一个像素RGB三个字节
+    frame = new QImage(imgBuf,image_width,image_height,image_Format);   			//根据存储空间imgBuf开辟QImage图像
+    m_camera = new VideoDevice(tr(cameraDevice));  						//创建摄像头设备，tr("string")
+    connect(m_camera, SIGNAL(display_error(QString)), this,SLOT(display_error(QString)));	//QT的信号和槽机制
+ 
+    camReturn = m_camera->open_device();   							//打开摄像头     
+    if(-1==camReturn)										//出错处理
+    {
+        QMessageBox::warning(this,tr("error"),tr("open /dev/dsp error"),QMessageBox::Yes);
+        m_camera->close_device();
+    }
+    camReturn = m_camera->init_device();    							//初始化摄像头
+    if(-1==camReturn)
+    {
+        QMessageBox::warning(this,tr("error"),tr("init failed"),QMessageBox::Yes);
+        m_camera->close_device();
+    }
+    camReturn = m_camera->start_capturing();    						//摄像头开始捕获图像  
+    if(-1==camReturn)
+    {
+        QMessageBox::warning(this,tr("error"),tr("start capture failed"),QMessageBox::Yes);
+        m_camera->close_device();
+    }
+    if(-1==camReturn)
+    {
+        QMessageBox::warning(this,tr("error"),tr("get frame failed"),QMessageBox::Yes);
+        m_camera->stop_capturing();
+    }
+    											
+    timer = new QTimer(this);								//设定时间间隔，对图像界面进行刷新
+    connect(timer,SIGNAL(timeout()),this,SLOT(update()));   				//即每隔30ms重新绘制图像界面，update()触发paintEvent()???
+    timer->start(30);									//设置定时器每30毫秒发送一个timeout()信号
+ 
+ 
+    // Storage for the rectangles detected
+    cascadeFile = haarXML;								//级联分类器文件								
+    cascade = (CvHaarClassifierCascade *) cvLoad(cascadeFile.toUtf8());			//从指定的文件目录中加载级联分类器文件
+    
+    cascadeFile_profile = haarXML_profile;						//级联分类器文件								
+    cascade_profile = (CvHaarClassifierCascade *) cvLoad(cascadeFile_profile.toUtf8());	//从指定的文件目录中加载级联分类器文件
+    
+    m_FaceCount = 0;									//记录检测到的人脸序列长度								
+    storage = cvCreateMemStorage(0);							//创建一个内存存储器,参数为0时内存块默认大小为64k
+}
+ 
+ 
+Widget::~Widget()									//析构函数
+{
+    delete ui;
+}
+ 
+ 
+void Widget::changeEvent(QEvent *e)
+{
+    QWidget::changeEvent(e);
+    switch (e->type()) 
+    {
+    case QEvent::LanguageChange:
+        ui->retranslateUi(this);							//语言方面的重翻译
+        break;
+    default:
+        break;
+    }
+}
+ 
+ 
+void Widget::paintEvent(QPaintEvent *)
+{
+    uchar * pImgBuf;
+    unsigned int len;
+    camReturn = m_camera->get_frame((void **)&pImgBuf,&len);				//摄像头开始取帧图像,摄像头取回来的帧是YUV格式,将取回帧图像的起始地址给pImgBuf，帧长度给len
+    convert_yuv_to_rgb_buffer(pImgBuf,imgBuf,image_width,image_height);			//将YUV格式转换成RGB格式
+    frame->loadFromData((uchar *)imgBuf,image_width * image_height * 3 * sizeof(char));	//将存储空间imgBuf的大小为~的内容加载到frame中，frame是QImage类型指针  
+   
+    //为什么QImage图像要转换为IplImage图像？？？！！！
+    //因为后面处理压缩，放大的函数处理的是IplImage图像
+    IplImage* src = QImageToIplImage(frame);						//将QImage图像转换为IplImage图像
+    if (!src)
+    {
+        printf("img error!");
+        return;
+    }
+    
+    //更改图像大小（后期对人脸检测时间控制会有很大帮助）
+    //压缩图像大小，提升人脸检测的速度
+    double sizeScale = imgSizeScaleSmall;						//0.7
+    CvSize img_cvsize;									//CvSize数据结构，表示矩阵框大小，以像素为精度
+    img_cvsize.width = src->width * sizeScale;						//压缩图像宽度
+    img_cvsize.height = src->height * sizeScale;					//压缩图像高度
+    IplImage* dst = cvCreateImage(img_cvsize, src->depth, src->nChannels);		//创建首地址dst并分配存储空间
+    cvResize(src, dst, CV_INTER_LINEAR);						//函数cvResize 重新调整图像src，使它精确匹配目标dst，双线性插值（默认）
+    detect_and_draw(dst);   								//调用人脸检测函数，传入的是IplImage图像类型
+ 
+ 
+    //更改图像大小，清晰度会下降
+    //恢复原图像大小，但图像分辨率有所下降，图像较原始图像模糊 				
+    sizeScale = imgSizeScaleBig;							//2,这样一来实际是放大1.4倍？？？
+    img_cvsize.width = dst->width * sizeScale;
+    img_cvsize.height = dst->height * sizeScale;
+    IplImage* img = cvCreateImage(img_cvsize, dst->depth, dst->nChannels);		//创建首地址img并分配存储空间
+    cvResize(dst, img, CV_INTER_LINEAR);						//函数cvResize 重新调整图像dst，使它精确匹配目标img，双线性插值（默认）
+ 
+ 
+    QImage qimage = QImage((uchar *)img->imageData,img->width,img->height,image_Format);//根据压缩放大后的img->imageData创建QImage图像
+    
+    //IplImage为BGR格式，QImage为RGB格式，所以要交换B和R通道显示才正常  
+    //可以用OpenCV的cvConcertImage函数交换，也可以用QImage的rgbSwapped函数交换
+    qimage = qimage.rgbSwapped();							//又将IplImage图像转化为QImage图像，用作显示
+    ui->m_imgLabel->setPixmap(QPixmap::fromImage(qimage));				//将QImage转换为QPixmap,QImage是设计并优化来为 I/O操作的,可以直接访问和操作像素,而QPixmap是设计并优化来在屏幕上显示图片的
+    camReturn = m_camera->unget_frame();						//摄像头停止取帧
+ 
+ 
+    cvReleaseImage(&img);   								//释放图片内存，cvReleaseImage(&dst) ?????
+    cvReleaseImage(&src);
+}
+ 
+ 
+void Widget::display_error(QString err)
+{
+    QMessageBox::warning(this,tr("error"), err,QMessageBox::Yes);
+}
+ 
+ 
+/*yuv格式转换为rgb格式*/
+int Widget::convert_yuv_to_rgb_buffer(unsigned char *yuv, unsigned char *rgb, unsigned int width, unsigned int height)
+{
+	unsigned int in, out = 0;
+	unsigned int pixel_16;
+	unsigned char pixel_24[3];
+	unsigned int pixel32;
+	int y0, u, y1, v;
+	for(in = 0; in < width * height * 2; in += 4)
+	 {
+		pixel_16 =
+		yuv[in + 3] << 24 |
+		yuv[in + 2] << 16 |
+		yuv[in + 1] <<  8 |
+		yuv[in + 0];
+		y0 = (pixel_16 & 0x000000ff);
+		u  = (pixel_16 & 0x0000ff00) >>  8;
+		y1 = (pixel_16 & 0x00ff0000) >> 16;
+		v  = (pixel_16 & 0xff000000) >> 24;
+		pixel32 = convert_yuv_to_rgb_pixel(y0, u, v);				//这里用到convert_yuv_to_rgb_pixel
+		pixel_24[0] = (pixel32 & 0x000000ff);
+		pixel_24[1] = (pixel32 & 0x0000ff00) >> 8;
+		pixel_24[2] = (pixel32 & 0x00ff0000) >> 16;
+		rgb[out++] = pixel_24[0];
+		rgb[out++] = pixel_24[1];
+		rgb[out++] = pixel_24[2];
+		pixel32 = convert_yuv_to_rgb_pixel(y1, u, v);				//这里用到convert_yuv_to_rgb_pixel
+		pixel_24[0] = (pixel32 & 0x000000ff);
+		pixel_24[1] = (pixel32 & 0x0000ff00) >> 8;
+		pixel_24[2] = (pixel32 & 0x00ff0000) >> 16;
+		rgb[out++] = pixel_24[0];
+		rgb[out++] = pixel_24[1];
+		rgb[out++] = pixel_24[2];
+	}
+	return 0;
+	}
+/*yuv格式转换为rgb格式子函数*/	
+int Widget::convert_yuv_to_rgb_pixel(int y, int u, int v)
+{
+	unsigned int pixel32 = 0;
+	unsigned char *pixel = (unsigned char *)&pixel32;
+	int r, g, b;
+	r = y + (1.370705 * (v-128));
+	g = y - (0.698001 * (v-128)) - (0.337633 * (u-128));
+	b = y + (1.732446 * (u-128));
+	if(r > 255) r = 255;
+	if(g > 255) g = 255;
+	if(b > 255) b = 255;
+	if(r < 0) r = 0;
+	if(g < 0) g = 0;
+	if(b < 0) b = 0;
+	pixel[0] = r * 220 / 256;
+	pixel[1] = g * 220 / 256;
+	pixel[2] = b * 220 / 256;
+	return pixel32;
+}
+ 
+ 
+//QImage图像转换为IplImage图像
+IplImage* Widget::QImageToIplImage(const QImage * qImage)
+{
+    int width = qImage->width();
+    int height = qImage->height();
+    CvSize Size;										//表示矩阵框大小，以像素为精度
+    Size.height = height;									//传递了qImage的高和宽
+    Size.width = width;
+    IplImage *IplImageBuffer = cvCreateImage(Size, IPL_DEPTH_8U, 3);				//创建首地址并分配存储空间cvCreateImage( CvSize size, int depth, int channels )								
+    for (int y = 0; y < height; ++y)								//复制像素
+    {
+        for (int x = 0; x < width; ++x)
+        {
+            QRgb rgb = qImage->pixel(x, y);							//取qImage的像素点
+            cvSet2D(IplImageBuffer, y, x, CV_RGB(qRed(rgb), qGreen(rgb), qBlue(rgb)));		//彩色，在空间为IplImageBuffer的y行x列画彩色点
+            											//灰色的可否？
+        }
+    }
+    return IplImageBuffer;
+}
+ 
+ 
+//接着就是对其进行人脸检测处理。
+//人脸检测函数  
+void Widget::detect_and_draw(IplImage *img)
+{
+        static CvScalar colors[] =							//用来存放4个double数值的数组，一般用来存放像素值，最多可以存放4个通道的
+    {
+        {{0,0,255}},			//蓝
+        {{0,128,255}},				
+        {{0,255,255}},			//浅蓝
+        {{0,255,0}},			//绿
+        {{255,128,0}},			
+        {{255,255,0}},			//黄	
+        {{255,0,0}},			//红
+        {{255,0,255}}			//紫
+    };											//RGB,表示八种不同的颜色
+    
+    double scale = 2.0;									//此变量关系到人脸检测的范围精度												
+    IplImage* gray = cvCreateImage( cvSize(img->width,img->height), 8, 1 );		//建立一个空的灰度图，通道为1表示灰度图，深度为8		
+    IplImage* small_img = cvCreateImage( cvSize( cvRound (img->width/scale),		//将图片缩小，加快检测速度，cvRound对一个double型的数进行四舍五入，并返回一个整型数
+                cvRound (img->height/scale)), 8, 1 );					//建立一个空的缩小的灰度图
+    int i;										//写的不好！！！！！！！
+    											//因为用的是类haar特征，所以都是基于灰度图像的，这里要转换成灰度图像
+    cvCvtColor( img, gray, CV_BGR2GRAY );						//图像转换 BGR格式（IplImage的图像格式）转为灰度图
+    cvResize( gray, small_img, CV_INTER_LINEAR );					//将尺寸缩小到1/scale,用双线性插值
+    cvEqualizeHist( small_img, small_img );						//使灰度图象直方图均衡化，图像对比度增强(src,dst)
+    cvClearMemStorage( storage );							//新建一块存储区，以备后用
+ 
+ 
+    if( cascade )									//若找到级联分类器
+    {
+        double t = (double)cvGetTickCount();						//用来计算算法执行时间
+        
+        //检测人脸
+ 	//cvHaarDetectObjects函数中faces表示检测到的人脸目标序列，small_img表示的是要检测的输入图像为small_img，
+ 	//storage 用来存储检测到的一序列候选目标矩形框的内存区域，1.2搜索窗口的比例系数，表示将搜索窗口依次扩大20%
+ 	//2构成检测目标的相邻矩形的最小个数，表示每一个目标至少要被检测到3次才算是真的目标(因为周围的像素和不同的窗口大
+ 	//小都可以检测到人脸)，cvSize(30, 30)为检测窗口的最小尺寸	
+        CvSeq* faces = cvHaarDetectObjects( small_img, cascade, storage,		//序列CvSeq 
+                        1.2, 2, 0, cvSize(30, 30) );					//??????????CV_HAAR_DO_CANNY_PRUNING????cvSize(30, 30)
+        //为了能对视频图像进行更快的实时检测，参数设置通常是：
+	//scale_factor=1.2, min_neighbors=2, flags=CV_HAAR_DO_CANNY_PRUNING, min_size=<minimum possible face size>                
+        t = (double)cvGetTickCount() - t;						//相减为算法执行的时间
+        printf( "detection time = %gms\n", t/((double)cvGetTickFrequency()*1000.) );	//检测时间（ms）
+ 
+ 
+        for( i = 0; i < (faces ? faces->total : 0); i++ )
+        {
+            CvRect* r = (CvRect*)cvGetSeqElem( faces, i );				//返回索引指定的元素指针,seq是需要检测的序列，index是元素在序列中的索引
+            CvPoint rectP1, rectP2;
+            rectP1.x = cvRound(r->x * scale);						//还原成原来的大小
+            rectP1.y = cvRound(r->y * scale);
+            rectP2.x = cvRound((r->x + r->width) * scale);
+            rectP2.y = cvRound((r->y + r->height) * scale);
+            cvRectangle(img, rectP1, rectP2, colors[i%8], 3, 8, 0);			//人脸检测方框,通过对角线上的两个顶点绘制矩形
+        }
+            m_FaceCount = faces->total;							//人脸目标序列总长
+    }
+ 
+ 
+    cvReleaseImage( &gray );
+    cvReleaseImage( &small_img );
+}
+
+
+
+```
