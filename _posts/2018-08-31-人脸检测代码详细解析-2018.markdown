@@ -16,6 +16,8 @@ tags:
 [嵌入式Linux驱动笔记(十七)------详解V4L2框架(UVC驱动)](https://blog.csdn.net/Guet_Kite/article/details/78570059)  
 [USB摄像头(V4L2接口)的图片采集](https://www.cnblogs.com/surpassal/archive/2012/12/19/zed_webcam_lab1.html)  
 [V4L2](https://wenku.baidu.com/view/cb8559a0856a561252d36fe9.html)  
+[s5pv210 HDMI 显示实现](https://blog.csdn.net/liujia2100/article/details/21788667)  
+[fimc0硬件格式转换处理usb camera图像数据](https://blog.csdn.net/liujia2100/article/details/21260783)  
 
 ```
 #include "widget.h"
