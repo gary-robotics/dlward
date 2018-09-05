@@ -19,8 +19,8 @@ tags:
 [s5pv210 HDMI 显示实现](https://blog.csdn.net/liujia2100/article/details/21788667)  
 [fimc0硬件格式转换处理usb camera图像数据](https://blog.csdn.net/liujia2100/article/details/21260783)  
 [4412 fimc to hdmi](https://blog.csdn.net/liujia2100/article/details/44207661)  
-
-
+[车牌识别--S5PV210测试](https://blog.csdn.net/liujia2100/article/details/27587819)  
+ 
 ```
 #include "widget.h"
 #include "ui_widget.h"
