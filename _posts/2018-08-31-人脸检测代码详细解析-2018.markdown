@@ -18,6 +18,8 @@ tags:
 [V4L2](https://wenku.baidu.com/view/cb8559a0856a561252d36fe9.html)  
 [s5pv210 HDMI 显示实现](https://blog.csdn.net/liujia2100/article/details/21788667)  
 [fimc0硬件格式转换处理usb camera图像数据](https://blog.csdn.net/liujia2100/article/details/21260783)  
+[4412 fimc to hdmi](https://blog.csdn.net/liujia2100/article/details/44207661)  
+
 
 ```
 #include "widget.h"
