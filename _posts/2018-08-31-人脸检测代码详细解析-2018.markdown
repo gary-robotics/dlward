@@ -21,7 +21,7 @@ tags:
 [4412 fimc to hdmi](https://blog.csdn.net/liujia2100/article/details/44207661)  
 [车牌识别--S5PV210测试](https://blog.csdn.net/liujia2100/article/details/27587819)  
 [QT](https://blog.csdn.net/mars_xiaolei/article/details/79424315)  
-
+[嵌入式Linux驱动笔记(十)------通俗易懂式分析了解i2c框架](https://blog.csdn.net/Guet_Kite/article/details/77885668)  
 
 
 ```
