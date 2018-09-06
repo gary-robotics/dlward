@@ -77,10 +77,15 @@ tags:
 [Tiny210移植mjpeg-streamer](https://www.linuxidc.com/Linux/2015-05/116962.htm)  
 [你必须安装libtool和autopoint：](https://sourceforge.net/p/gphoto/mailman/message/11167978/)  
 
-sudo apt-get install autoreconf
+sudo apt-get install autoreconf  
+sudo apt-get update  
+sudo apt-get install libtool autopoint  
+sudo apt-get install libpopt-dev  
+autoreconf -is  
+./configure
+make   
+make install  
 
-sudo apt-get update
-sudo apt-get install libtool autopoint
 
 如果你不能只用你的安装libpopt-dev或popt-devel包
 系统的标准包机制，手动安装到一些前缀
