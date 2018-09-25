@@ -20,3 +20,4 @@ tags:                               #标签
 [复数的指数形式的证明](https://wenku.baidu.com/view/7f3028c30c22590102029d34.html)  
 [连载14：复指数信号的物理意义-旋转向量](https://wenku.baidu.com/view/45112d290722192e4536f610.html)  
 [正交信号：复数,但不复杂[中译版本]](https://wenku.baidu.com/view/3b645627f12d2af90242e6c1.html)  
+[傅里叶变换__经典ppt](https://wenku.baidu.com/view/274c61c3aa00b52acfc7ca8d.html)  
