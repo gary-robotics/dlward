@@ -10,4 +10,4 @@ tags:                               #标签
     - BMS
 ---
 
-[浅析锂电池保护板（BMS）系统设计思路](https://www.codetd.com/article/981405)  
+[浅析锂电池保护板（BMS）系统设计思路](https://www.cnblogs.com/han-bing/p/9045812.html)  
