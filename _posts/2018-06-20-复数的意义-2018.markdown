@@ -21,7 +21,8 @@ tags:                               #标签
 [连载14：复指数信号的物理意义-旋转向量](https://wenku.baidu.com/view/45112d290722192e4536f610.html)  
 [正交信号：复数,但不复杂[中译版本]](https://wenku.baidu.com/view/3b645627f12d2af90242e6c1.html)  
 [傅里叶变换__经典ppt](https://wenku.baidu.com/view/274c61c3aa00b52acfc7ca8d.html)  
-
+[科学家和工程师的数字信号处理指南作者：Steven W. Smith，博士。](http://www.dspguide.com/pdfbook.htm)  
+[理解离散傅立叶变换（三.复数）](https://blog.csdn.net/dznlong/article/list/2)  
 
 ```
 x=linspace(0,2*pi,1000);
