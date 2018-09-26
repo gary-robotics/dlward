@@ -1,0 +1,133 @@
+---
+layout:     post                    # 使用的布局（不需要改）
+title:      Kalman Filter                # 标题 
+subtitle:    第一篇                  #副标题
+date:       2018-06-04              # 时间
+author:     BY Edlward              # 作者
+header-img: img/post-bg-2015.jpg    #这篇文章标题背景图片
+catalog: true                       # 是否归档
+tags:                               #标签
+    - KalmanFilter
+---
+
+```
+卡尔曼滤波算法及C语言实现
+摘要：本文着重讨论了卡尔曼滤波器的原理，典型算法以及应用领域。清晰地阐述了kalman filter在信息估计方面的最优性能。着重介绍简单kalman filter algorithm的编程，使用kalman filter的经典5个体现最优化递归公式来编程。通过c语言编写程序实现kalman filter的最优估计能力。
+关键词：kalman filter；最优估计；C语言
+1 引言
+Kalman Filter是一个高效的递归滤波器，它可以实现从一系列的噪声测量中，估计动态系统的状态。起源于Rudolf Emil Kalman在1960年的博士论文和发表的论文《A New Approach to Linear Eiltering and Prediction Problems》（《线性滤波与预测问题的新方法》）。并且最先在阿波罗登月计划轨迹预测上应用成功，此后kalman filter取得重大发展和完善。它的广泛应用已经超过30年，包括机器人导航，控制。传感器数据融合甚至在军事方面的雷达系统以及导弹追踪等等，近年来更被广泛应用于计算机图像处理，例如头脸识别，图像分割，图像边缘检测等等。
+2 kalman filter最优化递归估计
+Kalman filter是一个“optimal recursive data processing algorithm（最优化递归数据处理方法）”。对于解决很大部分的问题，他是最优，效率最高甚至是最有用的方法。而kalman filter最为核心的内容是体现它最优化估计和递归特点的5条公式。举一个例子来详细说明5条公式的物理意义。
+假设我们要研究的对象是某一个房间的温度信号。对于室温来说，一分钟内或一小段时间内的值是基本上不变的或者变化范围很小。也就是说 时刻的温度 和 时刻的温度 基本不变，即 。在这个过程中，因为毕竟温度还是有所改变的，设有几度的偏差。我们把这几度的偏差看成是高斯白噪声 ，也就是说 ， 。除此之外我们在用一个温度计来实时测量房间的温度值 ，但由于量具本身的误差，所测得的温度值也是不准确的，也会和实际值偏差几度，把这几度的偏差看成是测量噪声 。即满足 ， 。
+此时我们对于这个房间的温度就得到了两个数据。一个是你根据经验得到的经验值 ，一个是从温度计上得到的测量值 ，以及各自引入的高斯白噪声。下面就具体讲解kalman filter来估计房间温度的原理与步骤。
+要估计K时刻的实际温度值，首先要根据K-1时刻的温度值预测K时刻的温度，按照之前我们讨论的 ，若k-1时刻的温度值是 ，那么预测此时的 ，假如该值的噪声是 ，5°是这样得到的，若果k-1时刻估算出的最优温度值的噪声是 ，预测的噪声是 ，所以总体的噪声为 。此时再从温度计上得到K时刻的温度值为 ，设该测量值的噪声是 。
+现在发现问题了，在k时刻我们就有了两个温度值 和 ，要信那个呢，简单的求平均已经不能满足精度的要求了。我们可以用他们的协方差covariance来判断。协方差本身就能体现两个信号的相关性，通过它就能判断到底真值更逼近于预测值还是测量值。引入kalman gain（ ），有公式计算 ，
+        ……（1）
+所以 =0.78。我们可以估算出K时刻的实际温度值是，
+    ……（2）
+可以看出这个值接近于温度计测量到的值，所以估算出的最优温度值偏向温度计的值。
+这时我们已经得到了K时刻的最优温度值，接下来估计K+1时刻的最优温度值。既然kalman filter是一个最优化的递归处理方法，那么递归就体现在该算法的一个核心参数 上，由公式（1） 的算法可知每次计算时的 是不一样的。这样我们要估计K+1时刻的最优温度值，就得先算出K时刻的 ，然后才能利用公式（2）估计K+1时刻的最优温度值。由此可以看出我们只需知道初始时刻的值和它所对应的协方差以及测量值，就可以进行kalman估计了。
+3 Kalman Filter Algorithm
+首先以一个离散控制过程为例讨论kalman filter algorithm。该系统可用一个线性微分方程来描述。
+ ……（3）
+ ……（4）
+（3）式和（4）式中， 是K时刻的系统状态， 是K时刻对系统的控制量，A和B是系统参数，对于多模型系统，它们为矩阵。 是K时刻的测量值，H是测量系统的参数，对于多测量系统，H为矩阵。 和 分别表示系统和测量过程中的噪声，使用kalman filter估计时，我们认为噪声满足高斯白噪声模型，设 和 的covariance分别为Q和R。
+讨论kalman filter algorithm的5个经典核心公式。
+第一步，预测现在的状态：
+         ……（5）
+式（5）中 是利用上一状态预测的结果， 是上一时刻的最优预测值， 为现在状态的控制量，如果没有，可以为0。
+经过公式（5）后系统结果已经更新了，对应于  的covariance还没有更新，用P表示covariance，
+            ……（6）
+式（6）中 是 对应的covariance， 是 对应的covariance， 是 的转置矩阵。Q是系统的噪声，（5）和（6）式便是kalman filter中的前两个公式。对系统的预测。有了系统的预测，接下来就要参考测量值进行估计了。
+     ……（7）
+由上面分析可知为了实现递归，每次的 都是实时更新的。
+        ……（8）
+            ……（9）
+这样每次 和 都需要前一时刻的值来更新，递归的估计下去。（5）~（9）式便是kalman filter algorithm的五条核心公式。
+4 利用C语言编程实现Kalman Filter Algorithm
+要求是给定一个固定量，然后由测量值来使用kalman filter估计系统真实值。
+为了编程简单，我将（5）式中的A=1， =0，（5）式改写为下面的形式，
+                ……（10）
+式（6）改写为，
+                ……（11）
+再令H=1，式（7），（8），（9）可改写为，
+        ……（12）
+           ……（13）
+              ……（14）
+使用C语言编程实现（核心算法）。
+		x_mid=x_last;    //x_last=x(k-1|k-1),x_mid=x(k|k-1)
+		p_mid=p_last+Q;  //p_mid=p(k|k-1),p_last=p(k-1|k-1),Q=噪声
+		kg=p_mid/(p_mid+R); //kg为kalman filter，R为噪声
+		z_measure=z_real+frand()*0.03;//测量值
+		x_now=x_mid+kg*(z_measure-x_mid);//估计出的最优值
+		p_now=(1-kg)*p_mid;//最优值对应的covariance
+        p_last = p_now;  //更新covariance值
+        x_last = x_now;  //更新系统状态值
+5 算法测试
+为了测试kalman filter algorithm，我设计了一个简单实验，来验证kalman filter的优良性。程序中给定一个初值，然后给定一组测量值，验证kalman filter估值的准确性。
+根据kalman filter algorithm，我们需要给定系统初始值x_last，系统噪声Q和测量噪声R，以及初始值所对应的协方差P_last。为了验证优劣性，还需要给定真实值z_real来计算kalman filter误差error_kalman以及测量误差error_measure以及它们在有限次的计算中的累积误差，累积kalman误差sumerror_kalman和累积测量误差sumerror_measure。
+实验中给定x_last=0，p_last=0,Q=0.018,R=0.0542.实验中可以通过适当改变Q和R来获得更好的估计结果。也可以改变p_last和x_last的值，由于kalman filter是对协方差的递归算法来估计信号数据的，所以p_last对算法结果的影响很大，图3就说明了这一情况，由于在初始时就有协方差，所以在运行过程中算法累积误差相比初始时没有误差的就比较大。
+给定值为z_real=0.56时运行结果如图1所示：
+ 
+图1 真值为0.56的运行结果
+给定值z_real=3.32时的运行结果如图2
+ 
+图2 真值为3.32的运行结果
+图3为Q，R不变，p_last=0.02，x_last=0，z_real=0.56时的测试结果。通过和前两次结果比较发现p_last对估计结果影响较大，分析可知这种现象是符合kalman filter的，通过改变Q和R的值也能改善算法的性能，但是实际操作中我们并不能控制这两个量。
+ 
+图3 改变p_last的测试结果
+6 结论
+本文通过对kalman filter algorithm的深入探讨，对kalman filter有了更深刻的认识，理解了核心的5条公式的物理意义，以及kalman filter的思想，并通过理解算法编程实践，验证了kalman filter在数据处理方面的优良性能。
+并且通过实验结果分析了kalman filter algorithm的本质对每次估计产生的协方差递归结合当前测量值来估计系统当前的最佳状态。如要改善算法的性能就必须要尽可能的减小系统噪声和测量噪声，优化程序，减小估计的协方差。
+参考文献
+[1]谭浩强.C程序设计(第三版)[M].北京:清华大学出版社,2005,91~130.
+[2]崔平远,黄晓瑞.基于联合卡尔曼滤波的多传感器信息融合算法及其应用[J].电机与控制学报,2001,9(5): 204-207.
+[3]党宏社,韩崇昭,段战胜.基于多卡尔曼滤波器的自适应传感器融合[J].系统工程与电子技术,2004,5(26):311-313.
+[4]文贡坚,王润生. 一种稳健的直线提取算法[J].软件学报,2001,11(11):1660-1665.
+ 
+附录：源程序
+#include "stdio.h"
+#include "stdlib.h"
+#include "math.h"
+double frand() 
+{      return 2*((rand()/(double)RAND_MAX) - 0.5);  //随机噪声}  
+void main()
+{	float x_last=0;   
+	float p_last=0.02;
+	float Q=0.018;
+	float R=0.542;
+	float kg;
+	float x_mid;
+	float x_now;
+	float p_mid;
+	float p_now;
+	float z_real=0.56;//0.56
+	float z_measure;
+	float sumerror_kalman=0;
+	float sumerror_measure=0;
+	int i;
+	x_last=z_real+frand()*0.03;
+	x_mid=x_last;
+	for(i=0;i<20;i++)
+	{	x_mid=x_last;    //x_last=x(k-1|k-1),x_mid=x(k|k-1)
+		p_mid=p_last+Q;  //p_mid=p(k|k-1),p_last=p(k-1|k-1),Q=噪声
+		kg=p_mid/(p_mid+R); //kg为kalman filter，R为噪声
+		z_measure=z_real+frand()*0.03;//测量值
+		x_now=x_mid+kg*(z_measure-x_mid);//估计出的最优值
+		p_now=(1-kg)*p_mid;//最优值对应的covariance
+		printf("Real     position: %6.3f \n",z_real);  //显示真值
+        printf("Mesaured position: %6.3f [diff:%.3f]\n",z_measure,fabs(z_real-z_measure));  //显示测量值以及真值与测量值之间的误差
+        printf("Kalman   position: %6.3f [diff:%.3f]\n",x_now,fabs(z_real - x_now));  //显示kalman估计值以及真值和卡尔曼估计值的误差
+        sumerror_kalman += fabs(z_real - x_now);  //kalman估计值的累积误差
+        sumerror_measure += fabs(z_real-z_measure);  //真值与测量值的累积误差
+        p_last = p_now;  //更新covariance值
+        x_last = x_now;  //更新系统状态值
+	}
+	printf("总体测量误差      : %f\n",sumerror_measure);  //输出测量累积误差
+    	printf("总体卡尔曼滤波误差: %f\n",sumerror_kalman);   //输出kalman累积误差
+    printf("卡尔曼误差所占比例: %d%% \n",100-(int)((sumerror_kalman/sumerror_measure)*100)); 
+}
+
+
+
+```
