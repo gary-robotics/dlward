@@ -34,3 +34,69 @@ hold off
 
 ezplot3('cos(t)', 'sin(t)','t',[0,30*pi])
 ```
+
+
+### 螺旋曲线
+```
+clc;clear;
+h = animatedline;
+h1=gcf;
+view(3);
+xl=xlabel('cos(\omegat)');% 
+yl=ylabel('sin(\omegat)');% 
+zl=zlabel('t');% 
+set(xl,'Rotation',30);% 
+set(yl,'Rotation',-30);%
+grid on;
+title('\omega = 1rad/s   Made by J Pan')
+axis([-1,1,-1,1,0,4*pi])
+N = 200;
+t=linspace(0,4*pi,N);
+w=1;
+x=cos(w*t);
+y=sin(w*t);
+a = tic; % start timer
+for k = 1:N
+    addpoints(h,x(k),y(k),t(k));
+    hold on
+    line([0 x(k)],[0 y(k)],[t(k) t(k)],'Color','red')
+    b = toc(a); % check timer
+    if b > (1/90)
+        drawnow % update screen every 1/30 seconds
+        a = tic; % reset timer after updating
+    end
+end
+
+```
+
+### 拉普拉斯变换
+```
+clc;clear;
+h = animatedline;
+h1=gcf;
+view(3);
+xl=xlabel('cos(\omegat)');% 
+yl=ylabel('sin(\omegat)');% 
+zl=zlabel('t');% 
+set(xl,'Rotation',30);% 
+set(yl,'Rotation',-30);%
+grid on;
+title('\omega = 1rad/s   Made by J Pan')
+axis([-1,1,-1,1,0,4*pi])
+N = 200;
+t=linspace(0,4*pi,N);
+w=1;sig=-0.2;
+x=exp(sig*t).*cos(w*t);
+y=exp(sig*t).*sin(w*t);
+a = tic; % start timer
+for k = 1:N
+    addpoints(h,x(k),y(k),t(k));
+    hold on
+    line([0 x(k)],[0 y(k)],[t(k) t(k)],'Color','red')
+    b = toc(a); % check timer
+    if b > (1/90)
+        drawnow % update screen every 1/30 seconds
+        a = tic; % reset timer after updating
+    end
+end
+```
