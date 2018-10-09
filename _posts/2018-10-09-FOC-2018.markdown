@@ -10,6 +10,12 @@ tags:                               #标签
     - FOC
 ---
 
+[怎样理解永磁同步电机控制中的“矢量控制”](https://www.zhihu.com/question/20724715)  
+
+[永磁同步电机矢量控制之——“基础”](https://zhuanlan.zhihu.com/p/23267332)  
+
+
+
 ###
 ```
 
