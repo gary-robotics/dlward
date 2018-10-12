@@ -26,7 +26,7 @@ tags:                               #标签
 
 [从另一个角度看拉普拉斯变换](https://zhuanlan.zhihu.com/p/40783304)  
 
-
+[被众人膜拜的欧拉恒等式是个什么东东？](https://zhuanlan.zhihu.com/p/40302967)  
 
 ```
 x=linspace(0,2*pi,1000);
