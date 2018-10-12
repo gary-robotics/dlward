@@ -1,0 +1,418 @@
+STM32IAP升级-----编写IAP升级遇到的问题总结
+2018年06月20日 09:42:26 低调码农 阅读数：92更多
+个人分类： STM32STM8
+一，串口通信问题
+
+1，串口通信两端的TTL电平要一致，看选用的芯片，要么都是3.3V要么都是5V ..当两端电平不一致时通常是收不到数据的..当检测程序等都没有问题但是依然收不到数据时，考虑检测一下两端的电平是否一致..可用示波器查看收发数据时的电平
+
+
+
+2，在写IAP是使用的官方的库函数，结果串口一直收不到正确的数据。不管我发什么，收到的都是将0x58或者0xF6，而且我发5个字节只能收到2个..确定自己的程序逻辑没问题，然后怀疑是使用的库函数有问题。使用beyond比挨着对照了一下以前写过的正确的程序..发现系统初始化时外部晶振没有改..在SystemInit ）;时就是为了/ *配置系统时钟为168M使用外部8M晶体+ PLL * /在函数内有一个宏定义#define PLL_M 25 ....库函数默认的是25但是我们必须要使用8M的晶振。 。所以要把25改成8 .......改完测试通过.....
+
+
+
+3，在问题2的时候自己犯了个错误。当时我把另一个程序的库文件都拷过来了替换了原来的库文件，结果直接进不了中断了。有中断程序就死了...如图所示
+
+
+
+有中断时汇编显示就跳到了黄色的那句话。然后程序就死了..其实进不了中断首先想到的是中断向量表的问题。当时一着急没想到这个问题..复制过来的库文件是我写的IAP的APP程序，我把其中的中断向量表改了，我不是在主函数中改的，我是直接改的库函数中的偏移量，然后就把这个问题给忘了，导致找了半天终于意识到是中断向量表出了问题？
+
+
+
+4，串口一上电未初始化时就开始疯狂的发乱码，等初始化完成之后就不发了如图。
+
+
+
+解决方法：我是看的官方的例程，如果需要更新再初始化串口，如果不需要更新的话就不初始化串口所以把串口初始化部分写在了后面的判断中......这样操作会出现上述问题。把串口的初始化部分写到主函数的前端就不会出现这个问题了..至于具体为什么会这样的原因还没搞明白......
+
+经过询问大神们说不初始化的时候会有浮空电平，有时出现乱发一些数据也正常....
+
+
+
+5，我在写iap升级的时候，使用的是一次性全部接收完70K的bin文件，再去升级。。后期程序越写越多，最后编译完的bin文件大于了70K导致升级不能成功。前面的$HEAD命令能接收，发完bin文件后$TAIL命令接收不到。。。。。这是由于bin文件的大小超过了70k大小的buff后面的内容无法接收了。。。。。。。。。。。。。正规的升级应该接收10k或者多少就编程一次。。。。。。。。
+
+
+
+
+
+二，FLASH问题
+
+1,flash的擦除
+
+实际上是把flash的内容全部写1（擦除完再读的话读出来的全是0XFF），flash的编程要按字（32位）或半字（16位）编程，当接收的数据是奇数位是要补上0，凑够半字来编程。
+
+2，写进flash跟读出来的不一样
+
+注意编程flash时变量的存储接收等要用unsigned类型的。存储接收的变量类型要一致。以免造成越界问题，导致看到的数不一致
+
+
+
+3，flash做存储用时
+
+当时写了个程序，用flash来存数据，然后再读出来，遇到的问题是设备不断电时可以完整的读出来，设备断电后读不出了。要读多少个数我是把个数也存储在flash中的。最终发现问题是程序中一个标志位的操作有问题，每次断电后再上电会自动把这个个数写为0，导致每次都读不出来数
+
+
+
+三，数组越界问题
+
+1，嵌入式程序通常要求少占内存，通常变量能定义8位不定义16位。。一定要注意变量的最大值。（细心一点）。。在越界问题上，吃亏了好几次了。。。。
+
+eg：①，我定义了一个int16_t的变量来接收flash中的一个变量值0xABCD。。结果很显然越界了。。换成uint16_t即可
+
+②，定义了一个串口接收数据计数器uint16_t 的变量，要接收60k的APP程序，自认为足够用了，但是串口发送60K大小的文件发送的字节数大于了65535，，，又耽误了好久时间。。。
+
+谨记：要细心
+
+
+
+四，关于APP与IAP互跳之间的中断处理问题
+
+跳转时中断问题还是一个比较棘手的问题。。经常跳转之后无法进入中断，然后百度了一下，自己理解大概是，跳转时只是强制改变了PC指正的位置，但是里面的中断寄存器什么的都没有变，这样中断存在，但是中断函数什么的都没有了，造成程序死掉。。我在写的过程中也遇到了问题，第一次从iap跳到app正常，但是从app跳回iap的时候由于残留的中断太多，在iap中程序死了。我的处理方式是把app中的跳转命令换成了系统复位NVIC_SystemReset();（不同的固件库可能函数名不同）其他的处理理的方式据我所知还有有①跳转之前复位或者关闭所有打开的中断②跳转后在初始化时加入RCC_DeInit();，，NVIC_DeInit ();等让中断恢复默认值。。具体可参考下面这篇文章链接地址 总之要注意中断寄存器的复位。也可以直接软件复位管他什么中断寄存器残留的.从iap跳到app前可以用USART_ITConfig(USART1, USART_IT_RXNE, DISABLE);来关闭串口接收中断。从app跳转回iap可以用软件复位。
+
+
+
+
+五，总结一下在IAP升级中APP程序的中断向量表的偏移
+
+1.      关于APP程序的中断向量表地址偏移（三种方法，stm32F2与F4系列通用。三种方法本质一样只是看到网上的各种例程的表现形式不一样）
+
+① 直接操作寄存器
+
+在APP程序的main函数的开头设置中断向量表偏移
+
+SCB->VTOR = FLASH_BASE | 0x10000;
+
+其中0x10000是偏移量。。也就是前面的IAP程序所占用的空间大小，要是你的main函数中有SystemInit();的话要在SystemInit();之后添加。
+
+因为SystemInit();中有中断向量表的偏移操作
+
+ 
+
+在void SystemInit (void)系统初始化函数中有初始化中断向量表的语句
+
+#ifdef VECT_TAB_SRAM
+
+ SCB->VTOR = SRAM_BASE | VECT_TAB_OFFSET; /* 使用内部SRAM启动设置这一句. */
+
+#else
+
+ SCB->VTOR = FLASH_BASE | VECT_TAB_OFFSET; /* 使用内部FLASH启动设置这句*/
+
+#endif
+
+ 可以直接修改VECT_TAB_OFFSE的值，这个值代表偏移量。不建议这么改，不建议修改库文件，应为后面其他程序用的话经常忘了这里动过中断向量表，导致中断不能正常运行（我就因为这个浪费了快一天时间，串口就是进不了中断）
+
+其中
+
+#define FLASH_BASE            ((uint32_t)0x08000000) /*!<FLASH base address in the alias region */
+
+#define SRAM_BASE             ((uint32_t)0x20000000) /*!< SRAM baseaddress in the alias region */
+
+ 
+
+对应keil设置中的（这是一般程序默认的，IAP升级中APP程序的这个地方还得根据中断偏移量改）
+
+
+ 
+
+
+ 
+
+② 使用库函数设置偏移量
+
+在库文件中有专门的一个函数
+
+在APP程序初始化时调用函数NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x10000);
+
+ 
+
+其中/* Vector Table Base----------------------------------*/
+
+#define NVIC_VectTab_RAM             ((u32)0x20000000)
+
+#define NVIC_VectTab_FLASH           ((u32)0x08000000)
+
+ 
+
+ 
+
+/***********************************************************************
+
+Function Name  : NVIC_SetVectorTable
+
+* Description    : Sets the vector table location andOffset.
+
+* Input          : - NVIC_VectTab: specifies if thevector table is in RAM or
+
+*                    FLASH memory.
+
+**********************************************************************/
+
+void NVIC_SetVectorTable (u32NVIC_VectTab, u32 Offset)
+
+{
+
+ /* Check the parameters */
+
+ assert_param(IS_NVIC_VECTTAB(NVIC_VectTab));
+
+ assert_param(IS_NVIC_OFFSET(Offset)); 
+
+  
+
+ SCB->VTOR = NVIC_VectTab | (Offset & (u32)0x1FFFFF80);
+
+}
+
+③修改库文件（不建议使用）
+
+直接修改固件库里面的数值。在void SystemInit(void)下的
+
+  /* Configure the Vector Table location add offsetaddress ------------------*/
+
+#ifdefVECT_TAB_SRAM
+
+  SCB->VTOR = SRAM_BASE | VECT_TAB_OFFSET;/* Internal SRAM */
+
+#else
+
+  SCB->VTOR = FLASH_BASE | VECT_TAB_OFFSET;/* Internal FLASH */
+
+#endif
+
+ 
+
+直接修改
+
+#define VECT_TAB_OFFSET  0x00 /*!< Vector Table base offset field.
+
+                                   This valuemust be a multiple of 0x200. */
+
+为
+
+#define VECT_TAB_OFFSET  0x10000 /*!< Vector Table base offsetfield.
+
+                                   This valuemust be a multiple of 0x200. */
+
+ 
+
+2．关于IAP程序与APP程序keil中的设置
+
+Stm32的flash都是从0x8000000开始的，结束地址看片子的flash大小
+
+Stm32的sram都是从0x2000000开始的，结束地址看片子的sram大小
+
+ 
+
+IAP程序基本默认就行，跟普通程序一样
+
+
+
+在APP程序中需要设置一下偏移量
+
+
+
+默认的条件下，图中IROM1的起始地址（Start）一般为0X08000000，大小（Size）为0X100000，即从0X08000000开始的1M空间为我们的程序存储（因为我们的STM32F4的FLASH大小是1M）。而图中，我们设置起始地址（Start）为0X08010000，即偏移量为0X10000（64K字节），因而，留给APP用的FLASH空间（Size）只有0X100000-0X10000=0XF0000（960K字节）大小了。设置好Start和Szie，就完成APP程序的起始地址设置。
+
+       这里的64K字节，需要大家根据Bootloader程序大小进行选择，比如我们本章的Bootloader程序为22K左右，理论上我们只需要确保APP起始地址在Bootloader之后，并且偏移量为0X200的倍数即可（相关知识，请参考：链接地址）。这里我们选择64K（0X10000）字节，留了一些余量，方便Bootloader以后的升级修改。
+
+注意：设置的起始地址要与程序中设置的中断向量表的偏移量对应起来（如果给IAP程序64k的空间则APPkeil中起始地址为0x8010000相应的程序中中断向量偏移0x10000）我用的1M  flash大小的片子。。具体的大小设置，看自己的片子。。
+
+跳转问题：
+
+一，网上下载的例程，跳转部分的代码有差异，尤其是用的汇编那句
+
+eg：
+
+①Jump_To_Application  = (pFunction)(*(vu32*) (IAPSTART + 4));
+__MSR_MSP(*(vu32*) IAPSTART);
+Jump_To_Application();
+
+跟踪__MSR_MSP（一般这个函数都在库文件里有，跟踪不到就用搜索找）找到汇编函数为
+
+__MSR_MSP 
+ 
+    MSR MSP, r0 ; set Main Stack value
+    BX r14
+
+
+
+②//跳转到应用程序段
+//appxaddr:用户代码起始地址.
+void iap_load_app(u32 appxaddr)
+{
+if(((*(vu32*)appxaddr)&0x2FFE0000)==0x20000000)//检查栈顶地址是否合法.
+{ 
+jump2app=(iapfun)*(vu32*)(appxaddr+4);//用户代码区第二个字为程序开始地址(复位地址)
+MSR_MSP(*(vu32*)appxaddr);//初始化APP堆栈指针(用户代码区的第一个字用于存放栈顶地址)
+jump2app();   //跳转到APP.
+}
+}
+
+跟踪MSR_MSP找到函数为
+
+//设置栈顶地址
+//addr:栈顶地址
+__asm void MSR_MSP(u32 addr) 
+{
+    MSR MSP, r0 //set Main Stack value
+    BX r14
+}
+
+
+
+③  //判断用户是否已经下载程序，因为正常情况下此地址是栈地址。
+        //若没有这一句的话，即使没有下载程序也会进入而导致跑飞。
+        if (((*(__IO uint32_t*)ApplicationAddress) & 0x2FFE0000 ) == 0x20000000)
+        {
+            SerialPutString("Execute user Program\r\n\n");
+            //跳转至用户代码
+            JumpAddress = *(__IO uint32_t*) (ApplicationAddress + 4);
+            Jump_To_Application = (pFunction) JumpAddress;
+
+
+            //初始化用户程序的堆栈指针
+            __set_MSP(*(__IO uint32_t*) ApplicationAddress);
+            Jump_To_Application();
+        }
+
+跟踪__set_MSP找到函数为
+
+__ASM void __set_MSP(uint32_t mainStackPointer)
+{
+  msr msp, r0
+  bx lr
+}
+
+总结以上发现都是操作ARM的R0跟R14（LR）寄存器。
+
+还有一种不太一样的，就是stm32F4的库函数中的跳转，如下所示
+
+④ //测试用户app地址是不是在APPLICATION_ADDRESS位置。检测栈顶的地址，来检验app是否下载成功
+    if (((*(__IO uint32_t*)APPLICATION_ADDRESS) & 0x2FFE0000 ) == 0x20000000)
+    { 
+    //APPLICATION_ADDRESS + 4对应的是app中断向量表的第二项，复位地址
+    JumpAddress = *(__IO uint32_t*) (APPLICATION_ADDRESS + 4);
+//把地址强转为函数指针
+    Jump_To_Application = (pFunction) JumpAddress;
+    //设置主函数栈指针
+    __set_MSP(*(__IO uint32_t*) APPLICATION_ADDRESS);
+//调用函数，实际失去app复位地址去执行复位操作
+    Jump_To_Application();
+    }
+
+跟踪__set_MSP找到函数为
+
+static __INLINE void __set_MSP(uint32_t topOfMainStack)
+{
+  register uint32_t __regMainStackPointer     __ASM("msp");
+  __regMainStackPointer = topOfMainStack;
+}
+
+对于M4的这个库函数我也不太懂，感觉最终的操作应该跟其他的一样吧
+
+二，关于跳转部分的代码的理解（转）
+
+这里重点说一下几句经典且非常重要的代码：
+
+第一句： if (((*(__IO uint32_t*)ApplicationAddress) & 0x2FFE0000 ) == 0x20000000)   //判断栈定地址值是否在0x2000 0000 - 0x 2000 2000之间
+
+怎么理解呢？ (1),在程序里#define ApplicationAddress    0x8003000 ，*(__IO uint32_t*)ApplicationAddress)  即取0x8003000开始到0x8003003 的4个字节的值, 因为我们的应用程序APP中设置把 中断向量表 放置在0x08003000 开始的位置；而中断向量表里第一个放的就是栈顶地址的值
+
+也就是说，这句话即通过判断栈顶地址值是否正确（是否在0x2000 0000 - 0x 2000 2000之间） 来判断是否应用程序已经下载了，因为应用程序的启动文件刚开始就去初始化化栈空间，如果栈顶值对了，说应用程已经下载了启动文件的初始化也执行了；
+
+
+
+第二句：    JumpAddress = *(__IO uint32_t*) (ApplicationAddress + 4);   [  common.c文件第18行定义了：  pFunction   Jump_To_Application;]
+                      
+
+ApplicationAddress + 4  即为0x0800 3004 ,里面放的是中断向量表的第二项“复位地址”  JumpAddress = *(__IO uint32_t*) (ApplicationAddress + 4); 之后此时JumpAddress
+
+第三句：    Jump_To_Application = (pFunction) JumpAddress;
+ startup_stm32f10x_md_lv. 文件中别名  typedef  void (*pFunction)(void);     这个看上去有点奇怪；正常第一个整型变量   typedef  int  a;  就是给整型定义一个别名 a
+
+ void (*pFunction)(void);   是声明一个函数指针，加上一个typedef 之后  pFunction只不过是类型 void (*)(void) 的一个别名；例如：
+
+[cpp]  http://www.aiuxian.com/article/p-864872.html http://www.aiuxian.com/article/p-864872.html
+pFunction   a1,a2,a3;  
+  
+void  fun(void)  
+{  
+    ......  
+}  
+  
+a1 = fun;  
+所以，Jump_To_Application = (pFunction) JumpAddress；  此时Jump_To_Application指向了复位函数所在的地址；
+
+第四 、五句： __set_MSP(*(__IO uint32_t*) ApplicationAddress);      \\设置主函数栈指针
+               Jump_To_Application();                         \\执行复位函数
+
+Jump_To_Application()是把用户代码的复位地址付给PC指针，我看到Jump_To_Application()这句代码debug的时候对应的汇编代码是
+
+LDR r0,[pc,#12] ;相对PC的数据加载，去函数指针的地址
+LDR r0,[r0,#00] ;R0做索引，无偏移，数据装载到R0，这个内容就是函数指针指向的内容，也就是函数的地址了，用户程序的起始地址；
+BLX r0              ;这个不解释，说了是跳转
+
+我们看一下启动文件startup_stm32f10x_md_vl.s 中的启动代码，更容易理解
+
+
+ 
+
+
+三，关于跳转时能否不用按键，用软件标志位以及APP与IAP之间的互跳
+
+完全可以不用按键，可以模拟一个按键信号，或者用软件的一个标志位来判断是否更新。。我设计的在flash中中存储一个值，当APP运行中需要更新时串口发来更新命令，然后在flash中存一个值之后跳到IAP部分，来读取flash中存储的那个值，如果是需要更新则更新，如果不是需要跟新标志位就直接跳转到APP部分。。。这样也不用重复上电，断电。
+
+
+
+四，关于APP与IAP互跳之间的中断处理问题
+
+跳转时中断问题还是一个比较棘手的问题。。经常跳转之后无法进入中断，然后百度了一下，自己理解大概是，
+跳转时只是强制改变了PC指正的位置，但是里面的中断寄存器什么的都没有变，这样中断存在，但是中断函数什么的都没有了，造成程序死掉。。我在写的过程中也遇到了问题，第一次从iap跳到app正常，但是从app跳回iap的时候由于残留的中断太多，在iap中程序死了。我的处理方式是把app中的跳转命令换成了系统复位NVIC_SystemReset();
+（不同的固件库可能函数名不同）其他的处理理的方式据我所知还有有①跳转之前复位或者关闭所有打开的中断②跳转后在初始化时加入RCC_DeInit();，
+，NVIC_DeInit ();等让中断恢复默认值。。具体可参考下面这篇文章链接地址
+
+关于stm32的软件复位：
+
+STM32软件复位(基于库文件V3.5) ，对于STM32来说软件复位有两种方式：    
+
+1）采用官方自带的软件库  
+    在官方软件库的 core_cm3.h 文件里 直接提供了 系统复位的函数    
+
+static __INLINE void NVIC_SystemReset(void) 
+
+{ 
+SCB->AIRCR  = ((0x5FA << SCB_AIRCR_VECTKEY_Pos)    |   
+
+(SCB->AIRCR & SCB_AIRCR_PRIGROUP_Msk)   |  
+
+SCB_AIRCR_SYSRESETREQ_Msk);                   /* Keep priority group unchanged */ 
+  __DSB();                                                                                       /* Ensure completion of memory access */               
+  while(1);                                                                                        /* wait until reset */
+
+ } 
+  但是不是直接调用这个函数就OK了？    在Cortex-M3权威指南中有这么一句话：     
+这里有一个要注意的问题：从SYSRESETREQ 被置为有效，到复位发生器执行复位命令，  往往会有一个延时。在此延时期间，处理器仍然可以响应中断请求。但我们的本意往往是要  让此次执行到此为止，不要再做任何其它事情了。所以，最好在发出复位请求前，先把  FAULTMASK 置位。  
+
+  所以最好在将FAULTMASK 置位才万无一失。    同样官方 core_cm3.h 文件里也直接提供了该函数  
+  static __INLINE void __set_FAULTMASK(uint32_t faultMask) 
+
+{ 
+
+register uint32_t __regFaultMask       __ASM("faultmask");   
+
+__regFaultMask = (faultMask & 1);
+
+ } 
+  把上面这两个函数写在一起就可以实现软件复位了~~ 
+
+void SoftReset(void) 
+
+{ 
+__set_FAULTMASK(1);      // 关闭所有中端 
+
+NVIC_SystemReset();// 复位 
+
+} 
+ /*------
+
