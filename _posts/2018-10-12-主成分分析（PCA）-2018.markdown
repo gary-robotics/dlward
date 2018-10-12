@@ -1,1 +1,2 @@
 [技术站搬运工：来自BrianWang的技术站：PCA的一大数学基础：求矩阵的特征值特征向量](https://zhuanlan.zhihu.com/p/27452766)  
+http://blog.sina.com.cn/s/blog_1762e50400102wvtj.html
