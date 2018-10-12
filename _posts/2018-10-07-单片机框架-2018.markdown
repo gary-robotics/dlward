@@ -1,4 +1,14 @@
-
+---
+layout:     post                    # 使用的布局（不需要改）
+title:      单片机框架                 # 标题 
+subtitle:    第一篇                  #副标题
+date:       2018-09-25              # 时间
+author:     BY Edlward              # 作者
+header-img: img/post-bg-2015.jpg    #这篇文章标题背景图片
+catalog: true                       # 是否归档
+tags:                               #标签
+    - STM32
+---
 
 
 [从业将近十年！ 手把手教你单片机程序框架—吴坚鸿](https://discourse-production.oss-cn-shanghai.aliyuncs.com/original/3X/9/9/9977547f06b71ef0f3684ab56815ba03906a515c.pdf)  
