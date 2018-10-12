@@ -1,1 +1,13 @@
+
+---
+layout:     post                    # 使用的布局（不需要改）
+title:      滤波器                 # 标题 
+subtitle:    第一篇                  #副标题
+date:       2018-09-25              # 时间
+author:     BY Edlward              # 作者
+header-img: img/post-bg-2015.jpg    #这篇文章标题背景图片
+catalog: true                       # 是否归档
+tags:                               #标签
+    - 滤波器
+---
 [如何快速设计一个FIR滤波器（一）](https://zhuanlan.zhihu.com/p/45138629)  
