@@ -14,7 +14,7 @@ tags:                               #标签
 
 [永磁同步电机矢量控制之——“基础”](https://zhuanlan.zhihu.com/p/23267332)  
 
-
+[如何快速理解永磁同步电机？](https://zhuanlan.zhihu.com/p/45757542)  
 
 ###
 ```
