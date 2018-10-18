@@ -32,7 +32,7 @@ EXP是e的n次方； 
 
 
 程序：
-
+```
 #include "math.h"
 
 const float Rp=10000.0;             //10K
@@ -49,7 +49,7 @@ temp = 1/(log(Rt/Rp)/Bx + (1/T2));
 temp = (temp - Ka + 0.5)*10;
 LCD_ShowxNum(86,150,temp,5,16,0x80);  //显示温度
 }
-
+```
 
 
 将各步拆分如下：
