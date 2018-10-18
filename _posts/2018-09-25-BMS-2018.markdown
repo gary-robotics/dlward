@@ -12,3 +12,65 @@ tags:                               #标签
 
 [浅析锂电池保护板（BMS）系统设计思路](https://www.cnblogs.com/han-bing/p/9045812.html)  
 [NTC——热敏电阻的采集方法](https://blog.csdn.net/u014470361/article/details/82315699)  
+
+### 热敏电阻和温度转换公式和程序
+
+NTC 热敏电阻温度计算公式Rt = R *EXP(B*(1/T1-1/T2))
+
+这里T1和T2指的是K度即开尔文温度，K度=273.15(绝对温度)+摄氏度；
+
+其中T2=(273.15+25)Rt 是热敏电阻在T1温度下的阻值；
+
+R是热敏电阻在T2常温下的标称阻值；
+
+B值是热敏电阻的重要参数；
+
+EXP是e的n次方； 
+
+ 转换得：1/T1 =ln(Rt/R)/B+1/T2，求TI，然后再减去273.15就是实际温度，同时+0.5的误差矫正。
+
+
+
+程序：
+
+#include "math.h"
+
+const float Rp=10000.0;             //10K
+const float T2 = (273.15+25.0); //T2
+const float Bx = 3950.0;              //B
+const float Ka = 273.15;
+
+float temp;
+
+
+while(1)
+{
+temp = 1/(log(Rt/Rp)/Bx + (1/T2));
+temp = (temp - Ka + 0.5)*10;
+LCD_ShowxNum(86,150,temp,5,16,0x80);  //显示温度
+}
+
+
+
+将各步拆分如下：
+
+float Get_Temp(void)
+{
+float Rt;
+float temp;
+Rt = Get_TempResistor();   //获得电阻值
+//like this R=5000, T2=273.15+25,B=3470, RT=5000*EXP(3470*(1/T1-1/(273.15+25)),  
+temp = Rt/Rp;
+temp = log(temp); //ln(Rt/Rp)
+temp/=Bx; //ln(Rt/Rp)/B
+temp+=(1/T2); //ln(Rt/Rp)/B+（1/T2）
+temp = 1/(temp);
+temp-=Ka;
+temp+=0.5; //加0.5误差矫正
+return temp;
+} 
+--------------------- 
+作者：Y_Hanxiao 
+来源：CSDN 
+原文：https://blog.csdn.net/Y_Hanxiao/article/details/73845086 
+版权声明：本文为博主原创文章，转载请附上博文链接！
