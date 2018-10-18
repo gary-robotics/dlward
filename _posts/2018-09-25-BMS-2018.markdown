@@ -53,7 +53,7 @@ LCD_ShowxNum(86,150,temp,5,16,0x80);  //显示温度
 
 
 将各步拆分如下：
-
+```
 float Get_Temp(void)
 {
 float Rt;
@@ -69,8 +69,4 @@ temp-=Ka;
 temp+=0.5; //加0.5误差矫正
 return temp;
 } 
---------------------- 
-作者：Y_Hanxiao 
-来源：CSDN 
-原文：https://blog.csdn.net/Y_Hanxiao/article/details/73845086 
-版权声明：本文为博主原创文章，转载请附上博文链接！
+```
