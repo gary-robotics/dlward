@@ -12,6 +12,7 @@ tags:                               #标签
 
 [浅析锂电池保护板（BMS）系统设计思路](https://www.cnblogs.com/han-bing/p/9045812.html)  
 [NTC——热敏电阻的采集方法](https://blog.csdn.net/u014470361/article/details/82315699)  
+[热敏电阻温度计算 公式 程序](https://blog.csdn.net/yangyang_1024/article/details/80563522)  
 
 ### 热敏电阻和温度转换公式和程序
 
