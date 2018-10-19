@@ -13,7 +13,7 @@ tags:                               #标签
 [卡尔曼滤波：从入门到精通](https://zhuanlan.zhihu.com/p/36745755)  
 [卡尔曼滤波与matlab仿真](https://zhuanlan.zhihu.com/p/34656822)  
 [卡尔曼滤波器及其在云台控制中的应用](https://zhuanlan.zhihu.com/p/38745950)  
-```
+
 卡尔曼滤波算法及C语言实现
 摘要：本文着重讨论了卡尔曼滤波器的原理，典型算法以及应用领域。清晰地阐述了kalman filter在信息估计方面的最优性能。着重介绍简单kalman filter algorithm的编程，使用kalman filter的经典5个体现最优化递归公式来编程。通过c语言编写程序实现kalman filter的最优估计能力。
 关键词：kalman filter；最优估计；C语言
@@ -58,6 +58,8 @@ Kalman filter是一个“optimal recursive data processing algorithm（最优化
            ……（13）
               ……（14）
 使用C语言编程实现（核心算法）。
+
+```
 		x_mid=x_last;    //x_last=x(k-1|k-1),x_mid=x(k|k-1)
 		p_mid=p_last+Q;  //p_mid=p(k|k-1),p_last=p(k-1|k-1),Q=噪声
 		kg=p_mid/(p_mid+R); //kg为kalman filter，R为噪声
@@ -66,6 +68,8 @@ Kalman filter是一个“optimal recursive data processing algorithm（最优化
 		p_now=(1-kg)*p_mid;//最优值对应的covariance
         p_last = p_now;  //更新covariance值
         x_last = x_now;  //更新系统状态值
+```
+
 5 算法测试
 为了测试kalman filter algorithm，我设计了一个简单实验，来验证kalman filter的优良性。程序中给定一个初值，然后给定一组测量值，验证kalman filter估值的准确性。
 根据kalman filter algorithm，我们需要给定系统初始值x_last，系统噪声Q和测量噪声R，以及初始值所对应的协方差P_last。为了验证优劣性，还需要给定真实值z_real来计算kalman filter误差error_kalman以及测量误差error_measure以及它们在有限次的计算中的累积误差，累积kalman误差sumerror_kalman和累积测量误差sumerror_measure。
@@ -87,7 +91,8 @@ Kalman filter是一个“optimal recursive data processing algorithm（最优化
 [2]崔平远,黄晓瑞.基于联合卡尔曼滤波的多传感器信息融合算法及其应用[J].电机与控制学报,2001,9(5): 204-207.
 [3]党宏社,韩崇昭,段战胜.基于多卡尔曼滤波器的自适应传感器融合[J].系统工程与电子技术,2004,5(26):311-313.
 [4]文贡坚,王润生. 一种稳健的直线提取算法[J].软件学报,2001,11(11):1660-1665.
- 
+
+```
 附录：源程序
 #include "stdio.h"
 #include "stdlib.h"
@@ -130,7 +135,5 @@ void main()
     	printf("总体卡尔曼滤波误差: %f\n",sumerror_kalman);   //输出kalman累积误差
     printf("卡尔曼误差所占比例: %d%% \n",100-(int)((sumerror_kalman/sumerror_measure)*100)); 
 }
-
-
 
 ```
