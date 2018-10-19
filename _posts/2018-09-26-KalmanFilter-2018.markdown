@@ -12,6 +12,7 @@ tags:                               #标签
 
 [卡尔曼滤波：从入门到精通](https://zhuanlan.zhihu.com/p/36745755)  
 [卡尔曼滤波与matlab仿真](https://zhuanlan.zhihu.com/p/34656822)  
+[卡尔曼滤波器及其在云台控制中的应用](https://zhuanlan.zhihu.com/p/38745950)  
 ```
 卡尔曼滤波算法及C语言实现
 摘要：本文着重讨论了卡尔曼滤波器的原理，典型算法以及应用领域。清晰地阐述了kalman filter在信息估计方面的最优性能。着重介绍简单kalman filter algorithm的编程，使用kalman filter的经典5个体现最优化递归公式来编程。通过c语言编写程序实现kalman filter的最优估计能力。
