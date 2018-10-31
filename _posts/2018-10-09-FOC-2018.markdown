@@ -16,6 +16,9 @@ tags:                               #标签
 
 [如何快速理解永磁同步电机？](https://zhuanlan.zhihu.com/p/45757542)  
 
+[stm32 死区 刹车 pwm](https://blog.csdn.net/gtkknd/article/details/52840629) 
+
+
 ###
 ```
 
