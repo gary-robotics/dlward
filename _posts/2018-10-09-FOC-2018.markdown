@@ -18,6 +18,8 @@ tags:                               #标签
 
 [stm32 死区 刹车 pwm](https://blog.csdn.net/gtkknd/article/details/52840629) 
 
+[PWM输入模式捕捉4路PWM的周期和占空比](https://wenku.baidu.com/view/8e83f253e87101f69f31951f.html)  
+
 
 ###
 ```
