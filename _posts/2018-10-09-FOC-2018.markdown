@@ -20,6 +20,8 @@ tags:                               #标签
 
 [PWM输入模式捕捉4路PWM的周期和占空比](https://wenku.baidu.com/view/8e83f253e87101f69f31951f.html)  
 
+[STM32电机培训online，大佬带你玩电机](http://www.stmcu.org.cn/module/forum/thread-612763-1-1.html)  
+
 
 ###
 ```
