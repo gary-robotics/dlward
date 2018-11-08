@@ -19,3 +19,4 @@ tags:
 [MIT线性代数笔记](https://zhuanlan.zhihu.com/p/43441523) 
 
 # Introduction to Linear Algebra, Fourth Edition
+[book](http://math.mit.edu/~gs/linearalgebra/)  
