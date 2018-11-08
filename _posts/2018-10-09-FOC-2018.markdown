@@ -24,7 +24,10 @@ tags:                               #标签
 
 
 ###
+
 ```
+https://en.wikipedia.org/wiki/Atan2
+
 ATan2与ATan的区别
 相比较ATan，ATan2究竟有什么不同？本篇介绍一下ATan2的用法及使用条件。
 
