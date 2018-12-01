@@ -30,6 +30,7 @@ https://zhuanlan.zhihu.com/p/48391055
 [从另一个角度看拉普拉斯变换](https://zhuanlan.zhihu.com/p/40783304)  
 [拉普拉斯变换中的S是个什么鬼？](https://zhuanlan.zhihu.com/p/48314585)  
 [被众人膜拜的欧拉恒等式是个什么东东？](https://zhuanlan.zhihu.com/p/40302967)  
+["上帝公式"(欧拉公式)真的神到无法触碰？](https://zhuanlan.zhihu.com/p/48392958)  
 
 ```
 x=linspace(0,2*pi,1000);
