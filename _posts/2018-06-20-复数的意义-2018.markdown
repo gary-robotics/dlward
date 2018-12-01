@@ -28,7 +28,7 @@ https://zhuanlan.zhihu.com/p/48391055
 [理解离散傅立叶变换（三.复数）](https://blog.csdn.net/dznlong/article/list/2)  
 
 [从另一个角度看拉普拉斯变换](https://zhuanlan.zhihu.com/p/40783304)  
-
+[拉普拉斯变换中的S是个什么鬼？](https://zhuanlan.zhihu.com/p/48314585)  
 [被众人膜拜的欧拉恒等式是个什么东东？](https://zhuanlan.zhihu.com/p/40302967)  
 
 ```
