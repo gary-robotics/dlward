@@ -14,6 +14,13 @@ tags:                               #标签
 [链接1](http://www.ruanyifeng.com/blog/2012/09/imaginary_number.html)  
 [链接2](https://betterexplained.com/articles/a-visual-intuitive-guide-to-imaginary-numbers/)
 
+[怎么理解虚数和复数？](https://www.zhihu.com/question/46877027/answer/540068578) 
+[如何通俗地理解傅立叶变换？](https://www.matongxue.com/madocs/473.html)  
+https://www.matongxue.com/madocs/619.html  
+https://www.matongxue.com/madocs/712.html  
+https://www.matongxue.com/madocs/1709.html  
+
+
 [e 欧拉数](https://zhuanlan.zhihu.com/p/41295878)  
 https://zhuanlan.zhihu.com/p/48391055
 
