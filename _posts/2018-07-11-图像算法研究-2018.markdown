@@ -19,3 +19,18 @@ tags:
 [一个加速trick一种相关滤波解释](https://zhuanlan.zhihu.com/p/27914504)  
 [从MOSSE到KCF，核化相关滤波器的历程](https://blog.csdn.net/yao1131/article/details/77700407?locationNum=10&fps=1)  
 [基于傅里叶域卷积表示的目标跟踪算法](http://html.rhhz.net/BJHKHTDXXBZRB/20180118.htm)
+[计算机视觉论文](https://blog.csdn.net/feitianhu213/article/details/44175113)  
+
+前言：最近由于工作的关系，接触到了很多篇以前都没有听说过的经典文章，在感叹这些文章伟大的同时，也顿感自己视野的狭小。  想在网上找找计算机视觉界的经典文章汇总，一直没有找到。失望之余，我决定自己总结一篇，希望对 CV 领域的童鞋们有所帮助。由于自己的视野比较狭窄，肯定也有很多疏漏，权当抛砖引玉了，如果你觉得哪篇文章是非常经典的，也可以把相关信息连带你的昵称发给我，我好补上。我的信箱 xdyang.ustc@gmail.com 
+
+ 
+
+文章主要来源：PAMI, IJCV, TIP, CVIU, PR, IVC, CVGIU, CVPR, ICCV, ECCV, NIPS, SIGGRAPH, BMVC等
+
+主要参考网站: Google scholar, citeseer, cvpapers, opencv 中英文官方网站 
+
+主要参考书籍： 
+数字图像处理  第三版  冈萨雷斯等 
+图像处理，分析和机器视觉  第三版  Sonka等（非常非常好的一本书） 
+学习OpenCV 
+计算机视觉：算法与应用 
