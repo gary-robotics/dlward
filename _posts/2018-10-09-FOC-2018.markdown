@@ -26,7 +26,7 @@ tags:                               #标签
 
 ###
 [atan2与极坐标](https://blog.csdn.net/ronnie_hu/article/details/69053413)  
-
+[伺服电机编码器与转子磁极相位对齐方法](https://blog.csdn.net/Still8912/article/details/45460051)  
 ```
 https://en.wikipedia.org/wiki/Atan2
 
