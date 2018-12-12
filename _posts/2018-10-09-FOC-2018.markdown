@@ -25,6 +25,7 @@ tags:                               #标签
 [如何理解永磁电机各种电感？](https://zhuanlan.zhihu.com/p/47255694)  
 
 ###
+[atan2与极坐标](https://blog.csdn.net/ronnie_hu/article/details/69053413)  
 
 ```
 https://en.wikipedia.org/wiki/Atan2
