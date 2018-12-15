@@ -29,6 +29,7 @@ tags:                               #标签
 [伺服电机编码器与转子磁极相位对齐方法](https://blog.csdn.net/Still8912/article/details/45460051)  
 [霍尔传感器直线电机位置检测](https://wenku.baidu.com/view/190e722410a6f524cdbf8525.html)  
 [电角度](https://wenku.baidu.com/view/93dd2d355ef7ba0d4b733b2c.html?from=search)  
+[PMSM 控制技术探究与仿真1：三相PMSM的数学建模与坐标变换](https://blog.csdn.net/huagengpai1994/article/details/84575418)  
 ```
 https://en.wikipedia.org/wiki/Atan2
 
