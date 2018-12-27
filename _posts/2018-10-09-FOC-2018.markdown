@@ -10,7 +10,7 @@ tags:                               #标签
     - FOC
 ---
 [RevPark_Circle_Limitation](https://www.amobbs.com/thread-5687439-1-1.html?_dsign=79458593)  
-
+[关于STM32官方FOC库函数扇区分析中’131072’系数的解释](https://www.cnblogs.com/derek32/p/3770861.html)  
 
 [无刷换相](https://bbs.dji.com/thread-74728-1-1.html)  
 [原理](https://wenku.baidu.com/view/a25e526d580102020740be1e650e52ea5518cebd.html)  
