@@ -15,8 +15,28 @@ tags:                               #标签
 
 [四方向摇杆](https://blog.csdn.net/xufeng0991/article/details/75141161)  
 
- 
+ ```
+ https://devzone.nordicsemi.com/f/nordic-q-a/15716/use-nrf_clock_lfclksrc_rc_250_ppm_250ms_calibration/59995#59995
+ 嗨，
 
+如果您更改此行：
+
+nrf_clock_lf_cfg_t clock_lf_cfg = NRF_CLOCK_LFCLKSRC;
+对此：
+
+// see nrf_sdm.h for more details
+nrf_clock_lf_cfg_t clock_lf_cfg = 
+{
+    .source = NRF_CLOCK_LF_SRC_RC,
+    .rc_ctiv = 16, // Interval in 0.25 s, 16 * 0.25 = 4 sec
+    .rc_temp_ctiv = 2, // Check temperature every .rc_ctiv, but calibrate every .rc_temp_ctiv 
+    .xtal_accuracy = NRF_CLOCK_LF_XTAL_ACCURACY_250_PPM,
+};
+此配置将设置RC振荡器，并每4秒检查一次温度增量，并每8秒校准一次RC。
+
+干杯，哈康
+ 
+ ```
  
 
 位域是c++和c里面都有的一个概念，但是位域有要注意的很多问题：
