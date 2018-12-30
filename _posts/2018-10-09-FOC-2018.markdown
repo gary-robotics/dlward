@@ -9,6 +9,9 @@ catalog: true                       # 是否归档
 tags:                               #标签
     - FOC
 ---
+[ZDOC-永磁直线同步电机建模、特性分析及推力控制 [司纪凯 著] 2014年.pdf 永磁直线同步电机建模、特性分析及推力控制 ](http://www.zbgb.org/e/down.php?id=3866759)  
+[永磁直线同步电动机特性及控制](https://item.taobao.com/item.htm?spm=a1z0k.7628869.1997525049.3.1eda5af5lvHzBz&id=580044826169)  
+
 [RevPark_Circle_Limitation](https://www.amobbs.com/thread-5687439-1-1.html?_dsign=79458593)  
 [关于STM32官方FOC库函数扇区分析中’131072’系数的解释](https://www.cnblogs.com/derek32/p/3770861.html)  
 
