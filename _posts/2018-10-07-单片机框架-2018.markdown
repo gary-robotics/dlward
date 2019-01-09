@@ -10,6 +10,8 @@ tags:                               #标签
     - STM32
 ---
 
+[通过蓝牙控制RaspberryPi的GoPro](https://github.com/KonradIT/goprowifihack/blob/master/Bluetooth/Platforms/RaspberryPi.md)  
+[GOPRO HERO5接口](https://gethypoxic.com/blogs/technical/gopro-hero5-interfaces)  
 
 [从业将近十年！ 手把手教你单片机程序框架—吴坚鸿](https://discourse-production.oss-cn-shanghai.aliyuncs.com/original/3X/9/9/9977547f06b71ef0f3684ab56815ba03906a515c.pdf)  
 
