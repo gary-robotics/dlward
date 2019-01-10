@@ -9,7 +9,7 @@ catalog: true                       # 是否归档
 tags:                               #标签
     - STM32
 ---
-
+[无线研究 GoPro App Mode](https://goprohero.readthedocs.io/en/latest/Wifi%20Research/)  
 [通过蓝牙控制RaspberryPi的GoPro](https://github.com/KonradIT/goprowifihack/blob/master/Bluetooth/Platforms/RaspberryPi.md)  
 [GOPRO HERO5接口](https://gethypoxic.com/blogs/technical/gopro-hero5-interfaces)  
 
