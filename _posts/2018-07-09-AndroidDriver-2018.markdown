@@ -99,7 +99,57 @@ make install
 但是，只需从您的安装适当的popt开发包
 分配是推荐的方式。
 [缺少libltdl的交叉编译代码](https://forum.archive.openwrt.org/viewtopic.php?id=56184&p=1)  
-[linux下USB数据包分析(usbmon + wireshark)](http://www.lnsign.com/2018/03/06/usb-packet-capture-usbmon-wireshark/)  
+[linux下USB数据包分析(usbmon + wireshark)](http://www.lnsign.com/2018/03/06/usb-packet-capture-usbmon-wireshark/)   
+
+```
+[播放视频](https://askubuntu.com/questions/856460/using-a-digital-camera-canon-as-webcam)  
+[实时视频流](https://blog.csdn.net/xmzwlw/article/details/51458762)  
+ffplay -f video4linux2 -framerate 30 -video_size 640x480 /dev/video0
+
+我能够使用佳能DSLR 600D进行视频和图像记录
+
+sudo apt get install guvcview ffmpeg gphoto2 v4l2loopback-dkms v4l2loopback-utils ffmpeg
+
+插上相机，任何模式似乎都有效，测试基础：
+
+预备
+
+sudo modprobe v4l2loopback
+killall gvfs-gphoto2-volume-monitor
+测试
+
+lsusb
+gphoto2 --auto-detect
+LANG=C gphoto2 --summary
+LANG=C gphoto2 --list-all-config
+尝试
+gphoto2 --capture-image
+gphoto2 --stdout --capture-movie | ffmpeg -i - -vcodec rawvideo -pix_fmt yuv420p -threads 0 -f v4l2 /dev/video1
+可视化（在另一个终端）
+
+guvcview
+
+要么
+
+guvcview-brlin.guvcview
+
+您可以尝试不同的/dev/video1命令
+
+还有EOS电影录音机
+
+解压缩：https：//sourceforge.net/projects/eos-movrec/files/eos-movrec/0.3.3_beta/eos-movrec-0.3.3_beta.zip/download
+
+cd eos-movrec-0.3.2_beta
+sudo apt install libgphoto2-dev                                     
+mkdir build
+cd build
+cmake -DCMAKE_BUILD_TYPE=Release ..
+make
+```
+
+
+
+
 
 ## 摄像头
 [USB摄像头(V4L2接口)的图片采集](https://www.cnblogs.com/surpassal/archive/2012/12/19/zed_webcam_lab1.html)  
