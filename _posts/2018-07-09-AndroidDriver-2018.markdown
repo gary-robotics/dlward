@@ -102,6 +102,7 @@ make install
 [linux下USB数据包分析(usbmon + wireshark)](http://www.lnsign.com/2018/03/06/usb-packet-capture-usbmon-wireshark/)   
 
 ```
+[ffmpeg采集视频+压缩转码成h264+实时播放](https://blog.csdn.net/bupt_arccosxy/article/details/17382235)  
 [播放视频](https://askubuntu.com/questions/856460/using-a-digital-camera-canon-as-webcam)  
 [实时视频流](https://blog.csdn.net/xmzwlw/article/details/51458762)  
 ffplay -f video4linux2 -framerate 30 -video_size 640x480 /dev/video0
