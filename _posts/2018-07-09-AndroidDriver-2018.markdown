@@ -101,7 +101,9 @@ make install
 [缺少libltdl的交叉编译代码](https://forum.archive.openwrt.org/viewtopic.php?id=56184&p=1)  
 [linux下USB数据包分析(usbmon + wireshark)](http://www.lnsign.com/2018/03/06/usb-packet-capture-usbmon-wireshark/)   
 
+
 ```
+[RTSP流和USB摄像头转MJPEG使用VLC](https://www.cnblogs.com/Jim-william/p/6258811.html)  
 [ffmpeg采集视频+压缩转码成h264+实时播放](https://blog.csdn.net/bupt_arccosxy/article/details/17382235)  
 [播放视频](https://askubuntu.com/questions/856460/using-a-digital-camera-canon-as-webcam)  
 [实时视频流](https://blog.csdn.net/xmzwlw/article/details/51458762)  
