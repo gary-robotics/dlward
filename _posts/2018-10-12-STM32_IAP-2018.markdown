@@ -9,7 +9,30 @@ catalog: true                       # 是否归档
 tags:                               #标签
     - STM32
 ---
+### 批处理方式合并hex文件
+```
+福利来了 --- 合并hex文件。
+经过修改，可以完美的把两个hex文件合并成一个了！
+将app和bootloader合并后再烧录真是方便啊。
 
+双击merge_hex.bat文件，合并后的文件是firmware.hex。
+需要合并的hex文件放在hex文件夹下：分别命名为：
+app.hex
+sn.hex
+名字可以自行修改（merge_hex.bat里的要随着修改就行了）
+拿走，不谢。
+
+解释下：
+@echo off
+::关echo
+merge\mergehex.exe --merge hex\app.hex         hex\sn.hex         --output firmware.hex 
+::合并hex文件，可以合并超大的hex文件。亲试300k合并没有问题。
+del hex\withoutsn.hex/s 
+::删除中间临时文件
+#pause
+
+::任意键退出，加#屏蔽了这句，如果不能生成hex文件，那么可以打开这句看看有无错误提示。
+```
 
 [低调码农-做一个勤奋的人](https://blog.csdn.net/qq_36373500/article/list/1)  
 
