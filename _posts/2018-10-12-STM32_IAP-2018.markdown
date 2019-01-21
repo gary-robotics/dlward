@@ -9,6 +9,8 @@ catalog: true                       # 是否归档
 tags:                               #标签
     - STM32
 ---
+[巧用JLINK来实现nrf51822的蓝牙设备流水号](https://www.cnblogs.com/libra13179/p/6519637.html)  
+
 ### 批处理方式合并hex文件
 ```
 福利来了 --- 合并hex文件。
