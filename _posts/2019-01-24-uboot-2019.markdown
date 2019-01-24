@@ -68,3 +68,61 @@ ubootspl.bin放到片内SRAM运行，进行初始化内存，将uboot.bin拷贝�
 这就是#ifdef CONFIG_SPL_BUILD 宏的由来。
 
 
+## 异常向量的地址映射问题
+根据ARM的手册我们知道，异常向量地址的入口为0x00000000或者0xffff0000然而片内内存中开始地址0x00000000为ROM区，开始地址不可写，处理器厂家知道这样设计有些问题，所以在片内内存开辟了一块新的区域专门用于放置异常向量表。这样做话我们就需要将异常向量表的地址重新定位到厂家的那块内存。 
+上述是uboot在片内内存中，如果是在SD卡运行，且启用了MMU，这时候就很麻烦，RAM公司也考虑到了这种情况，所以在CP15协处理器中设计了一个叫VBAR的寄存器，我们将异常向量表的地址放到VBAR寄存器，那么发生异常以后ARM处理器会自动的从VBAR寄存器寻到异常向量表的地址，跳转到该处进行运行。
+
+uboot编译以后的文件
+
+
+绿颜色的uboot 文件：是所有.o文件链接后的文件，很大约有900K，里面包含了很多的调试信息和注释信息，是不能放到板子里运行的，是用来调试的文件。(elf格式的image) 
+uboot.bin是uboot文件剥离掉调试信息和注释信息的文件，可以放置到板子中运行。(原始二进制文件(raw image)) 
+uboot.map (符号表) 
+uboot.srec ( S-Record格式的image) 
+uboot.lds （uboot的链接脚本文件） 
+uboot.16K（ubootspl-16K 文件）
+
+```
+查看uboot反汇编指令：
+  arm-linux-objdump -S u-boot | less
+```
+
+```
+pad:           .word 0x12345678 /* now 16*4=64 */
+#endif  /* CONFIG_SPL_BUILD */
+
+.global _end_vect
+_end_vect:
+
+    .balignl 16,0xdeadbeef
+ ```
+ 
+ 这段_pad标识占位 
+.global _end_vect 标识异常向量表结束 
+.balignl 16,0xdeadbeef 标识如果没有16字节对齐就填充0xdeadbeef 直到填充到下个标号16字节对齐为止。
+
+
+### 利用cp15协处理器设置异常向量表地址
+```
+#if !(defined(CONFIG_OMAP44XX) && defined(CONFIG_SPL_BUILD))
+    /* Set V=0 in CP15 SCTRL register - for VBAR to point to vector */
+    mrc p15, 0, r0, c1, c0, 0   @ Read CP15 SCTRL Register
+    bic r0, #CR_V       @ V = 0
+    mcr p15, 0, r0, c1, c0, 0   @ Write CP15 SCTRL Register
+
+    /* Set vector address in CP15 VBAR register */
+    ldr r0, =_start
+    mcr p15, 0, r0, c12, c0, 0  @Set VBAR
+#endif
+```
+
+ 1、将cp15 SCTRL寄存器读出来 
+2、清零第13位（#CR_V在arch/arm/include/asm/system.h中定义 是1<<13bit） 
+3、写会SCTRL寄存器 
+该位意思是中断异常地址设置0x00000000,选择1是映射到0xffff0000 
+4、将异常向量表实际运行的地址放入r0 
+5、将r0的内容写入VBAR寄存器
+
+VBAR寄存器：如果中断向量表的地址没有被映射到0xffff0000的话，有一种更好的方法，可以使用该寄存器将中断向量表的地址映射到任何地址。
+
+ 
