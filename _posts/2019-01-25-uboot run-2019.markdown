@@ -1,0 +1,55 @@
+---
+layout:     post                    # 使用的布局（不需要改）
+title:      boot run                # 标题 
+subtitle:    第一篇                  #副标题
+date:       2018-06-04              # 时间
+author:     BY Edlward              # 作者
+header-img: img/post-bg-2015.jpg    #这篇文章标题背景图片
+catalog: true                       # 是否归档
+tags:                               #标签
+    - uboot
+---
+
+### 启动方式
+
+三星推荐的启动方式：
+
+假定你的BootLoader必须小于96KB，并大于16KB。
+
+然后假定Bootloader为80KB：
+
+
+
+启动过程模拟：
+
+先开机启动，BL0上电，BL0会加载外部启动设备中的bootloader的前16KB到SRAM，运行BL1
+
+
+
+BL1在运行时要加载BL2(bootloader中80 - 16KB = 64KB)
+
+到SRAM的16KB的开始用，去运行BL2会初始化DDR。
+
+并且将OS搬运到DDR去执行OS，启动完成。
+
+
+
+UBOOT实际上的启动的方法：
+
+UBOOT的大小随意，假定是200KB
+
+启动过程是这样子的：
+
+先开机上电，BL0运行，BL0会加载外部启动设备中的UBOOT
+
+的前16KB（BL1）到SRAM中去运行，BL1运行会初始化DDR。
+
+然后将整个UBOOT，搬运到我们的DDR中。
+
+
+
+然后用一条长跳转指令从SRAM中直接跳转到DDR中继续执行我们的UBOOT。
+
+直到UBOOT完全启动。
+
+
