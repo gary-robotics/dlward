@@ -10,6 +10,9 @@ tags:                               #标签
     - uboot
 ---
 
+### 
+[uboot](https://blog.csdn.net/qq_16777851/article/details/81570476)  
+
 ### 启动方式
 
 三星推荐的启动方式：
