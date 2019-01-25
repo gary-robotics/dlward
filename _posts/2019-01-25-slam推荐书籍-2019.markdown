@@ -1,0 +1,120 @@
+---
+layout:     post                    # 使用的布局（不需要改）
+title:      slam推荐书籍                # 标题 
+subtitle:    第一篇                  #副标题
+date:       2018-06-04              # 时间
+author:     BY Edlward              # 作者
+header-img: img/post-bg-2015.jpg    #这篇文章标题背景图片
+catalog: true                       # 是否归档
+tags:                               #标签
+    - SLAM
+---
+
+
+```
+参考：http://blog.csdn.net/xidianzhimeng/article/details/52447335
+
+介绍
+
+        随着信息技术的飞速发展，SLAM（即时定位与地图构建）技术已经在多个领域发挥着不可替代的作用，包括无人驾驶、增强现实、三维重建等等。常言道“师父领进门，修行在个人”，但是对于还没有入门的小白来讲，SLAM怎样入门是一个大问题。这里将平时学习SLAM的一些基本资料罗列出来，供大家参考。
+
+ 
+
+1 相关网址
+
+（1）Andrew Davison的论文
+
+        Andrew Davison是SLAM领域的大牛，他推荐的很多文章都对入门有帮助。论文地址：
+
+        http://www.doc.ic.ac.uk/~ajd/publications.html
+
+        他们的机器人课程也是很推荐的，里面有相关的教程，地址是：
+
+        http://www.doc.ic.ac.uk/~ajd/Robotics/index.html
+
+ 
+
+（2）高博写的博客
+
+        高博（博客名为半闲居士）所写的SLAM相关博客，生动有趣，内容详实，是SLAM从理论到实践的首选。他的博客地址是：
+
+        http://www.cnblogs.com/gaoxiang12/ 
+
+        顺便推荐高博他们的微信公众号【泡泡机器人SLAM】。该公众号分享了一些列实用的课程，而且大部分都是有资料和视频录像的，非常推荐！
+
+ 
+
+（3）OpenSLAM
+
+        https://openslam.org/
+
+        这个网站分享了很多开源的项目，可以根据需要选择一些作为入门。
+
+ 
+
+（4）SLAMCN 网站
+
+        里面内容相当全，从概念介绍到典型系统，到资料推荐，再到相关牛人和实验室，应有尽有。
+
+        http://www.slamcn.org/index.php/%E9%A6%96%E9%A1%B5
+
+ 
+
+2 典型SLAM系统
+
+（1）Monocular SLAM
+
+        http://vision.ia.ac.cn/Students/gzp/monocularslam.html
+
+（2）PTAM
+
+        http://www.robots.ox.ac.uk/~gk/PTAM/
+
+（3）ORB-SLAM
+
+        http://webdiis.unizar.es/~raulmur/orbslam/
+
+（4）LSD-SLAM
+
+        http://vision.in.tum.de/research/vslam/lsdslam
+
+（5）DSO: Direct Sparse Odometry
+
+        http://vision.in.tum.de/research/vslam/dso
+
+  
+
+3 相关书籍推荐
+
+（1）Multiple View Geometry in Computer Vision (Second Edition)
+
+        http://www.robots.ox.ac.uk/~vgg/hzbook/
+
+        计算机视觉方面大神级别的书，也有中文版为《计算机视觉中的多视图几何》。如果不把这本书学到通透，很难从事SLAM的深入研究。
+
+（2） Robotics Vision and Control
+
+        http://www.petercorke.com/RVC/
+
+        这本书是面向实践的，把机器人和机器视觉的东西都讲述了一遍。本书配有MATLAB工具箱，可以免费下载使用，地址为：
+
+        http://petercorke.com/Toolbox_software.html
+
+        另外，本书现在也有了中文版，叫做《机器人学、机器视觉与控制》。
+
+（3）Probabilistic Robotics
+
+        http://www.probabilistic-robotics.org/
+
+        这本书从概率角度讲了机器人相关技术。尤其是关于SLAM的部分对于我们深入理解SLAM技术很重要，推荐阅读。
+
+（4）Lie groups Lie algebras and representations: anelementary introduction
+
+        李群李代数相关的知识，如果想要深入研究SLAM背后的数学原理，可以试着学习一下。
+
+（5）State Estimation for Robotics
+
+讲述了机器人中的状态估计问题，和上面提到的第一本书具有同样重要的地位。
+
+        http://asrl.utias.utoronto.ca/~tdb/bib/barfoot_ser17.pdf
+```
