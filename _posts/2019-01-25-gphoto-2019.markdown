@@ -1,0 +1,49 @@
+---
+layout:     post                    # 使用的布局（不需要改）
+title:      gphoto                # 标题 
+subtitle:    第一篇                  #副标题
+date:       2018-06-04              # 时间
+author:     BY Edlward              # 作者
+header-img: img/post-bg-2015.jpg    #这篇文章标题背景图片
+catalog: true                       # 是否归档
+tags:                               #标签
+    - GPHOTO2
+---
+
+
+```
+Install libgphoto2 and gphoto2 from source on Raspberry Pi
+https://hyfrmn.wordpress.com/2015/02/03/install-libgphoto2-and-gphoto2-from-source-on-raspberry-pi/
+FEBRUARY 3, 2015HYFRMN
+I wanted to control my camera, a Nikon D5300, through my raspberry pi. Unfortunately the version of libgphoto2 installed by default has a known bug that causes it to break. The bug is fixed in the latest version, so I decided to download and compile the latest versions. Here are the steps I used.
+First install the dependencies:
+
+# Install Dependencies
+sudo apt-get install libltdl-dev libusb-dev libusb-1.0 libexif-dev libpopt-dev
+Next download the latest stable versions:
+
+# Download Latest libgphoto2
+wgethttp://downloads.sourceforge.net/project/gphoto/libgphoto/2.5.7/libgphoto2-2.5.7.tar.gz
+# Download Latest gphoto2
+wget http://downloads.sourceforge.net/project/gphoto/gphoto/2.5.6/gphoto2-2.5.6.tar.gz
+
+Next we will unpack the files, configure the builds, compile the library and install it.
+
+tar -xvzf libgphoto2-2.5.7.tar.gz
+cd libgphoto2-2.5.7
+./configure
+make #This is going to take some time. Go get a cup of coffee.
+sudo make install
+Finally repeat the same process with gphoto2.
+
+tar -xvzf gphoto2-2.5.6.tar.gz
+cd gphoto2-2.5.6
+./configure
+make #Much faster then libgphoto2
+sudo make install
+If everything went well, you should be able to plug in your camera, and connect using the following.
+
+gphoto2 --auto-detect
+
+
+```
