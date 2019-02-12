@@ -55,4 +55,345 @@ UBOOT的大小随意，假定是200KB
 
 直到UBOOT完全启动。
 
+```
+start.S解析
 
+首先是头文件包含
+
+#include <config.h>
+#include <version.h>
+#if defined(CONFIG_ENABLE_MMU)
+#include <asm/proc/domain.h>
+#endif
+#include <regs.h>
+ 
+#ifndef CONFIG_ENABLE_MMU
+#ifndef CFG_PHY_UBOOT_BASE
+#define CFG_PHY_UBOOT_BASE CFG_UBOOT_BASE
+#endif
+#endif
+
+config.h是在配置时生成的文件，里面包含的是linux/autoconf.h，在mkconfig文件中可以看到生成的指令，内部包含板子的型号等参数。
+version.h是uboot版本号，由Makefile生成。
+
+asm/proc/domain.h不是uboot的原生目录，是配置时创建的符号链接，实际指向asm-arm/proc-armv/domain.h
+regs.h也是配置时生成的，实际为s5pc110.h
+上面两个目录这样配置是为了增强可移植性。
+
+接着定义两个宏 CFG_PHY_UBOOT_BASE CFG_UBOOT_BASE 为uboot的物理地址，CFG_UBOOT_BASE地址为0x33e00000
+
+#if defined(CONFIG_EVT1) && !defined(CONFIG_FUSED)
+    .word 0x2000
+    .word 0x0
+    .word 0x0
+    .word 0x0
+#endif
+
+宏CONFIG_EVT1已经被定义了，后面定义4个字，由于210是32位，所以一个字就是4个字节。这里定义4个字是为了填充uboot前16字节，因为210sd卡启动时会有16B的校验头，所以这里预先填充16字节的数据，以后计算校验头的时候直接覆盖前16字节。
+
+.globl _start
+_start: b  reset
+    ldr pc, _undefined_instruction
+    ldr pc, _software_interrupt
+    ldr pc, _prefetch_abort
+    ldr pc, _data_abort
+    ldr pc, _not_used
+    ldr pc, _irq
+    ldr pc, _fiq
+
+start.S的开始，这里虽然定义了异常向量表，但是由于uboot主要是用作启动，运行过程很短，所以基本不会用到。
+开头的 b reset 跳转到reset，reset就是代码真正有意义的起始位置。 构建异常向量表
+
+.global _end_vect
+_end_vect:
+ 
+    .balignl 16,0xdeadbeef
+
+这里定义了结束时候的动作，.balignl是为了字节对齐，后面第一个参数表示16字节对齐，第二个参数表示填充内容，当地址偏移4个地址就填充0xdeadbeef，直到地址16字节对齐为止。0xdeadbeef本身没有别的意思，只是十六进制的数刚好组成了两个单词，坏牛肉，意思就是没用的东西，用来填充内存的。
+
+_TEXT_BASE:
+    .word   TEXT_BASE
+
+/*
+ * Below variable is very important because we use MMU in U-Boot.
+ * Without it, we cannot run code correctly before MMU is ON.
+ * by scsuh.
+ */
+_TEXT_PHY_BASE:
+    .word   CFG_PHY_UBOOT_BASE
+ 
+.globl _armboot_start
+_armboot_start:
+    .word _start
+ 
+/*
+ * These are defined in the board-specific linker script.
+ */
+.globl _bss_start
+_bss_start:
+    .word __bss_start
+ 
+.globl _bss_end
+_bss_end:
+    .word _end
+
+定义TEXT_BASE，就是链接时的链接地址，0xc3e0_0000，随后又定义了CFG_PHY_UBOOT_BASE，之后定义了启动时的_start还有bss段。这些段的地址都是从链接脚本中得到的，这里相当于开辟空间存放这些地址。
+
+/*
+ * the actual reset code
+ */
+ 
+reset:
+    /*
+     * set the cpu to SVC32 mode and IRQ & FIQ disable
+     */
+    @;mrs   r0,cpsr
+    @;bic   r0,r0,#0x1f
+    @;orr   r0,r0,#0xd3
+    @;msr   cpsr,r0
+    msr cpsr_c, #0xd3     @ I & F disable, Mode: 0x13 - SVC
+
+实际的reset代码。前面四行被注释掉了，实际代码只有一行msr cpsr_c, #0xd3 msr传送数据到协处理器将#0xd3传送到cpsr寄存器的低八位（cpsr_c表示cpsr寄存器的低八位），0xd3就是11010011，禁止IRQ、FIQ，使处理器为ARM模式（即使用ARM指令而非Thumb指令），模式选择SVC模式。设置处理器模式(SVC)
+
+
+cpu_init_crit:
+……
+bl disable_l2cache
+
+bl set_l2cache_auxctrl_cycle
+
+bl enable_l2cache
+
+       /*
+        * Invalidate L1 I/D
+        */
+        mov r0, #0                  @ set up for MCR
+        mcr p15, 0, r0, c8, c7, 0   @ invalidate TLBs
+        mcr p15, 0, r0, c7, c5, 0   @ invalidate icache
+ 
+       /*
+        * disable MMU stuff and caches
+        */
+        mrc p15, 0, r0, c1, c0, 0
+        bic r0, r0, #0x00002000     @ clear bits 13 (--V-)
+        bic r0, r0, #0x00000007     @ clear bits 2:0 (-CAM)
+        orr r0, r0, #0x00000002     @ set bit 1 (--A-) Align
+        orr r0, r0, #0x00000800     @ set bit 12 (Z---) BTB
+        mcr    p15, 0, r0, c1, c0, 0
+
+接着是cpu初始化的代码，随后是 关L2 cache，设置L2 cache，使能L2 cache，刷新L1 cache的 Icache和 Dcache，关闭MMU。
+这部分都是和CPU的cache和mmu有关，大概知道即可。 初始化cpu cache，关闭mmu
+
+        /* Read booting information */
+        ldr r0, =PRO_ID_BASE
+        ldr r1, [r0,#OMR_OFFSET]
+        bic r2, r1, #0xffffffc1
+
+/* NAND BOOT */
+    cmp r2, #0x0      @ 512B 4-cycle
+    moveq   r3, #BOOT_NAND
+ 
+    cmp r2, #0x2      @ 2KB 5-cycle
+    moveq   r3, #BOOT_NAND
+ 
+    cmp r2, #0x4      @ 4KB 5-cycle8-bit ECC
+    moveq   r3, #BOOT_NAND
+ 
+    cmp r2, #0x6      @ 4KB 5-cycle16-bit ECC
+    moveq   r3, #BOOT_NAND
+ 
+    cmp r2, #0x8      @ OneNAND Mux
+    moveq   r3, #BOOT_ONENAND
+ 
+    /* SD/MMC BOOT */
+    cmp     r2, #0xc
+    moveq   r3, #BOOT_MMCSD
+ 
+    /* NOR BOOT */
+    cmp     r2, #0x14
+    moveq   r3, #BOOT_NOR 
+
+/* Uart BOOTONG failed */
+    cmp     r2, #(0x1<<4)
+    moveq   r3, #BOOT_SEC_DEV
+     
+    ldr r0, =INF_REG_BASE//0xE010F000
+    str r3, [r0, #INF_REG3_OFFSET] //0x0c
+
+读取启动信息，根据PRO_ID_BASE和OMR_OFFSET得知寄存器地址为0xE0000004，这个寄存器中的值反映了OMpin的接法，也就是知道了启动介质是Nand还是SD还是别的东西。之后比较r2，将对应的启动介质的地址写入r3中。最后将r3的数据传入INF_REG_BASE+INF_REG3_OFFSET中，查手册知这是INFORM3，用户定义数据的寄存器，这里用来存储启动介质的信息。
+
+/*
+ * Go setup Memory and board specific bits prior to relocation.
+ */
+ 
+ldr sp, =0xd0036000 /* end of sram dedicated to u-boot */
+sub sp, sp, #12  /* set stack */
+mov fp, #0
+ 
+bl  lowlevel_init  /* go setup pll,mux,memory */
+
+这里第一次初始化栈地址，栈地址在SRAM中。这里初始化栈，之后调用lowlevel_init函数去初始化各个硬件，lowlevel_init的详细分析在：http://blog.csdn.net/ldzq_sue/article/details/78354879
+关看门狗 开发板供电置锁 恢复I/O状态 初始化时钟 DDR初始化 串口初始化并打印调试信息"OK"
+
+/* To hold max8698 output before releasing power on switch,
+ * set PS_HOLD signal to high
+ */
+ldr r0, =0xE010E81C  /* PS_HOLD_CONTROL register */
+ldr r1, =0x00005301     /* PS_HOLD output high */
+str r1, [r0]
+ 
+这里又进行了一次开发板置锁操作，实际上在lowlevel_init函数里已经做过了。
+
+/* get ready to call C functions */
+ldr sp, _TEXT_PHY_BASE/* setup temp stack pointer */
+sub sp, sp, #12
+mov fp, #0        /* no previous frame, so fp=0 */
+
+第二次设置栈，因为之前的代码都还在SRAM中运行，内存空间很小(只有96KB)。第二部分还在SD卡（启动介质）里，现在DDR已经初始化了，可以使用更多的空间，将整个代码都迁移到DDR中。。这次设置栈地址在DDR SDRAM中，虽然设置的栈地址和uboot代码链接地址相同，但是由于ARM中的栈是满减栈(FD)，所以uboot代码向后执行，而栈则向前压栈，并不会冲突。
+ 
+/* when we already run in ram, we don't need to relocate U-Boot.
+ * and actually, memory controller must be configured before U-Boot
+ * is running in ram.
+ */
+ldr r0, =0xff000fff
+bic r1, pc, r0       /* r0 <- current base addr of code */
+ldr r2, _TEXT_BASE    /* r1 <- original base addr in ram */
+bic r2, r2, r0       /* r0 <- current base addr of code */
+cmp     r1, r2                  /* compare r0, r1                  */
+beq     after_copy    /* r0 == r1 then skip flash copy   */
+
+这里再次检查当前地址与链接地址(之前在lowlevel_init中检查过)，判断是否需要重定位。冷启动的这个时候，这些代码还运行在SRAM中，需要进行重定位来将整个代码迁移到DDR中。
+
+#if defined(CONFIG_EVT1)
+    /* If BL1 was copied from SD/MMC CH2 */
+    ldr r0, =0xD0037488
+    ldr r1, [r0]
+    ldr r2, =0xEB200000
+    cmp r1, r2
+    beq     mmcsd_boot
+#endif
+
+0xD003_7488用户手册上没有，在iROM_ApplicationNote里，0xD0037488 V210_SDMMC_BASE Current boot channel. 0xEB20000是SDMA System Address register，用来为DMA transfer存储系统内存地址。r1和r2比较，如果相同就说明是通过SD卡从通道2启动，跳转去执行mmcsd_boot。
+
+ 
+    ldr r0, =INF_REG_BASE//0xE010F000
+    ldr r1, [r0, #INF_REG3_OFFSET]//0x0c
+    cmp r1, #BOOT_NAND    /* 0x0 => boot device is nand */
+    beq nand_boot
+    cmp r1, #BOOT_ONENAND /* 0x1 => boot device is onenand */
+    beq onenand_boot
+    cmp     r1, #BOOT_MMCSD
+    beq     mmcsd_boot
+    cmp     r1, #BOOT_NOR
+    beq     nor_boot
+    cmp     r1, #BOOT_SEC_DEV
+    beq     mmcsd_boot
+
+这里和上面代码的作用基本相同而且更全面，使用了之前读取OM pin后存储到INFORM的启动介质信息，可以看出上一段的代码有点重复了。
+后面是各个启动介质boot的函数，这里只看mmcsd的：
+
+mmcsd_boot:
+#if DELETE //这个宏没有被定义过
+    ldr     sp, _TEXT_PHY_BASE      
+    sub     sp, sp, #12
+    mov     fp, #0
+#endif
+    bl      movi_bl2_copy
+    b       after_copy
+
+实际上的代码之后最后两行，movi_bl2_copy是在cpu/s5pc11x/movi.c文件里的一个C语言函数，功能是重定位代码到DDR中，之后跳转到 after_copy 去。 重定位代码到DDR
+
+after_copy:
+ 
+#if defined(CONFIG_ENABLE_MMU)
+enable_mmu:
+    /* enable domain access */
+    ldr r5, =0x0000ffff
+    mcr p15, 0, r5, c3, c0, 0     @load domain access register
+
+加载域访问寄存器。
+ 
+    /* Set the TTB register */
+    ldr r0, _mmu_table_base
+    ldr r1, =CFG_PHY_UBOOT_BASE
+    ldr r2, =0xfff00000
+    bic r0, r0, r2
+    orr r1, r0, r1
+    mcr p15, 0, r1, c2, c0, 0
+ 
+设置转换表(Translation Table Base)，_mmu_table_base 是一个标号，里面的内容是
+_mmu_table_base:
+    .word mmu_table//.word 就表示在当前位置放一个值，值是mmu_table
+意思就是把_mmu_table_base地址的内容传递给r0，而_mmu_table_base上的内容是mmu_table。
+
+    /* Enable the MMU */
+mmu_on:
+    mrc p15, 0, r0, c1, c0, 0
+    orr r0, r0, #1
+    mcr p15, 0, r0, c1, c0, 0
+    nop
+    nop
+    nop
+    nop
+#endif
+
+使能MMU，这些设置内存相关的都是通过协处理器CP15来设置的。
+建立虚拟地址映射物理地址的转换表并使能MMU
+
+skip_hw_init:
+    /* Set up the stack                         */
+stack_setup:
+#if defined(CONFIG_MEMORY_UPPER_CODE)//定义了这个宏
+    ldr sp, =(CFG_UBOOT_BASE + CFG_UBOOT_SIZE - 0x1000)
+#else
+    ldr r0, _TEXT_BASE    /* upper 128 KiB: relocated uboot   */
+    sub r0, r0, #CFG_MALLOC_LEN  /* malloc area                      */
+    sub r0, r0, #CFG_GBL_DATA_SIZE /* bdinfo                        */
+#if defined(CONFIG_USE_IRQ)//没有定义这个宏
+    sub r0, r0, #(CONFIG_STACKSIZE_IRQ+CONFIG_STACKSIZE_FIQ)
+#endif
+    sub sp, r0, #12      /* leave 3 words for abort-stack    */
+ 
+#endif
+
+第三次设置栈，这次设置栈的目的是为了调整栈的位置，使栈放在比较合适的地方（安全，紧凑而又不浪费内存）。
+
+clear_bss:
+    ldr r0, _bss_start    /* find start of bss segment        */
+    ldr r1, _bss_end      /* stop here                        */
+    mov    r2, #0x00000000       /* clear                            */
+ 
+clbss_l:
+    str r2, [r0]      /* clear loop...                    */
+    add r0, r0, #4
+    cmp r0, r1
+    ble clbss_l
+     
+    ldr pc, _start_armboot
+ 
+_start_armboot:
+    .word start_armboot
+
+清bss段，bss段的开头和结尾地址是从链接脚本u-boot.lds中得到的。之后长跳转到_start_armboot，即DDR中无缝衔接进行到启动第二阶段。
+
+至此，uboot启动第一阶段完毕。回顾整个启动过程，首先上电后板子内部的iROM里的BL0根据OMpin来判断启动介质，随后将启动代码的BL1部分(前16KB部分，具体大小不太清楚，数据手册写的最大16KB，但实际代码都是16KB。总之16KB是肯定可以工作的。)读取到SRAM中去启动执行，启动过程中执行了很多工作，包括：
+构建异常向量表
+设置处理器模式(SVC)
+初始化cpu cache，关闭mmu
+关看门狗
+开发板供电置锁
+恢复I/O状态
+初始化时钟
+初始化DDR
+初始化串口并打印调试信息"OK"
+重定位代码到DDR
+建立虚拟地址映射物理地址的转换表并使能MMU
+跳转到第二阶段
+之后的代码就从 start_armboot开始执行。
+--------------------- 
+作者：ldzq_sue 
+来源：CSDN 
+原文：https://blog.csdn.net/ldzq_sue/article/details/78366152 
+版权声明：本文为博主原创文章，转载请附上博文链接！
+
+```
