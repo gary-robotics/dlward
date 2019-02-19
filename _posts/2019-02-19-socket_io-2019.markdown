@@ -14,3 +14,4 @@ tags:                               #标签
 Socket io
 [Node.js 與 Socket.io – 即時聊天室實作](http://single9.net/2017/12/node-js-%E8%88%87-socket-io-%E5%8D%B3%E6%99%82%E8%81%8A%E5%A4%A9%E5%AE%A4%E5%AF%A6%E4%BD%9C/)  
 [無名大猫咪与小狮子](https://www.cnblogs.com/xiezhengcai/default.html?page=1)  
+[将Nodejs移植到Arm](https://blog.csdn.net/wanyi3605/article/details/78131241)  
