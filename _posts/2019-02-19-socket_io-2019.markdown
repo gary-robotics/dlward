@@ -78,3 +78,61 @@ prefix是你make install的文件夹，就是说你想将编译好的node安装�
 
 
 ```
+
+
+
+
+```
+
+Node.js嵌入式开发之(一)交叉编译
+2018年05月21日 15:59:43 sanallen 阅读数：1350
+参考文档
+本文档涉及到的目标硬件为全志H8(8核Cortex-A7，Armv7架构)，但是对其他Arm芯片也有一定的借鉴意义，只需要更换交叉编译链即可。
+
+开发环境介绍
+主机操作系统：Ubuntu14.04 64位
+目标平台：CQA83t 全志H8
+交叉工具链：arm-linux-gnueabihf，gcc4.9.2
+node.js版本：6.10.0
+编译时间：2018.5.21
+注意：node.js随着新版本的发布，已经对GCC的版本有一定要求了，具体要求可以查阅node.js代码目录下的BUILDING.md文件。node-v6.10.0对gcc编译器的要求为4.8.0以上。
+
+设置本地编译链和交叉编译链
+# 在/etc/bash.bashrc的最后增加如下指令
+# Native Compiler
+export AR_host="ar"
+export CC_host="gcc"
+export CXX_host="g++"
+export LINK_host="g++"
+
+# Allwinner H8 CQA83t cross compiler
+export ARCH=arm
+export PATH=/opt/toolchain/gcc-linaro-arm-linux-gnueabihf-4.9-2014.09_linux/bin/:$PATH
+export CROSS_COMPILE=arm-linux-gnueabihf-
+export CC=/opt/toolchain/gcc-linaro-arm-linux-gnueabihf-4.9-2014.09_linux/bin/arm-linux-gnueabihf-gcc    
+export CXX=/opt/toolchain/gcc-linaro-arm-linux-gnueabihf-4.9-2014.09_linux/bin/arm-linux-gnueabihf-g++    
+export LD=/opt/toolchain/gcc-linaro-arm-linux-gnueabihf-4.9-2014.09_linux/bin/arm-linux-gnueabihf-ld
+export AR=/opt/toolchain/gcc-linaro-arm-linux-gnueabihf-4.9-2014.09_linux/bin/arm-linux-gnueabihf-ar
+export AS=/opt/toolchain/gcc-linaro-arm-linux-gnueabihf-4.9-2014.09_linux/bin/arm-linux-gnueabihf-as
+export RANLIB=/opt/toolchain/gcc-linaro-arm-linux-gnueabihf-4.9-2014.09_linux/bin/arm-linux-gnueabihf-ranlib
+# 修改完成之后需要重启命令行才能生效
+# 你可以通过如下指令来确认交叉编译链是否已经设置好
+echo $CC 
+# 当显示/opt/toolchain/gcc-linaro-arm-linux-gnueabihf-4.9-2014.09_linux/bin/arm-linux-gnueabihf-gcc时表示交叉编译链
+# 已经设置好
+# 当需要更换为本机编译时屏蔽上面的指令即可
+注意：
+
+在进行node.js的编译之前除了设置好交叉编译器之外还要设置本地编译链，否则会出现和issues#18620相同的错误。
+
+配置
+./configure --prefix=/usr/local/H8/Ubuntu/node-6.10.0 --dest-cpu=arm --dest-os=linux 
+            --cross-compiling --without-snapshot --with-arm-float-abi=hard
+注意：
+
+当配置node.js的arm版本时，必须指定--without-snapshot选项，否则会出现错误
+
+编译&安装
+make -j8
+make install
+```
