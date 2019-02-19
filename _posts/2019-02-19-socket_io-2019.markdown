@@ -16,3 +16,65 @@ Socket io
 [無名大猫咪与小狮子](https://www.cnblogs.com/xiezhengcai/default.html?page=1)  
 [将Nodejs移植到Arm](https://blog.csdn.net/wanyi3605/article/details/78131241)  
 [nodejs&socket.IO 嵌入式linux移植与使用策略](https://blog.csdn.net/xfeng20/article/details/85265146)   
+
+
+```
+node.js版本  0.12.6   下载地址：https://nodejs.org/download/release/v0.12.6/   我用的版本是：node-v0.12.6.tar.gz
+
+arm开发板    SOC是S5PV210 CPU是Cortex A8
+
+交叉编译器是 gcc version 4.4.6 (for CW210 Concenwit Tech)   根据自己个人板子的情况来吧
+
+
+
+开始前的准备工作：
+
+export CC=arm-linux-gcc 
+export CXX=arm-linux-g++
+export LD=arm-linux-ld
+export RAINLIB=arm-linux-rainlib
+export AR=arm-linux-ar
+export CFLAGS=-static
+export CXXFLAGS=-static
+export LDFLAGS=-static
+
+最后三项是静态编译
+
+这是编译成功后file node的结果：
+
+tarena@ubuntu:/opt/rootfs/node/bin$ file node
+node: ELF 32-bit LSB executable, ARM, version 1 (SYSV), statically linked, for GNU/Linux 2.6.32, not stripped
+
+
+
+接下来就是
+
+./configure --prefix=/home/tarena/workdir --dest-cpu=arm --without-snapshot
+
+prefix是你make install的文件夹，就是说你想将编译好的node安装的地方
+
+加--without-ssl就编译错误
+
+
+
+然后： make  花了一个半小时，看你自己的机器咯
+
+最后： sudo  make install 
+
+
+
+最后将编译好拷贝到开发板：node -v   看有没有0.12.6
+
+
+
+我还有块arm9的板子，官方是支持armv6到armv8的但是那些源文件是动态链接的，我在自己的板子（armv7）上试过，没得反应，所以才决定自己编译的。
+
+关于node的更高版本，提示错误说要g++ 4.8.0以上版本，交叉编译器找到就不容易了，支持c++ 11恐怕更难找了。
+
+0.12.6是15年发布的，基本上很多模块都能用的，亲测crontab mysql模块都没得问题。
+
+有谁在arm9上编译成功的，一定要留个言。这是我找到的唯一线索，你们可以试试：http://www.nodejs-news.com/nodejs-tech/nodejs-armv5-armv6-howto/
+
+
+
+```
