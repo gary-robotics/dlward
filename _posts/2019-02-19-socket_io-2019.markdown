@@ -16,7 +16,7 @@ Socket io
 [無名大猫咪与小狮子](https://www.cnblogs.com/xiezhengcai/default.html?page=1)  
 [将Nodejs移植到Arm](https://blog.csdn.net/wanyi3605/article/details/78131241)  
 [nodejs&socket.IO 嵌入式linux移植与使用策略](https://blog.csdn.net/xfeng20/article/details/85265146)   
-
+[树莓派3(armv7)下配置node.js](https://blog.csdn.net/weixin_41576693/article/details/80556601)  
 
 ```
 node.js版本  0.12.6   下载地址：https://nodejs.org/download/release/v0.12.6/   我用的版本是：node-v0.12.6.tar.gz
