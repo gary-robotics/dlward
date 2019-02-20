@@ -19,6 +19,7 @@ Socket io
 [树莓派3(armv7)下配置node.js](https://blog.csdn.net/weixin_41576693/article/details/80556601)  
 [使用nodejs开发树莓派远程控制小车](https://blog.csdn.net/github_33696241/article/details/51756355?utm_source=blogxgwz1)  
 [采集rtsp流摄像头到浏览器实时播放方案](https://blog.csdn.net/derek518/article/details/78362183)  
+[树莓派视频遥控小车 + iOS / Android / web应用](https://www.jianshu.com/p/d0c8b51e9647)  
 ```
 node.js版本  0.12.6   下载地址：https://nodejs.org/download/release/v0.12.6/   我用的版本是：node-v0.12.6.tar.gz
 
