@@ -128,3 +128,127 @@ ffserver -f /etc/ffserver.conf
 备注：在做测试的时候，用rtsp不能传输flv文件。
 
 ```
+
+```
+gPhoto2是一个免费软件，提供了在类Unix系统上通过终端来控制数码相机的功能，开发队伍来自世界各地的自愿者，现在已支持超过1700多款机 型。可以运行在Linux, FreeBSD, NetBSD, MacOS X等系统上。同时在大部分发行版的软件仓库中都有。通过Picture Transfer Protocol (PTP) 协议来和相机通讯。
+ 
+    安装libgphoto2 是为了，使用到gphoto2的 API  链接地址：http://www.gphoto.org/doc/api/gphoto2-camera_8h.html ，即可以调用libgphoto2的库来进行编程。而gphoto2只是提供命令行的控制照相机。gphoto2官网的文档http://gphoto.sourceforge.net/doc/manual/ref-gphoto2-cli.html。
+当然，你可以安装gphoto2的图形界面gtkam。
+一，安装 gphoto2 ：
+$sudo apt-get install gphoto2
+$ sudo apt-get install gtkam
+二、将相机用USB线与电脑连接，最好使用有源的USB HUB，以免供电不足，打开相机电源，执行命令，查看 gphoto2 是否识别到了照相机：
+$ gphoto2 --auto-detect
+就会看到 USB PTP Class Camera  usb：001,002
+
+三、拍照
+ $gphoto2 --capture-image 拍照
+ $ gphoto2  --capture-image-and-download 拍照后传到电脑的当前目录下
+  拍照时可能会报错，关于错误解答，请看官网链接：http://www.gphoto.org/doc/manual/FAQ.html#FAQ-could-not-claim-USB
+
+四，libgphoto2 安装
+$ sudo apt-get install libgphoto2-2-dev
+ 安装成功之后，就可以使用 api编程的了
+五，C++模板
+#include < gphoto2/gphoto2-camera.h >
+// C++ includes
+#include < cstdlib >
+#include < cstdio >
+
+// C includes
+#include < fcntl.h >
+
+// Class header include
+#include "../include/gphoto2_handler.hpp"
+void errorCallback(GPContext *context, const char *format, va_list args, void *data);
+void messageCallback(GPContext *context, const char *format, va_list args, void *data);
+GPhoto2Handler::GPhoto2Handler()
+{
+    gp_camera_new(&camera);
+    context = gp_context_new();
+
+    gp_context_set_error_func(context, errorCallback, NULL);
+    gp_context_set_message_func(context, messageCallback, NULL);
+
+    int return_code = gp_camera_init(camera, context);
+    if (return_code < GP_OK)
+    {
+        ROS_ERROR("%s", "No camera detected.");
+        gp_camera_free(camera);
+    }
+}
+std::string GPhoto2Handler::takePicture()
+{
+    std::string empty_filename;
+
+    CameraFilePath camera_file_path;
+    int return_code = gp_camera_capture(camera, GP_CAPTURE_IMAGE, &camera_file_lpath, context);
+
+    if (return_code)
+    {
+        ROS_ERROR("%s", "Could not capture the image from the camera.");
+        return empty_filename;
+    }
+
+    int file_descriptor = open(camera_file_path.name, O_CREAT | O_WRONLY, 0644);
+
+    CameraFile *file;
+    return_code = gp_file_new_from_fd(&file, file_descriptor);
+
+    if (return_code)
+    {
+        ROS_ERROR("%s", "Could not create a new file to store the image from the camera.");
+        return empty_filename;
+    }
+    return_code = gp_camera_file_get(camera,
+                                     camera_file_path.folder,
+                                     camera_file_path.name,
+                                     GP_FILE_TYPE_NORMAL,
+                                     file,
+                                     context);
+    if (return_code)
+    {
+        ROS_ERROR("%s", "Could not download the captured image from the camera.");
+        return empty_filename;
+    }
+
+    return_code = gp_camera_file_delete(camera,
+                                        camera_file_path.folder,
+                                        camera_file_path.name,
+                                        context);
+    if (return_code)
+    {
+        ROS_WARN("%s", "Could not delete the captured image from the camera.");
+    }
+
+    gp_file_free(file);
+
+    std::string picture_filename(camera_file_path.name);
+    return picture_filename;
+}
+
+
+代码可能看糊涂，就大概总结一下吧：
+关键地方就下面几个函数：
+//自动拍照功能，获取图像
+gp_camera_capture(camera, GP_CAPTURE_IMAGE, &camera_file_lpath, context);
+//获取打开文件的权限
+int file_descriptor = open(camera_file_path.name, O_CREAT | O_WRONLY, 0644);
+//获取图像路径和文件名
+eturn_code = gp_camera_file_get(camera,
+                                     camera_file_path.folder,
+                                     camera_file_path.name,
+                                     GP_FILE_TYPE_NORMAL,
+                                     file,
+                                     context);
+获取这个路径之后，就可以下载照片到自己的电脑上了，保存照片电脑上的操作可以采用CV::write()操作
+
+//删掉照相机中的这个图像，可以不删掉，让它保持在照相机中
+return_code = gp_camera_file_delete(camera,
+                                        camera_file_path.folder,
+                                        camera_file_path.name,
+                                        context);
+具体函数，可以看以上官网说明。
+
+
+```
