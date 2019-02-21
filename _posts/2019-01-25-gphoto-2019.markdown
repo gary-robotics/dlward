@@ -25,7 +25,7 @@ sudo apt-get install libltdl-dev libusb-dev libusb-1.0 libexif-dev libpopt-dev
 Next download the latest stable versions:
 
 # Download Latest libgphoto2
-wgethttp://downloads.sourceforge.net/project/gphoto/libgphoto/2.5.7/libgphoto2-2.5.7.tar.gz
+wget http://downloads.sourceforge.net/project/gphoto/libgphoto/2.5.7/libgphoto2-2.5.7.tar.gz
 # Download Latest gphoto2
 wget http://downloads.sourceforge.net/project/gphoto/gphoto/2.5.6/gphoto2-2.5.6.tar.gz
 
