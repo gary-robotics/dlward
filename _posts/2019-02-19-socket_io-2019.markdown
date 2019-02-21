@@ -20,6 +20,32 @@ Socket io
 [使用nodejs开发树莓派远程控制小车](https://blog.csdn.net/github_33696241/article/details/51756355?utm_source=blogxgwz1)  
 [采集rtsp流摄像头到浏览器实时播放方案](https://blog.csdn.net/derek518/article/details/78362183)  
 [树莓派视频遥控小车 + iOS / Android / web应用](https://www.jianshu.com/p/d0c8b51e9647)  
+
+```
+嵌入式开发语言 -- nodejs
+
+nodejs是一个新兴的后台语言。
+数据采集，数据存储，协议转换，数据传输，web程序模块架构，系统应用，路由选择等
+
+Node.js是一个Javascript运行环境(runtime)。实际上它是对Google V8引擎进行了封装。V8引 擎执行Javascript的速度非常快，性能非常好。Node.js对一些特殊用例进行了优化，提供了替代的API，使得V8在非浏览器环境下运行得更好。
+Node.js是一个基于Chrome JavaScript运行时建立的平台， 用于方便地搭建响应速度快、易于扩展的网络应用。Node.js 使用事件驱动， 非阻塞I/O 模型而得以轻量和高效，非常适合在分布式设备上运行的数据密集型的实时应用。
+
+
+nodejs作为一个新兴的后台语言，有很多吸引人的地方：
+1、RESTful API
+2、单线程
+
+      Node.js可以在不新增额外线程的情况下，依然可以对任务进行并行处理 —— Node.js是单线程的。它通过事件轮询（event loop）来实现并行操作，对此，我们应该要充分利用这一点 —— 尽可能的避免阻塞操作，取而代之，多使用非阻塞操作。
+
+3、非阻塞IO
+4、V8虚拟机
+5、事件驱动
+
+
+MQTT（Message Queuing Telemetry Transport，消息队列遥测传输）是IBM开发的一个即时通讯协议，有可能成为物联网的重要组成部分。该协议支持所有平台，几乎可以把所有联网物品和外部连接起来，被用来当做传感器和致动器（比如通过Twitter让房屋联网）的通信协议。
+```
+
+
 ```
 node.js版本  0.12.6   下载地址：https://nodejs.org/download/release/v0.12.6/   我用的版本是：node-v0.12.6.tar.gz
 
