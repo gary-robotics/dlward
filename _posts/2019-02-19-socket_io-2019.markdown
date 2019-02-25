@@ -10,6 +10,7 @@ tags:                               #标签
     - gphoto
 ---
 ###
+[Node.js GET/POST请求](http://www.runoob.com/nodejs/node-js-get-post.html)  
 [Node.js RESTful API](http://www.runoob.com/nodejs/nodejs-restful-api.html)  
 
 [如何在JavaScript中的Raspberry PI上构建REST Web API](http://www.robert-drummond.com/2013/05/08/how-to-build-a-restful-web-api-on-a-raspberry-pi-in-javascript-2/)  
