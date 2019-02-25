@@ -10,7 +10,42 @@ tags:                               #标签
     - gphoto
 ---
 ###
-与Node http服务器一起使用
+
+#raspberry#基于树梅派的REST Web API构架
+
+http://thefloppydisk.wordpress.com/2013/03/08/server-side-javascript-on-a-raspberry-pi-how-to-install-node-js/
+
+
+
+http://thefloppydisk.wordpress.com/2013/05/08/how-to-build-a-restful-web-api-on-a-raspberry-pi-in-javascript/
+
+
+
+http://tomholderness.wordpress.com/2013/01/03/raspberry-pi-temperature-server/
+
+
+
+http://pixelhandler.com/posts/develop-a-restful-api-using-nodejs-with-express-and-mongoose
+
+
+
+Before writing the entire system is based on a Raspberry Pi weather and energy detection system, including the indoor and outdoor temperature and humidity, as well as energy conditions in the room. Raspberry detection node is based embedded systems. After the completion of the details of the system will be written.
+
+
+
+Express is a lightweight node.js web application framework. It provides the basic HTTP infrastructure that makes it easy to create REST APIs. [1]
+
+
+--------------------- 
+作者：barry963 
+来源：CSDN 
+原文：https://blog.csdn.net/barry963/article/details/25333845 
+版权声明：本文为博主原创文章，转载请附上博文链接！
+
+
+
+
+与Node http服务器一起使用  
 Socket io
 [Node.js 與 Socket.io – 即時聊天室實作](http://single9.net/2017/12/node-js-%E8%88%87-socket-io-%E5%8D%B3%E6%99%82%E8%81%8A%E5%A4%A9%E5%AE%A4%E5%AF%A6%E4%BD%9C/)  
 [無名大猫咪与小狮子](https://www.cnblogs.com/xiezhengcai/default.html?page=1)  
