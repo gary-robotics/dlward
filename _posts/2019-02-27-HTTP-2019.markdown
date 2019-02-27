@@ -11,3 +11,5 @@ tags:                               #标签
 ---
 
 [Http协议报文格式](https://blog.csdn.net/holmofy/article/details/68492045)   
+[把IP地址发送到淘宝的REST API，得到淘宝IP库返回的解析结果](http://ip.taobao.com/instructions.html)  
+http://ip.taobao.com//service/getIpInfo.php?ip=62.150.5.149
