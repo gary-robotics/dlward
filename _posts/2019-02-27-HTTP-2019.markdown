@@ -1,0 +1,13 @@
+---
+layout:     post                    # 使用的布局（不需要改）
+title:      HTTP                # 标题 
+subtitle:    第一篇                  #副标题
+date:       2019-02-19              # 时间
+author:     BY Edlward              # 作者
+header-img: img/post-bg-2015.jpg    #这篇文章标题背景图片
+catalog: true                       # 是否归档
+tags:                               #标签
+    - HTTP
+---
+
+[Http协议报文格式](https://blog.csdn.net/holmofy/article/details/68492045)   
