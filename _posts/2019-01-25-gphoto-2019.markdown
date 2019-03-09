@@ -9,6 +9,10 @@ catalog: true                       # 是否归档
 tags:                               #标签
     - GPHOTO2
 ---
+### Node JS
+[libgphoto2的Node.js包装器](https://www.npmjs.com/package/gphoto2)  
+
+
 ### libtdl
 动态链接库
 [libtdl](https://www.gnu.org/software/libtool/manual/html_node/Libltdl-interface.html)  
