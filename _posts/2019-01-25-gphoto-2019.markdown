@@ -11,7 +11,7 @@ tags:                               #标签
 ---
 ### Node JS
 [libgphoto2的Node.js包装器](https://www.npmjs.com/package/gphoto2)  
-
+[node-gphoto2](https://github.com/lwille/node-gphoto2.git)  
 
 ### libtdl
 动态链接库
