@@ -10,6 +10,10 @@ tags:                               #标签
     - gphoto
 ---
 ###
+[Node.js C ++插件](https://nodeaddons.com/)  
+[NodeJS Advanced - 如何使用C ++创建本机加载项](https://medium.com/the-guild/nodejs-advanced-how-to-create-a-native-add-on-using-c-588b4f2248cc)  
+[在 Node.js 和 C++ 之间使用 Buffer 共享数据](https://juejin.im/entry/586fbcefda2f600053df7787)  
+
 [Node.js GET/POST请求](http://www.runoob.com/nodejs/node-js-get-post.html)  
 [Node.js RESTful API](http://www.runoob.com/nodejs/nodejs-restful-api.html)  
 [用JSON-server模拟REST API(一) 安装运行](https://segmentfault.com/a/1190000005793257)  
