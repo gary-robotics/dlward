@@ -9,7 +9,7 @@ catalog: true                       # 是否归档
 tags:                               #标签
     - SLAM
 ---
-
+[从零开始一起学习SLAM | 学习SLAM到底需要学什么？](https://blog.csdn.net/electech6/article/details/82597882)  
 
 ```
 参考：http://blog.csdn.net/xidianzhimeng/article/details/52447335
