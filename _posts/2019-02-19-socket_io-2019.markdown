@@ -10,6 +10,8 @@ tags:                               #标签
     - gphoto
 ---
 ###
+[NodeJs系列教程](https://blog.csdn.net/MyronCham/article/details/86520043)  
+
 [Node.js C ++插件](https://nodeaddons.com/)  
 [NodeJS Advanced - 如何使用C ++创建本机加载项](https://medium.com/the-guild/nodejs-advanced-how-to-create-a-native-add-on-using-c-588b4f2248cc)  
 [在 Node.js 和 C++ 之间使用 Buffer 共享数据](https://juejin.im/entry/586fbcefda2f600053df7787)  
