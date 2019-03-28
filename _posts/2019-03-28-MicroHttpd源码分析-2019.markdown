@@ -1,0 +1,81 @@
+```
+目标读者：1.想快速了解microhttpd主逻辑的人2.自己，知识梳理和记忆前提准备：1.socket的基本知识基本原理：https://www.cnblogs.com/f-ck-need-u/p/7623252.html函数参数：https://blog.csdn.net/jyy305/article/details/73012706监听套接字与已连接套接字：https://blog.csdn.net/lihao21/article/details/649514462.microhttpd的源码https://www.gnu.org/software/libmicrohttpd/精简模型一般思路的精简模型：https://www.cnblogs.com/PengfeiSong/p/6796338.html
+fd=socket()//创建
+bind(fd)//绑定
+listen(fd)//开始侦听
+while loop:{
+----connection_fd=accpet(fd)
+----create thread to handle data process(connection_fd)
+---------thread runnable: recv and send
+}
+演化(microhttpd模型)
+fd=socket()//创建
+bind(fd)//绑定
+listen(fd)//开始侦听
+create thread to handle connection and send/recv
+thread runnable:
+----connection_fd = accept(fd)
+----recv and send
+主要流程图
+
+
+
+
+
+启动流程代码MHD_start_daemon前置条件：1.MHD_USE_INTERNAL_POLLING_THREAD；2.MHD_OPTION_THREAD_POOL_SIZE 4；3.设置MHD_AccessHandlerCallback
+-->MHD_start_daemon_va
+//#先增加两个flag: MHD_USE_POLL, MHD_USE_ITC
+----->MHD_socket_create_listen_//#创建socket
+----->setsockopt//#设置socket参数
+----->bind//#socket bind
+----->listen//#**启动socket侦听**
+//#至此，daemon的参数也基本设置完毕。
+//#为daemon创建4个work_pool，作为下面4个线程的context
+for loop://#创建4个独立的线程来处理各种连接
+//#为每一个子线程创建一个daemon，copy drom 原始daemon，并置空work_pool_size和wokr_pool
+----->MHD_itc_init_//#创建管道pipe
+----->MHD_create_named_thread_//#重点参数MHD_select_thread
+工作流程代码工作流程的起点即为上面的线程起点MHD_select_thread
+while loop {
+-->MHD_poll
+----->MHD_poll_all
+//#重要提醒
+//#设置pollfd[0]=socket;    poll_listen=0
+//#设置pollfd[1]=pipe read fd;
+//# 设置pollfd[2]=socket accept fd;   poll_server=2
+-------->MHD_sys_poll_//#获取数据
+//#MHD_poll_all  poll listen fd事件@{
+-------->MHD_accept_connection//#当读到数据时进行
+------------>accept//#**建立socket连接，poll server fd**
+----------->internal_add_connection
+----------->MHD_calloc_//#创建 connection
+----------->MHD_pool_create//#创建 connection pool（MemoryPool）
+//#connection其他参数的设置，比如设置connection->socket_fd
+----------->MHD_set_http_callbacks_//#**将MHD_connection_handle_idle赋值给connection->idle_handler， 用于后续数据处理的回调**
+------------>DLL_insert//#设置connection的链表 head, tail
+------------>MHD_CONNECTION_NOTIFY_STARTED//#通知connection建立
+------------>MHD_itc_activate_(daemon->itc, "n")//#**向管道中写入一个"n"**
+@}
+//#MHD_poll_all poll server fd事件 @{
+-------->call_handlers//#有网络数据请求，进行数据服务
+----------->read_handler()//#函数指针调用：MHD_connection_handle_read，读取数据
+--------------->do_read()
+--------------------->connection->recv_cls()//#函数指针调用：recv_param_adapter()
+-------------------------->MHD_recv_()//#socket recv
+-------------------------->if read bytes < 0 || read bytes ==0, set connection->state=close, notify_completed(closed)
+----------->idle_handler()//#函数指针调用：MHD_connection_handle_read
+----------------->call_connection_handler//# 函数指针调用，MHD_AccessHandlerCallback
+----------------->process_request_body//#函数指针调用，MHD_AccessHandlerCallback
+@}
+-->MHD_cleanup_connections
+}
+-->close_all_connections
+几个点：1.为什么要创建itc？答：在本文场景中，是为了避免poll模式死等。生产者：internal_add_connection：MHD_itc_activate_(daemon->itc, "n")MHD_resume_connection：MHD_itc_activate_(daemon->itc, "r")resume_suspended_connections：MHD_itc_activate_(daemon->itc,"w")MHD_quiesce_daemon：MHD_itc_activate_(daemon->itc, "q")close_all_connections：MHD_itc_activate_(daemon->itc, "e")MHD_stop_daemon：MHD_itc_activate_(daemon->itc, "e")消费者：都不关心内容MHD_poll_all：MHD_itc_clear_(daemon->itc)//#本文的场景thread_main_handle_connectioninternal_run_from_selectMHD_poll_listen_socketMHD_epoll2.是如何断开的a)当do_read中read<0时，认为出错，断开，notify MHD_REQUEST_TERMINATED_WITH_ERRORb)当do_read中read=0时，认为读取完成，断开，notify MHD_REQUEST_TERMINATED_CLIENT_ABORTc)当read done，notify MHD_REQUEST_TERMINATED_CLIENT_COMPLETED_OK3.有什么优缺点？microhttpd本身是一个prefork模型。由于是同一个线程管理监听和读写数据，所以，当此线程在同时处理读写数据时，其他建立连接的行为会被延后。此时，也无法判断是否有新连接的建立被当前的读写行为影响了。在某些问题分析时会有困扰。但其优点也十分突出：简单短小。小型场景使用或本地使用很少遇到读写影响，也不需要太关心检测行为，是可以完全满足的。这也许就是其micro的定位吧。
+
+作者：天开之想
+链接：https://www.jianshu.com/p/08ac62c536c2
+来源：简书
+简书著作权归作者所有，任何形式的转载都请联系作者获得授权并注明出处。
+
+
+```
