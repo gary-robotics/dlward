@@ -12,6 +12,7 @@ tags:                               #标签
 
 [chaoxing](http://mooc.chaoxing.com/category/08/30/24)  
 [chaoxing2](http://59.75.114.218:9080/gnxw/1024.jhtml)  
+[浅谈机器人导航与避障浅谈机器人导航与避障](https://www.aiimooc.com/mall/list-htm-active-6-catid-756.html)  
 
 ## Hey
 >EKF
