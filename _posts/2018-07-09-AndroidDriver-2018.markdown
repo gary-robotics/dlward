@@ -10,6 +10,9 @@ catalog:    true
 tags:
     - android
 ---
+sudo apt-get install libc6-i386
+[解决ubuntu 64位系统 无法运行32位程序的问题](https://blog.csdn.net/mtofum/article/details/50296085)  
+
 # 路线
 [如何选择单片机和Android-LInux-ARM开发板？](https://www.zhihu.com/question/41812528)  
 [嵌入式开发职业课程](http://www.makeru.com.cn/roadmap/emb)   
