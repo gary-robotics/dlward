@@ -11,3 +11,4 @@ tags:                               #标签
 ---
 [设计模式C++实现（16）——状态模式](https://blog.csdn.net/wuzhekai1985/article/details/6675799)  
 [C++封装SDK的一种方法(接口与实现分离)](https://blog.csdn.net/u011583798/article/details/79615756)  
+[C++中的单例模式](https://www.cnblogs.com/xiehongfeng100/p/4781013.html)  
