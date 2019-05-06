@@ -15,7 +15,7 @@ tags:                               #标签
 [单例模式](https://www.cnblogs.com/cxjchen/p/3148582.html)  
 [ 原	c++ 注册回调函数研究](https://blog.csdn.net/mrailence/article/details/52251201)  
 
-
+```
 Welcome to Zhijiang TAO's reading list!
 
 C++ and Boost
@@ -89,3 +89,4 @@ Others
 批判性思维：带你走出思维的误区 
 卓有成效的管理者 
 后望书 
+```
