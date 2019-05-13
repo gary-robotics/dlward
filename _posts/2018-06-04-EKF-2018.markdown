@@ -14,7 +14,8 @@ tags:                               #标签
 [chaoxing2](http://59.75.114.218:9080/gnxw/1024.jhtml)  
 [浅谈机器人导航与避障浅谈机器人导航与避障](https://www.aiimooc.com/mall/list-htm-active-6-catid-756.html)  
 [电子信息工程专业课程](http://www.08nm.com/forum.php?mod=forumdisplay&action=list&fid=143)  
-
+[黑洞成像背后的算法－－图像处理与反问题](https://zhuanlan.zhihu.com/p/62026270)  
+[图像处理中的数学方法](http://bicmr.pku.edu.cn/~dongbin/Teaching_files/%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86%E4%B8%AD%E7%9A%84%E6%95%B0%E5%AD%A6%E6%96%B9%E6%B3%95-18-19/index.html)  
 
 ##
 [利用 Maxima 求解常微分方程](https://blog.csdn.net/liyuanbhu/article/details/7585405)  
