@@ -19,6 +19,9 @@ tags:                               #标签
 ##
 [利用 Maxima 求解常微分方程](https://blog.csdn.net/liyuanbhu/article/details/7585405)  
 [Linux下的数学工具Maxima 简明教程（上）](http://www.matrix67.com/blog/archives/337)  
+[自动机，状态机，有限自动机，有限状态机，有限状态自动机，非确定下有限状态自动，确定性有限状态自动机的区别于联系](https://blog.csdn.net/c601097836/article/details/47040703)  
+
+
 ```
 参考或原文 www.zhihu.com 
 
