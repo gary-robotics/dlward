@@ -18,6 +18,7 @@ tags:                               #标签
 
 ##
 [利用 Maxima 求解常微分方程](https://blog.csdn.net/liyuanbhu/article/details/7585405)  
+[Linux下的数学工具Maxima 简明教程（上）](http://www.matrix67.com/blog/archives/337)  
 ```
 参考或原文 www.zhihu.com 
 
