@@ -11,6 +11,85 @@ tags:                               #标签
 ---
 
 ```
+
+#include <sys/types.h>
+#include <sys/select.h>
+#include <sys/socket.h>
+#include <microhttpd.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+ 
+#define PORT 8888
+ 
+ 
+static int
+print_out_key (void *cls, enum MHD_ValueKind kind, const char *key,
+               const char *value)
+{
+  printf ("%s: %s\n", key, value);
+  return MHD_YES;
+}
+ 
+static int
+answer_to_connection (void *cls, struct MHD_Connection *connection,
+                      const char *url, const char *method,
+                      const char *version, const char *upload_data,
+                      size_t *upload_data_size, void **con_cls)
+{
+ 
+    //接受参数
+  printf("----------------------------------new line------------------------------------------\n");
+  printf ("New %s request for %s using version %s\n", method, url, version);
+ 
+  MHD_get_connection_values (connection, MHD_HEADER_KIND, print_out_key,
+                             NULL);
+ 
+  const char* body = MHD_lookup_connection_value (connection, MHD_POSTDATA_KIND, NULL); 
+  if (body == NULL) 
+      return 0; 
+  printf("----------------------------------post date-------------------------------------------\n");
+  printf("body = %s\n" , body);
+  //应答
+  const char *page = "0";
+  struct MHD_Response *response;
+  int ret;
+  
+  response =
+    MHD_create_response_from_buffer (strlen (page), (void *) page, 
+                     MHD_RESPMEM_MUST_COPY);
+  ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
+  return ret;
+}
+ 
+int
+main ()
+{
+  struct MHD_Daemon *daemon;
+ 
+  daemon = MHD_start_daemon (MHD_USE_SELECT_INTERNALLY, PORT, NULL, NULL,
+                             &answer_to_connection, NULL, MHD_OPTION_END);
+  if (NULL == daemon)
+    return 1;
+ 
+  getchar ();
+ 
+  MHD_stop_daemon (daemon);
+  return 0;
+}
+ 
+
+--------------------- 
+作者：easyhao007 
+来源：CSDN 
+原文：https://blog.csdn.net/easyhao007/article/details/37565215 
+版权声明：本文为博主原创文章，转载请附上博文链接！
+```
+
+
+
+
+```
 目标读者：1.想快速了解microhttpd主逻辑的人2.自己，知识梳理和记忆前提准备：1.socket的基本知识基本原理：https://www.cnblogs.com/f-ck-need-u/p/7623252.html函数参数：https://blog.csdn.net/jyy305/article/details/73012706监听套接字与已连接套接字：https://blog.csdn.net/lihao21/article/details/649514462.microhttpd的源码https://www.gnu.org/software/libmicrohttpd/精简模型一般思路的精简模型：https://www.cnblogs.com/PengfeiSong/p/6796338.html
 fd=socket()//创建
 bind(fd)//绑定
