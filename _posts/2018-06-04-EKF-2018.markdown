@@ -19,6 +19,7 @@ tags:                               #标签
 [应用数学专业培养指导性学习计划](https://math.ustc.edu.cn/new/bencandy.php?fid=43&id=1105)  
 [Matlab与线性代数](https://blog.csdn.net/LSGO_MYP/column/info/14095)  
 [计算机应用数学 - Coremail邮件系统 - 浙江大学](http://www.cad.zju.edu.cn/home/zhx/csmath/doku.php?id=2017#courselet_on_multivariate_analysis)  
+[小可搜索](https://www.xiaokesoso.com/)  
 
 ##
 [利用 Maxima 求解常微分方程](https://blog.csdn.net/liyuanbhu/article/details/7585405)  
