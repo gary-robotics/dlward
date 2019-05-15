@@ -22,7 +22,8 @@ tags:                               #标签
 [小可搜索](https://www.xiaokesoso.com/)  
 
 [现代数学概论 – 科学计算 ](http://www.math.zju.edu.cn:8080/xlhu/sc.html)  
-
+[计算机中的数学](http://list.youku.com/albumlist/show?id=19465801&ascending=1&page=1)  
+[和机器学习和计算机视觉相关的数学（from LinDahua）](http://blog.sciencenet.cn/blog-240720-284694.html)  
 
 
 ##
