@@ -13,6 +13,7 @@ tags:                               #标签
 [chaoxing](http://mooc.chaoxing.com/category/08/30/24)  
 [chaoxing2](http://59.75.114.218:9080/gnxw/1024.jhtml)
 [在家里如何免费使用中国知网？](https://www.zhihu.com/question/20188973?sort=created)  
+[长春理工](http://lib.cust.edu.cn/webs/show/notice/723/528.html)  
 [浅谈机器人导航与避障浅谈机器人导航与避障](https://www.aiimooc.com/mall/list-htm-active-6-catid-756.html)  
 [电子信息工程专业课程](http://www.08nm.com/forum.php?mod=forumdisplay&action=list&fid=143)  
 [黑洞成像背后的算法－－图像处理与反问题](https://zhuanlan.zhihu.com/p/62026270)  
