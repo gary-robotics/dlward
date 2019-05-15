@@ -21,6 +21,10 @@ tags:                               #标签
 [计算机应用数学 - Coremail邮件系统 - 浙江大学](http://www.cad.zju.edu.cn/home/zhx/csmath/doku.php?id=2017#courselet_on_multivariate_analysis)  
 [小可搜索](https://www.xiaokesoso.com/)  
 
+[现代数学概论 – 科学计算 ](http://www.math.zju.edu.cn:8080/xlhu/sc.html)  
+
+
+
 ##
 [利用 Maxima 求解常微分方程](https://blog.csdn.net/liyuanbhu/article/details/7585405)  
 [Linux下的数学工具Maxima 简明教程（上）](http://www.matrix67.com/blog/archives/337)  
