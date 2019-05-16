@@ -9,6 +9,8 @@ catalog: true                       # 是否归档
 tags:                               #标签
     - GPHOTO2
 ---
+[The open hardware project to build an inexpensive and customizable infrared remote control for Nikon cameras](http://www.bigmike.it/ircontrol/)  
+
 ### Node JS
 [libgphoto2的Node.js包装器](https://www.npmjs.com/package/gphoto2)  
 [node-gphoto2](https://github.com/lwille/node-gphoto2.git)  
