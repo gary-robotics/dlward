@@ -29,6 +29,7 @@ tags:                               #标签
 [计算机中的数学](http://list.youku.com/albumlist/show?id=19465801&ascending=1&page=1)  
 [和机器学习和计算机视觉相关的数学（from LinDahua）](http://blog.sciencenet.cn/blog-240720-284694.html)  
 [Matlab程式設計－醫學影像處理與3D列印 (醫放一/碩博班) ](http://www.ym.edu.tw/~cflu/CFLu_course_matlabimage.html)  
+[ 應用數學-線性代數](https://www.youtube.com/watch?v=aHYcMCNbLxo&list=PLj6E8qlqmkFtxW2puI1MC7LRyelWBJl2O&index=2&t=0s)
 
 ##
 [利用 Maxima 求解常微分方程](https://blog.csdn.net/liyuanbhu/article/details/7585405)  
