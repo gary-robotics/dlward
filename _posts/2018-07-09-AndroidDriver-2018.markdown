@@ -10,6 +10,19 @@ catalog:    true
 tags:
     - android
 ---
+###Uboot
+[用uboot烧写内核到smart210](https://blog.csdn.net/u012075739/article/details/39551009)  
+
+####kernel
+
+
+
+###rootfs
+
+
+
+
+
 ```
 完美解决github访问速度慢
 修改host
