@@ -9,13 +9,16 @@ catalog: true                       # 是否归档
 tags:                               #标签
     - SLAM
 ---
-
+### 资源
 [chaoxing](http://mooc.chaoxing.com/category/08/30/24)  
 [chaoxing2](http://59.75.114.218:9080/gnxw/1024.jhtml)  
 [在家里如何免费使用中国知网？](https://www.zhihu.com/question/20188973?sort=created)  
 [长春理工](http://lib.cust.edu.cn/webs/show/notice/723/528.html)  
  http://210.47.0.21:80/http/cnki.net/www/80/ （访问账号：cclglib   访问密码：3656265） 
+ ### 科塔学术导航
 [科塔學術](https://site.sciping.com/)  
+
+### Matlab
 [浅谈机器人导航与避障浅谈机器人导航与避障](https://www.aiimooc.com/mall/list-htm-active-6-catid-756.html)  
 [电子信息工程专业课程](http://www.08nm.com/forum.php?mod=forumdisplay&action=list&fid=143)  
 [黑洞成像背后的算法－－图像处理与反问题](https://zhuanlan.zhihu.com/p/62026270)  
@@ -23,15 +26,17 @@ tags:                               #标签
 [应用数学专业培养指导性学习计划](https://math.ustc.edu.cn/new/bencandy.php?fid=43&id=1105)  
 [Matlab与线性代数](https://blog.csdn.net/LSGO_MYP/column/info/14095)  
 [计算机应用数学 - Coremail邮件系统 - 浙江大学](http://www.cad.zju.edu.cn/home/zhx/csmath/doku.php?id=2017#courselet_on_multivariate_analysis)  
+### 网盘搜索
 [小可搜索](https://www.xiaokesoso.com/)  
 
+### 计算机科学
 [现代数学概论 – 科学计算 ](http://www.math.zju.edu.cn:8080/xlhu/sc.html)  
 [计算机中的数学](http://list.youku.com/albumlist/show?id=19465801&ascending=1&page=1)  
 [和机器学习和计算机视觉相关的数学（from LinDahua）](http://blog.sciencenet.cn/blog-240720-284694.html)  
 [Matlab程式設計－醫學影像處理與3D列印 (醫放一/碩博班) ](http://www.ym.edu.tw/~cflu/CFLu_course_matlabimage.html)  
 [ 應用數學-線性代數](https://www.youtube.com/watch?v=aHYcMCNbLxo&list=PLj6E8qlqmkFtxW2puI1MC7LRyelWBJl2O&index=2&t=0s)
 
-##
+## 符号软件
 [利用 Maxima 求解常微分方程](https://blog.csdn.net/liyuanbhu/article/details/7585405)  
 [Linux下的数学工具Maxima 简明教程（上）](http://www.matrix67.com/blog/archives/337)  
 [自动机，状态机，有限自动机，有限状态机，有限状态自动机，非确定下有限状态自动，确定性有限状态自动机的区别于联系](https://blog.csdn.net/c601097836/article/details/47040703)  
