@@ -18,6 +18,7 @@ tags:                               #标签
  
 ### 科塔学术导航
 [科塔學術](https://site.sciping.com/)  
+[egouz](https://www.egouz.com/topics/19162.html)  
 
 ### Matlab
 [浅谈机器人导航与避障浅谈机器人导航与避障](https://www.aiimooc.com/mall/list-htm-active-6-catid-756.html)  
