@@ -15,7 +15,8 @@ tags:                               #标签
 [在家里如何免费使用中国知网？](https://www.zhihu.com/question/20188973?sort=created)  
 [长春理工](http://lib.cust.edu.cn/webs/show/notice/723/528.html)  
  http://210.47.0.21:80/http/cnki.net/www/80/ （访问账号：cclglib   访问密码：3656265） 
- ### 科塔学术导航
+ 
+### 科塔学术导航
 [科塔學術](https://site.sciping.com/)  
 
 ### Matlab
