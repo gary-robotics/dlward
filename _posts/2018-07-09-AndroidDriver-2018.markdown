@@ -10,14 +10,15 @@ catalog:    true
 tags:
     - android
 ---
-###Uboot
+###Uboot  
 [用uboot烧写内核到smart210](https://blog.csdn.net/u012075739/article/details/39551009)  
 
-####kernel
+###kernel  
 
 
 
-###rootfs
+###rootfs  
+
 
 
 
