@@ -18,8 +18,21 @@ tags:
 
 
 ### rootfs  
+[s5pv210 linux3.8.3内核移植之三：简单根文件系统制作](https://blog.csdn.net/u010346967/article/details/46418789?utm_source=blogxgwz1)  
+```
+一个最小根文件系统必须的项：
 
+ /dev/console   这个在内核启动时打开：sys_open((const char __user *) "/dev/console", O_RDWR, 0) 
 
+ /dev/null       当不设置标准输入输出标准出错时，就会定位到/dev/null
+
+ init本身，即busybox
+
+ /etc/inittab配置文件  init进程配置文件，用来创建其他进程 inittab配置文件中指定的应用程序或脚本
+
+ 相应的库（如glibc库）
+
+```
 
 
 
