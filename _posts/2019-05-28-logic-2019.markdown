@@ -1,0 +1,32 @@
+---
+layout:     post                    # 使用的布局（不需要改）
+title:      Logic                # 标题 
+subtitle:    第一篇                  #副标题
+date:       2019-04-29              # 时间
+author:     BY Edlward              # 作者
+header-img: img/post-bg-2015.jpg    #这篇文章标题背景图片
+catalog: true                       # 是否归档
+tags:                               #标签
+    - Logic
+---
+
+### Saleae Logic添加NEC IR协议
+一.下载需要用到的代码
+
+Git clone https://github.com/LiveOverflow/NECAnalyzer.git
+
+git clone --recursive https://github.com/saleae/SampleAnalyzer.git 
+
+二.编译执行
+
+下载完成后会得到两个文件夹,NECAnalyzer和SampleAnalyzer, 将NECAnalyzer中的source文件夹覆盖SampleAnalyzer中的source文件夹,然后按照SampleAnalyzer根目录的readme.md的操作步骤进行编译; 需要注意的是如果编译使用的是64位机器,编译前请阅读AnalyzerSDK/lib/readme.md, 文件中指出了如何解决在64位机器编译
+
+三.使用编译后的so文件
+
+参考如下链接:
+
+https://support.saleae.com/hc/en-us/articles/208667506 
+
+做完上述这些后,就能在软件中看到想要的nec-ir协议了
+
+NEC/IR-Remote Analyzer
