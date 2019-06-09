@@ -1,0 +1,19 @@
+---
+layout:     post                    # 使用的布局（不需要改）
+title:      github                # 标题 
+subtitle:    第一篇                  #副标题
+date:       2019-04-29              # 时间
+author:     BY Edlward              # 作者
+header-img: img/post-bg-2015.jpg    #这篇文章标题背景图片
+catalog: true                       # 是否归档
+tags:                               #标签
+    - github
+---
+### 解决windows端GitHub下载速度太慢的问题
+从GitHub下载文件一直非常慢，查看下载链接发现最终被指向了Amazon的服务器，下载地址是http://github-cloud.s3.amazonaws.com/，从国内访问Amazon非常慢，所以总是下载失败，解决方法时更改host文件，使该域名指向香港的服务器：
+
+更改hosts文件：
+
+更改C:\Windows\System32\drivers\etc\hosts文件，在文件中追加219.76.4.4 github-cloud.s3.amazonaws.com, 将域名指向该IP即可
+
+2018年8月14号、上海、测试有效
