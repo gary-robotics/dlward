@@ -9,6 +9,9 @@ catalog: true                       # 是否归档
 tags:                               #标签
     - linux
 ---
+[uboot](https://blog.csdn.net/ooonebook/article/details/52965362)  
+
+
 
 ### uboot
 
