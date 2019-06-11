@@ -10,6 +10,22 @@ tags:                               #标签
     - linux
 ---
 [uboot](https://blog.csdn.net/ooonebook/article/details/52965362)  
+### 笔记
+```
+    在讲加载地址和入口地址之前先简单说下u-boot的启动过程。执行make可以找到链接脚本，位于board/$(BOARDNAME)/U-boot.lds，从连接脚本中知道第一个源文件为cpu\arm920t\start.s中，从start.s开顺藤摸瓜了解u-boot的启动过程，其主要分为两个阶段，start.s为第一个阶段，主要进行的工作有：关闭看门狗，屏蔽中断，设置时钟，初始化cpu，初始化堆栈（为调用c语言程序做准备），初始化SDRAM（lowlevel函数），然后进行代码重定位（relocate函数，将u-boot从flash拷贝到SDRAM中）。
+
+        进行完上述一系列工作后为第二阶段准备好了RAM空间，程序进入第二阶段，跳转到start_armboot函数（lib_arm\Board.c），该函数通过调用全局的函数指针数组init_sequence进行初始化，包括cpu，board（在全局的gd->bd中设置了arch_number，以及boot_params的位置0x30000100），中断，环境变量，串口，以及ram（在全局的gd->bd中设置了内存起始地址和大小）初始化。然后初始化堆栈，初始化nand flash（为后续读写nand flash需要做准备），网卡，usb（为下载内核文件系统做准备）。然后程序进入倒数计时，如果没有被按键打断那么进入一个菜单，否则就启动内核。
+
+        u-boot的终极目的是启动内核，那么是通过什么命令启动内核的呢，在u-boot的环境变量中有一个参数bootcmd= nand read.jffs2 0x30007fc0 kernel; bootm 0x30007fc0（此处根据具体的u-boot而定），意在将内核读取到0x30007fc0，然后在该地址处通过bootm命令启动内核，因此关键在于bootm命令，其具体的实现在do_bootm函数（common\cmd_bootm.c）中，这个函数的本质工作是：根据bootm命令传入的地址，以及uImage（uImage其实是包括一个头部和真正的内核，头部是包括内核的一些信息，真正的内核就是vmlinux）头部的加载地址和入口地址，来移动内核到入口地址，最后就通过函数指针的调用跳转到该地址，u-boot从此一去不复返，进入了内核的世界。
+
+    先通过编译内核后来看看加载地址和入口地址均，下图所示，两个地址均为0x30008000，下面截取bootm函数中的部分代码来分析如何进入内核的。
+
+```
+
+
+
+
+
 
 
 
