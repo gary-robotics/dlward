@@ -1,4 +1,14 @@
- 
+---
+layout:     post                    # 使用的布局（不需要改）
+title:      卡尔曼滤波与组合导航原理                # 标题 
+subtitle:    第一篇                  #副标题
+date:       2019-06-09              # 时间
+author:     BY Edlward              # 作者
+header-img: img/post-bg-2015.jpg    #这篇文章标题背景图片
+catalog: true                       # 是否归档
+tags:                               #标签
+    - 卡尔曼滤波与组合导航原理
+--- 
 [卡尔曼滤波与组合导航原理](https://wenku.baidu.com/view/84a1bf34f78a6529647d539f.html)  
 [EKF_IMU_GPS](https://github.com/Edlward/Indirect_EKF_IMU_GPS)  
 [计算机科学数学基础及教材推荐(转)](https://blog.csdn.net/baixiaozhe/article/details/8263643)  
