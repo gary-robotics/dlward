@@ -11,3 +11,4 @@ tags:                               #标签
 ---
 
 [矩阵计算](http://math.ecnu.edu.cn/~jypan/Teaching/MatrixComp/)  
+[矩阵分析-线性系统-5 最小二乘问题（The Least Squares Problem）](https://www.cnblogs.com/pegasus/archive/2011/11/10/2244472.html)  
