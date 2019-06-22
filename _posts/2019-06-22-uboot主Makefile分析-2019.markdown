@@ -1,4 +1,4 @@
-uboot主Makefile分析（t配置和编译过程详解）
+### uboot主Makefile分析（t配置和编译过程详解）
 1、编译uboot前需要三次make　　
 
 make distclean
