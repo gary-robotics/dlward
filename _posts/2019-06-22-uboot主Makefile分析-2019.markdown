@@ -1,3 +1,14 @@
+---
+layout:     post                    # 使用的布局（不需要改）
+title:     uboot主Makefile分析（t配置和编译过程详解）                # 标题 
+subtitle:    第一篇                  #副标题
+date:       2019-06-09              # 时间
+author:     BY Edlward              # 作者
+header-img: img/post-bg-2015.jpg    #这篇文章标题背景图片
+catalog: true                       # 是否归档
+tags:                               #标签
+    - linux
+---
 ### uboot主Makefile分析（t配置和编译过程详解）
 1、编译uboot前需要三次make　　
 
