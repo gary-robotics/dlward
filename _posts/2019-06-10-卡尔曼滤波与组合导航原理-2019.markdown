@@ -12,3 +12,4 @@ tags:                               #标签
 [卡尔曼滤波与组合导航原理](https://wenku.baidu.com/view/84a1bf34f78a6529647d539f.html)  
 [EKF_IMU_GPS](https://github.com/Edlward/Indirect_EKF_IMU_GPS)  
 [计算机科学数学基础及教材推荐(转)](https://blog.csdn.net/baixiaozhe/article/details/8263643)  
+[PD控制的本质及其应用](https://zhuanlan.zhihu.com/p/43417085)  
