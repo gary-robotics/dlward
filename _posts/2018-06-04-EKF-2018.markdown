@@ -11,7 +11,7 @@ tags:                               #标签
 ---
 ### 资源
 [chaoxing](http://mooc.chaoxing.com/category/08/30/24)  
-[chaoxing2](http://59.75.114.218:9080/gnxw/1024.jhtml)  
+[chaoxing2](http://59.75.114.218:9080/gnxw/1024.jhtml)  [xyyxy xyyxy0114]
 [在家里如何免费使用中国知网？](https://www.zhihu.com/question/20188973?sort=created)  
 [长春理工](http://lib.cust.edu.cn/webs/show/notice/723/528.html)  
  http://210.47.0.21:80/http/cnki.net/www/80/ （访问账号：cclglib   访问密码：3656265） 
