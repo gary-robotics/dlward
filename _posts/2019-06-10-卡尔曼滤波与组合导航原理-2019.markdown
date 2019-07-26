@@ -13,3 +13,4 @@ tags:                               #标签
 [EKF_IMU_GPS](https://github.com/Edlward/Indirect_EKF_IMU_GPS)  
 [计算机科学数学基础及教材推荐(转)](https://blog.csdn.net/baixiaozhe/article/details/8263643)  
 [PD控制的本质及其应用](https://zhuanlan.zhihu.com/p/43417085)  
+[一阶倒立摆的PID控制和LQR控制](https://zhuanlan.zhihu.com/p/54071212)  
