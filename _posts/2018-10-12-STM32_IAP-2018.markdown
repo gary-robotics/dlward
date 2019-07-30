@@ -9,9 +9,34 @@ catalog: true                       # 是否归档
 tags:                               #标签
     - STM32
 ---
+
+## STM32串口IAP的bootloader部分使用说明
+
+1. 该项目实现通过PC的串口对STM32系列MCU进行IAP。
+
+2. 该项目包含三个部分（三套代码）：
+    
+    - 运行在STM32平台的Bootloader；
+    - 运行在STM32平台的App(我做了两个，一个是支持usmart的重量版，一个是很简洁的轻量版)；
+    - 运行在Windows平台的上位机操作工具。
+
+3. 本篇是属于运行在STM32平台的Bootloader部分，另外两篇介绍请参阅：
+    - [windows平台操作工具](https://github.com/havenxie/winapp-iap)
+    - [STM32平台的APP(支持USMART的版本)](https://github.com/havenxie/stm32-iap-app)     [STM32平台的APP(轻量版)](https://github.com/havenxie/stm32-iap-app_lite)
+    
+
+4. 该部分作为Bootloader可运行在多个STM32F10x系列：
+    
+    CL系列、XL系列、HD系列、HD_VL系列、MD系列、MD_VL系列、LD系列、LD_VL系列。
+	
+5. 这套代码几乎不用移植就可以用在你的项目上。只需要简单的根据你的项目配置工程。
+
+
+
 [巧用JLINK来实现nrf51822的蓝牙设备流水号](https://www.cnblogs.com/libra13179/p/6519637.html)  
 
-### 批处理方式合并hex文件
+### 批处理方式合并hex文件  
+
 ```
 福利来了 --- 合并hex文件。
 经过修改，可以完美的把两个hex文件合并成一个了！
@@ -35,6 +60,10 @@ del hex\withoutsn.hex/s 
 
 ::任意键退出，加#屏蔽了这句，如果不能生成hex文件，那么可以打开这句看看有无错误提示。
 ```
+
+
+
+### [低调码农-做一个勤奋的人](https://blog.csdn.net/qq_36373500/article/list/1)  
 ```
 [低调码农-做一个勤奋的人](https://blog.csdn.net/qq_36373500/article/list/1)  
 
