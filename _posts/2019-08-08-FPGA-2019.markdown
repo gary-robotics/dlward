@@ -1,0 +1,27 @@
+---
+layout:     post                    # 使用的布局（不需要改）
+title:      FPGA                # 标题 
+subtitle:    第一篇                  #副标题
+date:       2019-04-29              # 时间
+author:     BY Edlward              # 作者
+header-img: img/post-bg-2015.jpg    #这篇文章标题背景图片
+catalog: true                       # 是否归档
+tags:                               #标签
+    - FPGA
+---
+[ 计算机专业课一体化支撑平台](http://www.educg.net.cn/index.html)  
+[FPGA云](http://www.iopenhec.com)  
+
+### OpenHEC  实验目录  
+
+1、 云硬件和云开发环境介绍  
+2、 基于 FPGA 的卷积算法的实现 in HLS  
+3、 卷积算法 IP 核的软硬件系统搭建及在线验证  
+4、 多通道滤波器卷积的算法 IP 核设计与实现  
+5、 算法 IP 核的软硬件系统搭建  
+6、 基于云硬件算法 IP 核的在线验证  
+7、 多幅图像单通道卷积的算法 IP 核设计与实现  
+8、 多幅图像单通道卷积的软硬件系统设计与实现  
+9、 基于 AXI4-Stream 的单幅图像单通道卷积的 HLS 实现  
+10、 基于 AXI4-Stream 的算法 IP 核+DMA 的软硬件系统设计与实现  
+11、 基于云平台的在线验证及演示  
