@@ -28,6 +28,20 @@ tags:                               #标签
   
 做算法要看什么算法？数字信号的算法现在都是system generator和dsp builder快速建立数学模型，不写代码。如果比较复杂的图像处理，HLS处理的，这个需要学习C和C++  
 
+```
+基于FPGA的图像处理、机器视觉
+2019年03月07日 20:58:56 silverfly727 阅读数 223
+版权声明：本文为博主原创文章，遵循 CC 4.0 by-sa 版权协议，转载请附上原文出处链接和本声明。
+本文链接：https://blog.csdn.net/qq_34431303/article/details/88320560
+本人博客主要关注基于FPGA的图像处理、机器视觉及深度学习方面的加速，会不定期更新一些自己进行设计时的经验教训、阅读论文时的体会以及国内外FPGA视觉行业的最新进展。
+说到FPGA设计，如果大家只局限于verilog、VHDL这些硬件描述语言，那就太狭隘了。对于FPGA图像开发，hls、opencl等高层次描述语言以及system generator、simullink等系统级建模工具才是更好的选择，另外Labview中也有相应的FPGA vision模块，使用这些高级工具进行开发，使我们可以集中精力进行算法的研究，而不用过多关心底层的硬件实现方式，效率会大大提高。
+本人由于项目关系，多数时候使用的是德国SiliconSoftware公司的VisualApplets开发工具，大家可以到其官网下载体验一下https://silicon.software/，真的很强大！如果大家不用下载到板卡上进行调试，直接安装VisualApplets软件就可以了，除了不能保存设计和生成比特流外，和付费版本没什么区别，最赞的就是它的图形化模块设计和仿真功能。笔者已经用该软件实现了三个大规模项目，主要是基于一维傅里叶变换的液晶缺陷检测、基于表面多项式拟合和大规模高斯滤波的钢壳缺陷检测和基于Hessian矩阵的Steger算法实现的激光中心线提取。后续博文会陆续更新我在进行这些设计时心得体会。
+在这里推荐两篇综述文章：
+[1] 采用FPGA的机器视觉系统发展现状与趋势.原魁,肖晗,何文浩.中科院自动化所.计算机工程与应用.2010
+[2] W. J. MacLean, “An Evaluation of the Suitability of FPGAs for Embedded Vision Systems,” 2005 IEEE Computer Society Conference on Computer Vision and Pattern Recognition (CVPR’05) - Workshops, San Diego, CA, USA, 2005, pp. 131-131.
+
+```
+
 [开源机器人](https://github.com/golaced)  
 [开源云台算法](https://github.com/golaced/BLDC)  
 [仿真](https://github.com/Edlward/QuadrupedSim)  
