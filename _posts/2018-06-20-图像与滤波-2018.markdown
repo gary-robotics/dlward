@@ -14,6 +14,6 @@ tags:                               #标签
 
 ## 链接
 [图像与滤波](http://www.ruanyifeng.com/blog/2017/12/image-and-wave-filters.html)  
-[图像傅立叶变换] （https://wenku.baidu.com/view/8a96af5165ce0508773213d0.html）  
+[图像傅立叶变换](https://wenku.baidu.com/view/8a96af5165ce0508773213d0.html)    
 [DCT-FFT-和去噪](https://github.com/Lizonghang/DCT-FFT-and-Denoising)    
 
