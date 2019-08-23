@@ -162,12 +162,21 @@ Inspecialandgeneral relativity，如果一个时间变量是虚构的，那么�
 ### 参考书目
 网站：
 http://www.math.toronto.edu/mathnet/questionCorner/complexinlife.html
+
 http://www.physicsforums.com/showthread.php?t=159099
+
 http://www.ebookpdf.net/_engineering-application-of-complex-number-(pdf)_ebook_.html。
+
 HTTP：www.wikipedia.org。
+
 http://mathworld.wolfram.com
+
 http://euclideanspace.com
+
 图书：
+
 工程数学，第40版-B S Grewal。
+
 工程数学 - Jain Iyenger。
+
 工程Matematics-NP Bali
