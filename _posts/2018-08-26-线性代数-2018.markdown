@@ -2,7 +2,7 @@
 layout:     post
 title:      "线性代数"
 subtitle:   "线性代数"
-date:       2018-07-05 12:00:00
+date:       2018-08-26 12:00:00
 author:     "Edlward"
 header-img: "img/post-bg-2015.jpg"
 header-mask: 0.3
