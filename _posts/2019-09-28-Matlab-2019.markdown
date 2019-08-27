@@ -1,3 +1,15 @@
+---
+layout:     post                    # 使用的布局（不需要改）
+title:      Matlab                # 标题 
+subtitle:    第一篇                  #副标题
+date:       2019-08-29              # 时间
+author:     BY Edlward              # 作者
+header-img: img/post-bg-2015.jpg    #这篇文章标题背景图片
+catalog: true                       # 是否归档
+tags:                               #标签
+    - 计划
+---
+
 [Matlab](http://www.matlabsky.com/forum-53-1.html)  
 [MATLAB 图像与视频处理实用案例详解](https://6so.so/t/446393/)  
 [图解算法](https://6so.so/t/460856/)  
