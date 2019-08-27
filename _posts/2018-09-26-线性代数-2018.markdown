@@ -2,7 +2,7 @@
 layout:     post
 title:      "线性代数"
 subtitle:   "线性代数"
-date:       2018-08-26 12:00:00
+date:       2019-09-26 12:00:00
 author:     "Edlward"
 header-img: "img/post-bg-2015.jpg"
 header-mask: 0.3
@@ -12,7 +12,7 @@ tags:
 ---
 [课程](http://www.doc88.com/p-663159263402.html)  
 [微分方程与线性代数](https://zhuanlan.zhihu.com/p/46533077)  
-
+[适合程序员的线性代数教程！](https://zhuanlan.zhihu.com/p/65002126)  
 
 ### 线性代数
 [矩阵特征值](https://www.zhihu.com/question/21874816/answer/181864044)  
