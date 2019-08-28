@@ -12,3 +12,4 @@ tags:                               #标签
 
 [数学方法下的电机矢量控制](https://zhuanlan.zhihu.com/p/73786237)  
 [电机学第五版课件汤蕴璆编著 第6章3同步发电机的电压方程、相量图和等效电路](https://wenku.baidu.com/view/0d821bccfbb069dc5022aaea998fcc22bdd14373.html?from=search)  
+[同步电机模型的那些事](https://zhuanlan.zhihu.com/p/24284620)  
