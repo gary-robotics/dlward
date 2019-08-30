@@ -9,6 +9,7 @@ catalog: true                       # 是否归档
 tags:                               #标签
     - 数学
 ---
+[课件](http://web.xidian.edu.cn/lexu/course.html)  
 
 矩阵论和线性代数的差异有如下几个方面：
 
