@@ -10,6 +10,7 @@ tags:                               #标签
     - 数学
 ---
 [课件](http://web.xidian.edu.cn/lexu/course.html)  
+[blog](http://zhangzhenyuan163.blog.163.com/blog/#m=0&t=1&c=fks_085067080083084065084084087095092083089066093085094074)  
 
 矩阵论和线性代数的差异有如下几个方面：
 
