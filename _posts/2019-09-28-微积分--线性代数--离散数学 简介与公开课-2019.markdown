@@ -10,6 +10,7 @@ tags:                               #标签
     - 数学
 ---
 [麻省理工学院公开课：微分方程](http://open.163.com/special/opencourse/equations.html)  
+[可汗学院公开课：微分方程](http://open.163.com/special/Khan/differential.html)  
 [[高等微積分] 第1講、數學的本質](https://www.youtube.com/watch?v=yYEMYP8u0sc)  
 
 ### 微积分--线性代数--离散数学（简介与公开课）
