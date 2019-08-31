@@ -14,3 +14,5 @@ tags:                               #标签
 [课程-现代控制理论](https://blog.csdn.net/ZhangRelay/article/category/6161998)  
 [Inverted Pendulum Control](https://cloud.tencent.com/developer/article/1414650)  
 [用Matlab & Simulink学控制（最后一更）](https://zhuanlan.zhihu.com/p/42937186)  
+
+[【ROS-SLAM】四足机器人SLAM仿真](https://zhuanlan.zhihu.com/p/63061134)  
