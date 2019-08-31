@@ -11,3 +11,4 @@ tags:                               #标签
 ---
 [如何入门现代控制理论](https://zhuanlan.zhihu.com/p/57051153)  
 [现代控制理论-章节组织结构和仿真应用案例详细分析](https://blog.csdn.net/zhangrelay/article/details/51668647)  
+[课程-现代控制理论](https://blog.csdn.net/ZhangRelay/article/category/6161998)  
