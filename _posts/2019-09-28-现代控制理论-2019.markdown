@@ -13,3 +13,4 @@ tags:                               #标签
 [现代控制理论-章节组织结构和仿真应用案例详细分析](https://blog.csdn.net/zhangrelay/article/details/51668647)  
 [课程-现代控制理论](https://blog.csdn.net/ZhangRelay/article/category/6161998)  
 [Inverted Pendulum Control](https://cloud.tencent.com/developer/article/1414650)  
+[用Matlab & Simulink学控制（最后一更）](https://zhuanlan.zhihu.com/p/42937186)  
