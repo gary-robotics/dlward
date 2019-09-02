@@ -1,3 +1,15 @@
+---
+layout:     post                    # 使用的布局（不需要改）
+title:      汇编调用c函数为什么要设置栈                # 标题 
+subtitle:    第一篇                  #副标题
+date:       2019-08-29              # 时间
+author:     BY Edlward              # 作者
+header-img: img/post-bg-2015.jpg    #这篇文章标题背景图片
+catalog: true                       # 是否归档
+tags:                               #标签
+    - Uboot
+---
+
 ### 汇编调用c函数为什么要设置栈
 
 一.栈的整体作用
