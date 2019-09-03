@@ -1,0 +1,59 @@
+gpiolib及gpio操作
+在驱动工作时，有可能好几个驱动同时去操作一个gpio，这会造成混乱。所以内核提供了一些方法来管理gpio资源，这就是gpiolib。 
+在涉及到gpio的驱动程序的编写中，gpiolib并不是强制使用的，而是一种约束和规范，如果要让驱动程序规范、可靠，那么gpiolib是必须要使用的。
+
+1.获知gpio号
+内核通过gpio号来识别gpio
+
+对于一些经典的soc，比如s5pv210，可以用arch/arm/mach-s5pv210/include/mach/gpio.h 中的宏来获得gpio号
+而对于一些比较新的soc，比如imx6，则通常在设备树中以 reset-gpios = <&gpio1 15 1>;来表示gpio，而在驱动中使用gpio号 = of_get_named_gpio(xxxnode, "reset-gpios", 0);函数返回值来得到gpio号，详见设备树详解
+2.gpiolib经典接口
+gpiolib常用的接口通常有如下几个：
+```
+gpio_request:驱动中要想使用某一个gpio，就必须先调用gpio_request接口来向内核申请，得到允许后才可以去使用这个gpio
+gpio_free: 对应gpio_request，用来释放申请后用完了的gpio
+gpiochip_is_requested: 接口用来判断某一个gpio是否已经被申请了
+gpio_direction_input/gpio_direction_output: 接口用来设置GPIO为输入/输出模式（不推荐直接设置寄存器）
+典型应用：
+
+/*之前先要完成驱动的注册工作*/
+...
+
+
+/*正式开始申请gpio资源，申请操作重复了两次，因为用了两个gpio*/
+ret = gpio_request(S5PV210_GPJ0(3), "led1_gpj0_3");
+if (ret){
+        printk(KERN_INFO "gpio_request failed\n");
+        goto out_err_1;
+}
+/*申请完后可以利用接口设置该gpio。也可以直接操作寄存器来设置*/
+gpio_direction_output(S5PV210_GPJ0(3), 1);
+
+
+/*在remove函数中别忘了对应的释放操作*/
+gpio_free(S5PV210_GPJ0(3));
+```
+一般来说，gpio的资源申请和释放操作应该放在驱动模块的加载与卸载函数内
+gpio_request的第一个参数是需要申请的gpio号。第二个参数是我们给该gpio起个名字
+申请完了之后对这个gpio进行模式设置，我们这里用gpio_direction_output 设置成输出模式，并且默认输出1让led灭
+3.gpiolib新接口
+新接口使用非常简便，但是缺点是代码行数少，有时，需要堆砌代码行数就不太适用，呵呵
+```
+该函数附带初始化电平功能，并且会在模块卸载时自动释放gpio，十分简便
+/*申请并将gpio初始为高电平*/
+ret = devm_gpio_request_one(dev, S5PV210_GPJ0(3),
+        GPIOF_OUT_INIT_HIGH, "led1_gpj0_3");
+if (ret < 0)
+    printk(KERN_INFO "gpio_request failed\n");
+```
+4.读写gpio
+在内核中，应避免使用寄存器操作gpio，而应使用内核的接口来操作gpio，下面这两个函数
+```
+int gpio_get_value(unsigned gpio) //读gpio
+void gpio_set_value(unsigned gpio, int value)//写gpio
+```
+5.控制台中查看当前gpio占用情况的方法
+内核中提供了虚拟文件系统debugfs，里面有一个gpio文件，提供了gpio的使用信息
+
+使用 mount -t debugfs debugfs /tmp 把debugfs挂接到/tmp下，再重新进入/tmp后就能看到一个名为gpio的文件
+cat /tmp/gpio即可得到gpio的所有信息，使用完后umount /tmp卸载掉debugfs
