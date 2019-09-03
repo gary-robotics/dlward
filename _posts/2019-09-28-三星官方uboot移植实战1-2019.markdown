@@ -1,0 +1,181 @@
+三星对自己的官方开发板SMDKV210进行过uboot的移植，这里将基于三星移植过的uboot来移植到九鼎的X210BV3S的开发板上。
+
+注：编译代码必须在linux源生目录中，windows共享文件夹中配置uboot是不行的。我用的是filezilla软件让Windows和linux进行互传文件。这里要注意的是linux下的文件夹必须具有可写权限，不然Windows的文件传不到linux目录下。
+
+首先检查Makefile中的交叉编译工具链是否和自己安装的路径名称一致： 
+```
+CROSS_COMPILE = /usr/local/arm/arm-2009q3/bin/arm-none-linux-gnueabi-
+```
+然后进行配置。配置时使用（这是Makefile中已经存在的）： 
+make smdkv210single_config，对应include/configs/smdkv210single.h头文件。
+
+配置完成后直接make编译，编译完成后就进入烧录步骤。 
+uboot/sd_fusing目录下有sd_fusing.sh脚本，用来烧录。执行./sd_fusing.sh /dev/sdb进行烧录。
+
+问题1：烧录时报错
+```
+./sd_fusing.sh: line 50: ./sd_fdisk: cannot execute binary file: Exec format error
+./sd_fusing.sh: line 86: ./mkbl1: cannot execute binary file: Exec format error
+```
+查看mkbl1（file mkbl1）：mkbl1: ELF 64-bit LSB executable, x86-64。从这句话可以知道mkbl1是x86-64下编译过的文件，与主机架构不一样。解决的方法是在sd_fusing目录下进行清理：make clean ，再编译一下：make。再查看mkbl1：mkbl1: ELF 32-bit LSB executable, Intel 80386。这时mkbl1是80386下的编译文件。
+
+问题2：修改banner信息
+串口打印出“U-Boot 1.3.4 (Oct 26 2016 - 14:18:59) for SMDKV210”，这句信息在board.c文件的display_banner函数中：
+```
+static int display_banner (void)
+{
+    printf ("\n\n%s\n\n", version_string);
+    ……
+    return 0；
+}
+……
+const char version_string[] =
+    U_BOOT_VERSION" (" __DATE__ " - " __TIME__ ")"CONFIG_IDENT_STRING;
+……
+//#define CONFIG_IDENT_STRING   " for SMDKV210"
+#define CONFIG_IDENT_STRING " for Ultraman210"
+```
+更改CONFIG_IDENT_STRING为” for Ultraman210”，然后同步到ubuntu中的一份代码，然后 make distclean（一般头文件和Makefile发生变化需要make distclean）; make smdkv210single_config，然后make，然后烧录运行，检查打印出来的banner信息就是 
+“U-Boot 1.3.4 (Oct 28 2016 - 11:22:51) for Ultraman210”。
+
+问题3：串口无输出但是开发板供电锁存成功
+分析运行结果：uboot中串口最早的输出在”OK”，在lowlevel_init.S中初始化串口时打印出来的；串口无输出”O”说明在打印”O”之前代码已经死掉了；开发板供电锁存在lowlevel_init.S中，开发板供电锁存成功说明这个代码之前的部分是没问题的。两个结合起来得到结论：错误在开发板供电锁存代码和串口初始化打印”O”代码之间。
+
+解决的方法是蔽掉bl PMIC_InitIp 这一行代码，因为s5pv210开发板没有电源管理IC。然后重新编译，整个uboot就启动起来了。
+```
+    /* init PMIC chip */
+    //bl PMIC_InitIp        /*s5pv210开发板没有电源管理IC*/
+```
+问题4：DDR配置信息的更改
+从运行信息以及bdinfo命令看到的结果，显示DRAM bank0和1的size值都设置错了。 
+使用md和mw命令测试内存，发现20000000和40000000开头的内存都是可以用的，说明代码中DDR初始化部分是正确的，只是size错了。
+
+现在把DDR配置成如下形式（得到地址连续的512MB内存）：
+```
+DRAM bank = 0x00000000 
+-> start = 0x30000000 
+-> size = 0x10000000 
+DRAM bank = 0x00000001 
+-> start = 0x40000000 
+-> size = 0x10000000
+```
+DDR的初始化代码部分是在lowlevel_init.S中写的，是不动的。代码部分就是对相应寄存器做相应值的初始化；要动的是值，而uboot为了具有可移植性把值都宏定义在include/configs/xxx.h中了。因此我们只需要去这个配置头文件中更改配置值即可。
+```
+//#define MEMORY_BASE_ADDRESS   0x20000000
+#define MEMORY_BASE_ADDRESS 0x30000000
+
+//#define DMC0_MEMCONFIG_0  0x20E01323
+#define DMC0_MEMCONFIG_0    0x30F01323  
+
+#define CONFIG_NR_DRAM_BANKS    2          /* we have 2 bank of DRAM */
+//#define SDRAM_BANK_SIZE         0x20000000    /* 512 MB */
+#define SDRAM_BANK_SIZE         0x10000000    /* 256 MB */
+
+#define PHYS_SDRAM_1            MEMORY_BASE_ADDRESS /* SDRAM Bank #1 */
+#define PHYS_SDRAM_1_SIZE       SDRAM_BANK_SIZE
+//#define PHYS_SDRAM_2            (MEMORY_BASE_ADDRESS + SDRAM_BANK_SIZE) /* SDRAM Bank #2 */
+#define PHYS_SDRAM_2            0x40000000
+#define PHYS_SDRAM_2_SIZE       SDRAM_BANK_SIZE
+```
+DDR初始化后还要考虑虚拟地址映射表的设置，因为uboot已经开启了MMU。经过实际分析，发现这个内存映射只是把20000000开始的256MB映射到C0000000开头的256MB。现在要把虚拟地址c0000000-d0000000映射到物理地址30000000-40000000处：
+```
+//.set __base,0x200
+.set __base,0x300 //将虚拟地址c0000000-d0000000映射到物理地址
+                  //30000000-40000000
+// 256MB for SDRAM with cacheable
+.rept 0xD00 - 0xC00
+FL_SECTION_ENTRY __base,3,0,1,1
+.set __base,__base+1
+.endr
+```
+接着需要修改虚拟地址到物理地址的映射函数，在smdkv210single.h中：
+```
+#define virt_to_phys(x) virt_to_phy_smdkc110(x)
+```
+virt_to_phy_smdkc110(x)在uboot/board/samsung/smdkc110/smdkc110.c中
+```
+ulong virt_to_phy_smdkc110(ulong addr)
+{
+    if ((0xc0000000 <= addr) && (addr < 0xd0000000))
+        //return (addr - 0xc0000000 + 0x20000000);
+        return (addr - 0xc0000000 + 0x30000000);//映射到30000000处
+    else
+        printf("The input address don't need "\
+            "a virtual-to-physical translation : %08lx\n", addr);
+
+    return addr;
+}
+```
+问题5：串口打印显示SD/MMC有问题
+```
+SD/MMC:  unrecognised EXT_CSD structure version 7  
+unrecognised EXT_CSD structure version 7  
+Card init fail!
+```
+从打印出来的错误休息中挑选一个关键词，然后去源代码中搜索这个关键字，通过这种搜索的方法定位问题。通过搜索将问题定位在drivers/mmc/mmc.c中的mmc_read_ext_csd函数：
+```
+if (ext_csd_struct > 5) {
+        printf("unrecognised EXT_CSD structure "
+            "version %d\n", ext_csd_struct);
+        err = -1;
+        goto out;
+    }
+```
+EXT_CSD，就是MMC的“扩展寄存器”。通过浏览代码上下文，发现这个函数是在读取SD/iNand的ext_csd寄存器的值。通过浏览代码结合出错地方，可以判断出：从卡端读取ext_csd寄存器是成功的，并且从读取结果中拿到了卡的版本号信息。然后代码对版本号进行了判断，并且如果版本号大于5就会报错并且函数错误退出。
+
+我使用的iNand卡的版本号是7，大于5，而uboot代码本身不处理版本号大于5的卡，因此出错了。解决的方法是：将5改成更大的数。
+
+还有另一种方法可以解决。九鼎的X210BV3S开发板上有一个iNand接在SD0上，有一个外置SD卡接在SD2上。uboot中初始化的这个是iNand而不是SD卡。也就是说uboot中实际用的是SD0而不是SD2。在lib_arm/board.c中调用了mmc_initialize函数，mmc_initialize在/drivers/mmc/mmc.c中：
+```
+//mmc = find_mmc_device(0);//SD0
+mmc = find_mmc_device(1);
+```
+将0改为1就可以使用SD2了。使用外置SD卡时，这个版本号的问题不会出现。从这里可以推测出：SD卡版本低，iNand的版本比较高。
+
+问题6：更改控制台串口
+SoC中一共有4个串口（串口0、1、2、3），开发板X210上用DB9接口引出了2个串口，分别是串口2和串口0。三星公司推荐使用串口2来作为调试串口，现在修改让uboot工作在串口0的控制台下。
+
+uboot中真正去硬件初始化串口控制器的代码在lowlevel_init.S中的uart_asm_init中，其中初始化串口的寄存器用ELFIN_UART_CONSOLE_BASE宏作为串口n的寄存器的基地址，结合偏移量对寄存器进行寻址初始化。
+```
+    ldr r0, =ELFIN_UART_CONSOLE_BASE        @0xEC000000
+    mov r1, #0x0
+    str r1, [r0, #UFCON_OFFSET]
+    str r1, [r0, #UMCON_OFFSET] 
+```
+uart_asm_init中到底初始化的是哪个串口（从0到3）？取决于ELFIN_UART_CONSOLE_BASE宏。这个宏的值又由CONFIG_SERIALn（n是从1到4）来决定：
+```
+#if defined(CONFIG_SERIAL1)
+#define ELFIN_UART_CONSOLE_BASE (ELFIN_UART_BASE + ELFIN_UART0_OFFSET)
+
+#elif defined(CONFIG_SERIAL2)
+#define ELFIN_UART_CONSOLE_BASE (ELFIN_UART_BASE + ELFIN_UART1_OFFSET)
+
+#elif defined(CONFIG_SERIAL3)
+#define ELFIN_UART_CONSOLE_BASE (ELFIN_UART_BASE + ELFIN_UART2_OFFSET)
+
+#elif defined(CONFIG_SERIAL4)
+#define ELFIN_UART_CONSOLE_BASE (ELFIN_UART_BASE + ELFIN_UART3_OFFSET)
+
+#else
+#define ELFIN_UART_CONSOLE_BASE (ELFIN_UART_BASE + ELFIN_UART0_OFFSET)
+#endif
+```
+编译烧录运行，发现串口线插在串口2上，只打印：SD checksum error（这个是内部iROM打印出来的，内部iNand校验失败的信息）；然后将串口线改插到串口0上，启动，所有的信息就出现了。
+
+问题7：修改默认网络地址
+修改配置头文件smdkv210single.h中的CONFIG_IPADDR等宏，则可以修改uboot的默认环境变量。
+
+更改完成后如果环境变量还是原来的，因为原来uboot执行过saveenv，环境变量已经被保存到iNand中的ENV分区中去了。uboot启动后校验时iNand的ENV分区中的环境变量是正确的，因此会优先加载。在uboot源代码中修改的只是默认的环境变量。解决方案是擦除掉iNand中的那一份环境变量，然后迫使uboot启动时使用uboot代码中自带的默认的这一份环境变量，就可以看到了。
+
+可以使用mmc write 0 30000000 11# 32（表示将DDR的0x30000000开头的一段内存中的内容写入iNand中的第17个扇区开始的32个扇区内，写入长度是32个扇区长度（16KB））其中11是16进制数。
+
+问题8：修改行提示符
+在include/configs/smdkv210single.h中修改：
+```
+//#define CFG_PROMPT              "SMDKV210 # "   
+#define CFG_PROMPT              "Ultraman210 # "   
+```
+下面的移植过程见三星官方uboot移植实战2
+————————————————
+版权声明：本文为CSDN博主「hanson69」的原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接及本声明。
+原文链接：https://blog.csdn.net/ultraman_hs/article/details/52949025
