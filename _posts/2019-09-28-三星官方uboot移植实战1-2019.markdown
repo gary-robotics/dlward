@@ -188,6 +188,3 @@ uart_asm_init中到底初始化的是哪个串口（从0到3）？取决于ELFIN
 #define CFG_PROMPT              "Ultraman210 # "   
 ```
 下面的移植过程见三星官方uboot移植实战2
-————————————————
-版权声明：本文为CSDN博主「hanson69」的原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接及本声明。
-原文链接：https://blog.csdn.net/ultraman_hs/article/details/52949025
