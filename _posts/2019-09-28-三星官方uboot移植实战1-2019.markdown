@@ -1,3 +1,15 @@
+---
+layout:     post                    # 使用的布局（不需要改）
+title:      三星官方uboot移植实战1                # 标题 
+subtitle:    第一篇                  #副标题
+date:       2019-08-29              # 时间
+author:     BY Edlward              # 作者
+header-img: img/post-bg-2015.jpg    #这篇文章标题背景图片
+catalog: true                       # 是否归档
+tags:                               #标签
+    - Uboot
+---
+
 三星对自己的官方开发板SMDKV210进行过uboot的移植，这里将基于三星移植过的uboot来移植到九鼎的X210BV3S的开发板上。
 
 注：编译代码必须在linux源生目录中，windows共享文件夹中配置uboot是不行的。我用的是filezilla软件让Windows和linux进行互传文件。这里要注意的是linux下的文件夹必须具有可写权限，不然Windows的文件传不到linux目录下。
