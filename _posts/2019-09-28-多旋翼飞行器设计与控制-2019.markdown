@@ -11,3 +11,30 @@ tags:                               #标签
 ---
 [多旋翼飞行器设计与控制](http://rfly.buaa.edu.cn/course.html)  
 [论坛](https://flyeval.com/forum/)  
+
+
+飞控设计技术干货
+
+1、北航旋翼无人机控制与设计教程
+
+链接: https://pan.baidu.com/s/1slBi98T 
+
+密码: bhkc
+
+2、PX4二次开发的初级教学视频
+
+链接：https://pan.baidu.com/s/1c35RaDE 
+
+密码：m0hl
+
+3、PX4二次开发的中级教学视频
+
+链接: https://pan.baidu.com/s/1bpfMmnX 
+
+密码: a0gb
+
+4、APM二次开发的初级教学视频
+
+链接： http://pan.baidu.com/s/1b8D63c
+
+密码： f409
