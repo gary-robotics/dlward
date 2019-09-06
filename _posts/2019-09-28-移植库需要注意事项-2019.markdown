@@ -47,9 +47,11 @@ LDFLAGS := -ljpeg -L/opt/lib-codec/lib
 
 注2：有时候，有些库不支持某些配置选项，比如./configure CC=arm-linux-gcc ...会跟你说不支持，那怎么办呢?使用export 命令临时性导出：
 ```
+```
 export CC=arm-linux-gcc
 ```
 注3：有时候移植A库的时候需要B库的支持，B库移植好后过来继续A库的移植，发现还是报错：xxxlib not installed。原因是因为没有导出相关环境变量，所以A库在配置的时候找不到刚才移植的B库的库文件和头文件，解决办法就是使用epport临时性的导出
+
 ```
 # export LDFLAGS="-L/opt/lib-codec/lib"  ;B库动态链接和静态链接文件
 # export CFLAGS="-I/opt/lib-codec/include";B库头文件
@@ -59,6 +61,4 @@ export CC=arm-linux-gcc
 ImagePlayer开发日记之开源库使用 
 ImagePlayer开发日记之libjpeg移植 
 ImagePlayer开发日记之libpng移植
-————————————————
-版权声明：本文为CSDN博主「Kevinrsa」的原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接及本声明。
-原文链接：https://blog.csdn.net/tongxinv/article/details/55670817
+
