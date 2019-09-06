@@ -1,0 +1,64 @@
+### 移植库需要注意事项(移植库生成的文件如何使用)
+对简单的库的移植的一般性归纳
+
+1.移植后存放文件位置一般选择opt/目录下新建一个文件夹，比如opt/lib-codec
+
+2.配置选项一般需要确定编译工具和链接工具，以及声明编译环境和移植的库最终在什么CPU和OS下运行,还需要指明编译库后生成的文件的存放位置。比如：
+```
+./configure CC=arm-linux-gcc LD=arm-linux-ld --prefix=/opt/lib-codec --exec-prefix=/opt/lib-codec
+ --enable-shared --enable-static -build=i386 -host=arm-linux
+```
+```
+--prefix=  指定编译后的动态库.so，静态库.a，头文件.h存放位置(配置之前确定目录是存在的)
+--exec-prefix= 指定可执行文件存放位置
+--enable-shared=：使能共享，猜测生成动态链接库.so
+--enable-static=：使能静态，猜测生成静态链接库.a和头文件.h
+-build=：编译环境的设置
+-host=：运行环境CPU和系统设置
+```
+3.有时候需要自己建立相应的目录，比如include目录lib目录等，具体需要去检查Makefile中具体的选项，一般xxxdir变量后面的值就是要建立的目录
+
+4.移植的目的是由源码得到三个东西：动态库.so，静态库.a，头文件.h。下面举例说明动态链接库的使用
+
+移植好的.h位于opt/lib-codec/include；.so和,a文件位于opt/lib-codec/lib
+
+部署：动态链接库.so文件放到开发板相应的目录，一般放在/usr/lib目录下
+cp复制时使用 `-a` 或`-d`选项保留链接。`-a`选项通常在拷贝目录时使用，它保留链接、文件属性，
+并递归地拷贝目录，其作用等于dpR选项的组合
+
+正在写的工程配置1：Makefile里的编译参数CFLAGS添加相应的头文件路径
+```
+ CFLAGS += -I $(shell pwd)/include -I/opt/lib-codec/include
+```
+正在写的工程配置1：链接参数LDFLAGS添加相应的链接库的路径（就是指明.h文件中声明的函数实体的位置）
+```
+ CFLAGS += -I $(shell pwd)/include -I/opt/lib-codec/include
+LDFLAGS := -ljpeg -L/opt/lib-codec/lib
+```
+-l是链接选项(LDFLAGS)，用来指定链接额外的库(如用到了数学函数，用-lm，链接器就会去链接libm.so
+那么我们使用了libjpeg，对应的库名字就叫libjpeg.so，就需要用-ljpeg选项去链接）
+-L是链接选项（LDFLAGS中指定），用来告诉链接器到哪个路径下面去找动态链接库。
+例：   LDFLAGS := -ljpeg -L/opt/lib-codec/lib
+总结：-l是告诉链接器要链接的动态库的名字，而-L是告诉链接器库的路径(配合使用)
+```
+注意区分编译链接器需要的动态链接库的路径和使用动态链接时程序运行需要动态链接库的路径
+
+注1：配置生成的Makefile的内容可以帮助你理解
+
+注2：有时候，有些库不支持某些配置选项，比如./configure CC=arm-linux-gcc ...会跟你说不支持，那怎么办呢?使用export 命令临时性导出：
+```
+export CC=arm-linux-gcc
+```
+注3：有时候移植A库的时候需要B库的支持，B库移植好后过来继续A库的移植，发现还是报错：xxxlib not installed。原因是因为没有导出相关环境变量，所以A库在配置的时候找不到刚才移植的B库的库文件和头文件，解决办法就是使用epport临时性的导出
+```
+# export LDFLAGS="-L/opt/lib-codec/lib"  ;B库动态链接和静态链接文件
+# export CFLAGS="-I/opt/lib-codec/include";B库头文件
+# export CPPFLAGS="-I/opt/lib-codec/include"
+```
+附：更详细的内容可以访问以下内容帮助理解
+ImagePlayer开发日记之开源库使用 
+ImagePlayer开发日记之libjpeg移植 
+ImagePlayer开发日记之libpng移植
+————————————————
+版权声明：本文为CSDN博主「Kevinrsa」的原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接及本声明。
+原文链接：https://blog.csdn.net/tongxinv/article/details/55670817
