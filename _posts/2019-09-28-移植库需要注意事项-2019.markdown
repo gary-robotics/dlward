@@ -1,3 +1,14 @@
+---
+layout:     post                    # 使用的布局（不需要改）
+title:      移植库需要注意事项                # 标题 
+subtitle:    第一篇                  #副标题
+date:       2019-08-29              # 时间
+author:     BY Edlward              # 作者
+header-img: img/post-bg-2015.jpg    #这篇文章标题背景图片
+catalog: true                       # 是否归档
+tags:                               #标签
+    - Linux
+---
 ### 移植库需要注意事项(移植库生成的文件如何使用)
 对简单的库的移植的一般性归纳
 
