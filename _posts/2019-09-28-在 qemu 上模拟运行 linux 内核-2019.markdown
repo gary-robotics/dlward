@@ -1,3 +1,15 @@
+---
+layout:     post                    # 使用的布局（不需要改）
+title:      在 qemu 上模拟运行 linux 内核                # 标题 
+subtitle:    第一篇                  #副标题
+date:       2019-08-29              # 时间
+author:     BY Edlward              # 作者
+header-img: img/post-bg-2015.jpg    #这篇文章标题背景图片
+catalog: true                       # 是否归档
+tags:                               #标签
+    - Linux
+---
+
 实验环境 ubuntu 18.04 qemu 4.0.0
 
 本文只是记录在 ubuntu 18.04 qemu 4.0.0 版本下搭建调试环境时的重要步骤和出现的一些 bug，并没有详细地描述整个构建细节。下载 linux 内核与 uboot 源码等细节可参考其他介绍文档。
