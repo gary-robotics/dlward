@@ -9,7 +9,6 @@ catalog: true                       # 是否归档
 tags:                               #标签
     - Linux
 ---
-
 # linux 驱动开发
 
 标签（空格分隔）： linux 驱动开发
@@ -2009,3 +2008,659 @@ MODULE_ALIAS("alias xxx");			// 描述模块的别名信息
 ### 5.1 什么是驱动框架
 
 内核中驱动部分维护者针对每个种类的驱动设计一套成熟的、标准的、典型的驱动实现，然后把不同厂家的同类硬件驱动中相同的部分抽出来自己实现好，再把不同部分留出接口给具体的驱动开发工程师来实现，这就叫驱动框架。
+
+内核维护者在内核中设计了一些统一管控系统资源的体系，这些体系让内核能够对资源在各个驱动之间的使用统一协调和分配，保证整个内核的稳定健康运行。譬如系统中所有的 GPIO 就属于系统资源，每个驱动模块如果要使用某个 GPIO 就要先调用特殊的接口先申请，申请到后使用，使用完后要释放。又譬如中断号也是一种资源，驱动在使用前也必须去申请。这也是驱动框架的组成部分。
+
+一些特定的接口函数、一些特定的数据结构，这些是驱动框架的直接表现。
+
+### 5.2 LED 内核驱动框架
+#### 5.2.1 相关文件
+
+- drivers/leds 目录，这个目录就是驱动框架规定的 LED 这种硬件的驱动应该待的地方。
+
+- led-class.c 和 led-core.c，这两个文件加起来属于 LED 驱动框架的第一部分，这两个文件是内核开发者提供的，他们描述的是内核中所有厂家的不同 LED 硬件的相同部分的逻辑。
+
+- leds-xxxx.c，这个文件是 LED 驱动框架的第 2 部分，是由不同厂商的驱动工程师编写添加的，厂商驱动工程师结合自己公司的硬件的不同情况来对 LED 进行操作，使用第一部分提供的接口来和驱动框架进行交互，最终实现驱动的功能。
+
+九鼎实际未使用内核推荐的led驱动框架，drivers/char/led/x210-led.c。
+
+#### 5.2.2 驱动框架的使用
+
+以 leds-s3c24xx.c 为例，leds-s3c24xx.c 中通过调用 led_classdev_register 来完成 LED 驱动的注册，而 `led_classdev_register` 是在 `drivers/leds/led-class.c` 中定义的。所以其实 SoC 厂商的驱动工程师是调用内核开发者在驱动框架中提供的接口来实现自己的驱动的。
+
+驱动框架的关键点就是：分清楚内核开发者提供了什么，驱动开发者自己要提供什么。
+
+- 典型的驱动开发行业现状
+
+内核开发者对驱动框架进行开发和维护、升级，对应 led-class.c 和 led-core.c。SoC 厂商的驱动工程师对设备驱动源码进行编写、调试，提供参考版本，对应 leds-s3c24xx.c。做产品的厂商的驱动工程师以 SoC 厂商提供的驱动源码为基础，来做移植和调试。
+
+#### 5.2.3 初步分析驱动框架
+
+- 涉及到的文件
+
+```
+led-core.c
+led-class.c
+```
+
+- subsys_initcall
+
+经过基本分析，发现LED驱动框架中内核开发者实现的部分主要是 led-class.c。led-class.c 就是一个内核模块，对led-class.c分析应该从下往上，遵从对模块的基本分析方法。
+
+为什么LED驱动框架中内核开发者实现的部分要实现成一个模块？因为内核开发者希望这个驱动框架是可以被装载/卸载的。这样当我们内核使用者不需要这个驱动框架时可以完全去掉，需要时可以随时加上。
+
+`subsys_initcall` 是一个宏，定义在 `linux/init.h` 中。经过对这个宏进行展开，发现这个宏的功能是：将其声明的函数放到一个特定的段：`.initcall4.init`。
+
+```
+subsys_initcall
+	__define_initcall("4",fn,4)
+```
+
+分析 `module_init` 宏，可以看出它将函数放到了 `.initcall6.init` 段中。
+
+```
+module_init
+	__initcall
+		device_initcall
+			__define_initcall("6",fn,6)
+```
+
+内核在启动过程中需要顺序的做很多事，内核如何实现按照先后顺序去做很多初始化操作。内核的解决方案就是给内核启动时要调用的所有函数归类，然后每个类按照一定的次序去调用执行。这些分类名就叫 `.initcalln.init`。n 的值从 1 到 8。内核开发者在编写内核代码时只要将函数设置合适的级别，这些函数就会被链接的时候放入特定的段，内核启动时再按照段顺序去依次执行各个段即可。
+
+经过分析，可以看出，`subsys_initcall` 和 `module_init` 的作用是一样的，只不过前者所声明的函数要比后者在内核启动时的执行顺序更早。
+
+- led_class_attrs
+
+什么是 attribute，对应将来 `/sys/class/leds/` 目录里的内容，一般是文件和文件夹。这些文件其实就是 `sysfs` 开放给应用层的一些操作接口（非常类似于/dev/目录下的那些设备文件）。
+
+attribute 的作用就是让应用程序可以通过 `/sys/class/leds/` 目录下面的属性文件来操作驱动进而操作硬件设备。attribute 其实是另一条驱动实现的路线。有区别于之前讲的 `file_operations` 那条线。
+
+- led_classdev_register
+
+```
+led_classdev_register
+	device_create
+```
+
+分析可知，`ed_classdev_register` 这个函数其实就是去创建一个属于 `leds` 这个类的一个设备。其实就是去注册一个设备。所以这个函数其实就是 `led` 驱动框架中内核开发者提供给SoC 厂家驱动开发者的一个注册驱动的接口。
+
+当我们使用 `led` 驱动框架去编写驱动的时候，这个 `led_classdev_register` 函数的作用类似于我们之前使用 `file_operations` 方式去注册字符设备驱动时的 `register_chrdev` 函数。
+
+### 5.3 实现独立控制 LED
+
+```c
+#include <linux/module.h>		// module_init  module_exit
+#include <linux/init.h>			// __init   __exit
+#include <linux/fs.h>
+#include <linux/leds.h>
+#include <mach/regs-gpio.h>
+#include <mach/gpio-bank.h>
+#include <linux/io.h>
+#include <linux/ioport.h>
+
+#define GPJ0CON		S5PV210_GPJ0CON
+#define GPJ0DAT		S5PV210_GPJ0DAT
+
+static struct led_classdev mydev1;			// 定义结构体变量
+static struct led_classdev mydev2;			// 定义结构体变量
+static struct led_classdev mydev3;			// 定义结构体变量
+
+// 这个函数就是要去完成具体的硬件读写任务的
+static void s5pv210_led1_set(struct led_classdev *led_cdev,
+                enum led_brightness value)
+{
+    printk(KERN_INFO "s5pv210_led1_set\n");
+    
+    writel(0x11111111, GPJ0CON);
+    
+    // 在这里根据用户设置的值来操作硬件
+    // 用户设置的值就是value
+    if (value == LED_OFF)
+    {
+        // 用户给了个0，希望LED灭
+        //writel(0x11111111, GPJ0CON);
+        // 读改写三部曲
+        writel((readl(GPJ0DAT) | (1<<3)), GPJ0DAT);
+    }
+    else
+    {
+        // 用户给的是非0，希望LED亮
+        //writel(0x11111111, GPJ0CON);
+        writel((readl(GPJ0DAT) & ~(1<<3)), GPJ0DAT);
+    }
+}
+
+static void s5pv210_led2_set(struct led_classdev *led_cdev,
+                enum led_brightness value)
+{
+    printk(KERN_INFO "s5pv2102_led_set\n");
+    
+    writel(0x11111111, GPJ0CON);
+    
+    // 在这里根据用户设置的值来操作硬件
+    // 用户设置的值就是value
+    if (value == LED_OFF)
+    {
+        // 用户给了个0，希望LED灭
+        //writel(0x11111111, GPJ0CON);
+        // 读改写三部曲
+        writel((readl(GPJ0DAT) | (1<<4)), GPJ0DAT);
+    }
+    else
+    {
+        // 用户给的是非0，希望LED亮
+        //writel(0x11111111, GPJ0CON);
+        writel((readl(GPJ0DAT) & ~(1<<4)), GPJ0DAT);
+    }
+}
+
+static void s5pv210_led3_set(struct led_classdev *led_cdev,
+                enum led_brightness value)
+{
+    printk(KERN_INFO "s5pv210_led3_set\n");
+    
+    writel(0x11111111, GPJ0CON);
+    
+    // 在这里根据用户设置的值来操作硬件
+    // 用户设置的值就是value
+    if (value == LED_OFF)
+    {
+        // 用户给了个0，希望LED灭
+        //writel(0x11111111, GPJ0CON);
+        // 读改写三部曲
+        writel((readl(GPJ0DAT) | (1<<5)), GPJ0DAT);
+    }
+    else
+    {
+        // 用户给的是非0，希望LED亮
+        //writel(0x11111111, GPJ0CON);
+        writel((readl(GPJ0DAT) & ~(1<<5)), GPJ0DAT);
+    }
+}
+
+
+static int __init s5pv210_led_init(void)
+{
+    // 用户insmod安装驱动模块时会调用该函数
+    // 该函数的主要任务就是去使用led驱动框架提供的设备注册函数来注册一个设备
+    int ret = -1;
+    
+    // led1
+    mydev1.name = "led1";
+    mydev1.brightness = 255;	
+    mydev1.brightness_set = s5pv210_led1_set;
+    
+    ret = led_classdev_register(NULL, &mydev1);
+    if (ret < 0) {
+        printk(KERN_ERR "led_classdev_register failed\n");
+        return ret;
+    }
+    
+    // led2
+    mydev2.name = "led2";
+    mydev2.brightness = 255;	
+    mydev2.brightness_set = s5pv210_led2_set;
+    
+    ret = led_classdev_register(NULL, &mydev2);
+    if (ret < 0) {
+        printk(KERN_ERR "led_classdev_register failed\n");
+        return ret;
+    }
+    
+    // led3
+    mydev3.name = "led3";
+    mydev3.brightness = 255;	
+    mydev3.brightness_set = s5pv210_led3_set;
+    
+    ret = led_classdev_register(NULL, &mydev3);
+    if (ret < 0) {
+        printk(KERN_ERR "led_classdev_register failed\n");
+        return ret;
+    }
+    
+    return 0;
+}
+
+static void __exit s5pv210_led_exit(void)
+{
+    led_classdev_unregister(&mydev1);
+    led_classdev_unregister(&mydev2);
+    led_classdev_unregister(&mydev3);
+}
+
+module_init(s5pv210_led_init);
+module_exit(s5pv210_led_exit);
+
+// MODULE_xxx这种宏作用是用来添加模块描述信息
+MODULE_LICENSE("GPL");                          // 描述模块的许可证
+MODULE_AUTHOR("SummerGift>");                   // 描述模块的作者
+MODULE_DESCRIPTION("s5pv210 led driver");       // 描述模块的介绍信息
+MODULE_ALIAS("s5pv210_led");                    // 描述模块的别名信息
+```
+
+进入系统的 `sys/class/leds` 目录下可以看到驱动注册的三个 led 设备，分别为 led1、led2、led3，然后通过 `echo 0 > brightness` 命令来控制 led 的亮灭。
+
+### 5.4 gpiolib 
+
+gpiplib 用于统一管理系统中的 gpio 资源，避免驱动因为互相影响导致系统异常。
+
+- struct s3c_gpio_chip
+
+这个结构体是一个 GPIO 端口的抽象,这个结构体的一个变量就可以完全的描述一个 IO 端口。
+
+端口和 IO 口是两个概念，S5PV210 有很多个IO口（160个左右），这些 IO 口首先被分成 N 个端口（port group），然后每个端口中又包含了 M 个 IO 口。譬如 GPA0 是一个端口，里面包含了 8 个 IO 口，我们一般记作：GPA0_0（或GPA0.0）、GPA0_1。
+
+内核中为每个 GPIO 分配了一个编号，编号是一个数字（譬如一共有 160 个 IO 时编号就可以从 1 到160 连续分布），编号可以让程序很方便的去识别每一个 GPIO。
+
+- s5pv210_gpio_4bit
+
+这是一个结构体数组，数组中包含了很多个 struct s3c_gpio_chip 类型的变量。
+
+- S5PV210_GPA0 宏
+
+这个宏的返回值就是 GPA0 端口的某一个 IO 口的编号值，传参就是我们这个 IO 口在 GPA0 端口中的局部编号。
+
+`samsung_gpiolib_add_4bit_chips` 这个函数才是具体进行 gpiolib 的注册的。这个函数接收的参数是我们当前文件中定义好的结构体数组 s5pv210_gpio_4bit（其实 2 个参数分别是数组名和数组元素个数），这个数组中其实就包含了当前系统中所有的 IO 端口的信息（这些信息包含：端口的名字、端口中所有 GPIO 的编号、端口操作寄存器组的虚拟地址基地。
+
+## 5. Linux 设备驱动模型
+
+### 5.1 基本概念
+
+- 什么是设备驱动模型？
+    - 类 class、总线 bus、设备 device、驱动 driver
+    - kobject 和对象生命周期
+    - sysfs
+    - udev
+
+- 为什么需要设备驱动模型？
+
+早期内核（2.4之前）没有统一的设备驱动模型，但照样可以用。2.6 版本中正式引入设备驱动模型，目的是在设备越来越多，功耗要求等新特性要求的情况下让驱动体系更易用、更优秀。
+
+设备驱动模型负责统一实现和维护一些特性，诸如：电源管理、热插拔、对象生命周期、用户空间和驱动空间的交互等基础设施。
+
+设备驱动模型目的是简化驱动程序编写，但是客观上设备驱动模型本身设计和实现很复杂。
+
+- 驱动开发的 2 个重点：
+
+驱动源码本身编写、调试，重点在于对硬件的了解。
+
+驱动什么时候被安装、驱动中的函数什么时候被调用。跟硬件无关，完全和设备驱动模型有关。
+
+### 5.2 设备驱动模型的底层架构
+- kobject
+    - 定义在 linux/kobject.h 中
+    - 各种对象最基本单元，提供一些公用型服务如：对象引用计数、维护对象链表、对象上锁、对用户空间的表示。
+    - 设备驱动模型中的各种对象其内部都会包含一个kobject
+    - 地位相当于面向对象体系架构中的总基类
+
+- kobj_type
+    - 很多书中简称为 ktype，每一个 kobject 都需要绑定一个 ktype 来提供相应功能
+    - 关键点1：sysfs_ops，提供该对象在sysfs中的操作方法（show 和 store）
+    - 关键点2：attribute，提供在sysfs中以文件形式存在的属性，其实就是应用接口
+
+- kset
+    - kset 的主要作用是做顶层 kobject 的容器类
+    - kset 的主要目的是将各个 kobject（代表着各个对象）组织出目录层次架构
+    - 可以认为 kset 就是为了在 sysfs 中弄出目录，从而让设备驱动模型中的多个对象能够有层次有逻辑性的组织在一起
+
+### 5.3 总线式设备驱动组织方式
+- 总线
+    - 物理上的真实总线及其作用（英文 bus）
+    - 驱动框架中的总线式设计
+    - bus_type 结构体，关键是 match 函数和 uevent 函数
+
+- 设备
+    - struct device 是硬件设备在内核驱动框架中的抽象
+    - device_register 用于向内核驱动框架注册一个设备
+    - 通常 device 不会单独使用，而是被包含在一个具体设备结构体中，如 struct usb_device
+
+- 驱动
+    - struct device_driver 是驱动程序在内核驱动框架中的抽象
+    - 关键元素1：name，驱动程序的名字，很重要，经常被用来作为驱动和设备的匹配依据
+    - 关键元素2：probe，驱动程序的探测函数，用来检测一个设备是否可以被该驱动所管理
+
+- 类
+    - 相关结构体：struct class 和 struct class_device
+    - udev 的使用离不开 class
+    - class 的真正意义在于作为同属于一个 class 的多个设备的容器。也就是说，class 是一种人造概念，目的就是为了对各种设备进行分类管理。当然，class在分类的同时还对每个类贴上了一些标签，这也是设备驱动模型为我们写驱动提供的基础设施。
+
+模型思想很重要，其实就是面向对象的思想，全是结构体套结构体，对基本功要求较高。
+
+### 5.4 platform 平台总线工作原理
+#### 5.4.1 何为平台总线
+相对于 usb、pci、i2c 等物理总线来说，platform 总线是虚拟的、抽象出来的。在裸机中，CPU与外部通信的 2 种方式：地址总线式连接和专用接口式连接。平台总线对应地址总线式连接设备，也就是 SoC 内部集成的各种内部外设。
+
+- 平台总线下管理的2员大将
+    - platform 工作体系都定义在 `drivers/base/platform.c` 中
+    - 两个结构体：platform_device 和 platform_driver
+    - 两个接口函数：platform_device_register 和 platform_driver_register
+
+```c
+struct platform_device {
+	const char	* name;			// 平台总线下设备的名字
+	int		id;
+	struct device	dev;		// 所有设备通用的属性部分
+	u32		num_resources;		// 设备使用到的resource的个数
+	struct resource	* resource;	// 设备使用到的资源数组的首地址
+
+	const struct platform_device_id	*id_entry;	// 设备ID表
+	
+	/* arch specific additions */
+	struct pdev_archdata	archdata;			// 自留地，用来提供扩展性的
+};
+
+struct platform_driver {
+	int (*probe)(struct platform_device *);		// 驱动探测函数
+	int (*remove)(struct platform_device *);	// 去掉一个设备
+	void (*shutdown)(struct platform_device *);	// 关闭一个设备
+	int (*suspend)(struct platform_device *, pm_message_t state);
+	int (*resume)(struct platform_device *);
+	struct device_driver driver;				// 所有设备共用的一些属性
+	const struct platform_device_id *id_table;	// 设备 ID 表
+};
+```
+
+
+#### 5.4.2 平台总线体系的工作流程
+
+1. 第一步：系统启动时在 bus 系统中注册 platform
+2. 第二步：内核移植的人负责提供 platform_device
+3. 第三步：写驱动的人负责提供 platform_driver
+4. 第四步：platform 的 match 函数发现 driver 和 device 匹配后，调用 driver 的 probe 函数来完成驱动的初始化和安装，然后设备就工作起来了
+
+代码分析：platform 本身注册:
+
+- 每种总线（不光是 platform，usb、i2c 那些也是）都会带一个 match 方法，match 方法用来对总线下的 device 和 driver 进行匹配。理论上每种总线的匹配算法是不同的，但是实际上一般都是看name 的。
+
+- platform_match 函数就是平台总线的匹配方法。该函数的工作方法是：如果有 id_table 就说明驱动可能支持多个设备，所以这时候要去对比 id_table 中所有的 name，只要找到一个相同的就匹配上了不再找了，如果找完 id_table 都还没找到就说明每匹配上；如果没有 id_table 或者每匹配上，那就直接对比 device 和 driver 的 name，如果匹配上就匹配上了，如果还没匹配上那就匹配失败。
+
+
+#### 5.4.3 platform设备和驱动的注册过程
+
+- 以 leds-s3c24xx.c 为例来分析 platform 设备和驱动的注册过程
+    - platform_driver_register
+    - platform_device_register
+
+- platdata 的用途
+
+platdata 其实就是设备注册时提供的设备有关的一些数据（譬如设备对应的gpio、使用到的中断号、设备名称等）。
+
+这些数据在设备和驱动 match 之后，会由设备方转给驱动方。驱动拿到这些数据后，通过这些数据得知设备的具体信息，然后来操作设备。这样做的好处是：驱动源码中不携带数据，只负责算法（对硬件的操作方法）。现代驱动设计理念就是算法和数据分离，这样最大程度保持驱动的独立性和适应性。
+
+将对设备的操作方法（也就是驱动）和设备本身的数据分离，可以写出通用性更强的驱动程序，不会和具体的设备耦合，也就有了更好的可移植性。
+
+## 6. misc 类设备
+### 6.1 misc类设备介绍
+中文名：杂项设备\杂散设备，`sys/class/misc`，是一种典型的字符设备，有一套驱动框架，内核实现一部分（misc.c），驱动实现一部分（x210-buzzer.c）。
+
+misc 是对原始的字符设备注册接口的一个类层次的封装，很多典型字符设备都可以归类到misc类中，使用misc驱动框架来管理。
+
+- misc类设备驱动架构
+
+内核开发者实现部分，关键点有2个：一个是类的创建，另一个是开放给驱动开发者的接口，具体设备驱动工程师实现部分。
+
+### 6.2 misc 驱动框架源码分析
+
+- misc 源码框架基础
+
+misc 源码框架本身也是一个模块，内核启动时自动加载。源码框架的主要工作：注册misc类，使用老接口注册字符设备驱动（主设备号10），开放 device 注册的接口 misc_register 给驱动工程师。
+
+- misc 类设备的注册
+
+驱动工程师需要借助 misc 来加载自己的驱动时，只需要调用 misc_register 接口注册自己的设备即可，其余均不用管。
+
+- misc_list 链表的作用
+
+内核定义了一个 misc_list 链表用来记录所有内核中注册了的杂散类设备。当我们向内核注册一个misc类设备时，内核就会向misc_list链表中insert一个节点。
+
+```
+#define LIST_HEAD_INIT(name) { &(name), &(name) }
+#define LIST_HEAD(name) \
+	struct list_head name = LIST_HEAD_INIT(name)
+```
+
+原式子：static LIST_HEAD(misc_list);
+展开后：static struct list_head misc_list = { &(misc_list), &(misc_list) }
+
+- 内核互斥锁
+
+何为互斥锁，定义：DEFINE_MUTEX。上锁 mutex_lock 和解锁 mutex_unlock。内核防止竞争状态的手段：原子访问、自旋锁、互斥锁、信号量。互斥锁和信号量很相似（其实就是计数值为 1 的信号量），互斥锁的出现比信号量晚，实现上比信号量优秀，尽量使用互斥锁。
+
+## 7. framebuffer 设备
+
+### 7.1 什么是 framebuffer
+- framebuffer 帧缓冲（简称fb）是 linux 内核中虚拟出的一个设备
+- framebuffer 向应用层提供一个统一标准接口的显示设备
+- 从驱动来看，fb是一个典型的字符设备，而且创建了一个类 `/sys/class/graphics`
+
+### 7.2 framebuffer 的使用
+1. 设备文件 `/dev/fb0`
+2. 获取设备信息 `#include <linux/fb.h>`
+3. mmap 做映射
+4. 填充 framebuffer
+
+### 7.3 FB 驱动框架总览
+#### 7.3.1 驱动框架部分
+- drivers/video/fbmem.c
+    创建 graphics 类、注册 FB 的字符设备驱动、提供 register_framebuffer 接口给具体 framebuffer 驱动编写着来注册 fb 设备的。本文件相对于 fb 来说，地位和作用和 misc.c 文件相对于杂散类设备来说一样的，结构和分析方法也是类似的。
+- drivers/video/fbsys.c
+    这个文件是处理fb在/sys目录下的一些属性文件的。
+- drivers/video/modedb.c
+    这个文件是管理显示模式（譬如VGA、720P等就是显示模式）的
+- drivers/video/fb_notify.c
+
+#### 7.3.2 驱动部分
+- drivers/video/samsung/s3cfb.c，驱动主体
+- drivers/video/samsung/s3cfb_fimd6x.c，里面有很多LCD硬件操作的函数
+- arch/arm/mach-s5pv210/mach-x210.c，负责提供platform_device的
+- arch/arm/plat-s5p/devs.c，为platform_device提供一些硬件描述信息的
+
+### 7.3 驱动框架分析
+
+- fbmem_init 函数
+    - `#ifdef MODULE`
+    - fb_proc_fops 和 fb 在 proc 文件系统中的表现
+    - register_chrdev 注册 fb 设备
+    - class_create 创建 graphics 类
+    - fbmem_exit 的对应
+
+- fb_fops
+    - read/write/mmap/ioctl
+    - registered_fb 和 num_registered_fb
+    - struct fb_info
+
+- register_framebuffer，fb 驱动框架开放给驱动编写着的注册接口
+    - fb_check_foreignness
+    - remove_conflicting_framebuffers
+    - device_create
+    - fb_init_device
+
+- fb在sysfs中的接口
+device_attrs、dev_set_drvdata 和 dev_get_drvdata。
+
+- fb 的 mode，工作模式
+`b_var_to_videomode`，`fb_add_videomode`。
+
+- 注册登记该fb设备
+`registered_fb[i] = fb_info`，结合fb_read等函数中对fb_info的使用，关键点：数据如何封装、数据由谁准备由谁消费、数据如何传递。
+
+- fb_notifier_call_chain，通知已经注册了的 FB 设备有事件发生
+
+### 7.4 framebuffer 驱动分析
+
+- s3cfb.c
+    注意目录结构的组织，s3cfb_driver。
+    
+- s3c_device_fb
+    1. mach-x210.c 中，被使用
+    2. devs.c 中
+    3. resource 的定义和作用
+
+- probe 函数分析
+struct s3c_platform_fb，这个结构体是 fb 的 platform_data 结构体，这个结构体变量就是platform 设备的私有数据，这个数据在 platform_device.device.platform_data 中存储。在 mach文件中去准备并填充这些数据，在 probe 函数中通过传参的 platform_device 指针取出来。
+
+- struct s3cfb_global		
+这个结构体主要作用是在驱动部分的2个文件（s3cfb.c和s3cfb_fimd6x.c）的函数中做数据传递用的。
+
+- struct resource
+- regulator
+
+- platform_data的传递过程
+  1. to_fb_plat
+  2. s3cfb_set_platdata
+  3. smdkc110_machine_init
+
+- resource的处理
+  - platform_device 中提供 resource 结构体数组
+  - probe 中 platform_get_resource 取出 resource 并且按 FLAG 分头处理
+
+- 一些硬件操作
+  - s3cfb_set_vsync_interrupt
+  - s3cfb_set_global_interrupt
+
+- s3cfb_init_global
+
+- 向框架注册该fb设备
+  - s3cfb_alloc_framebuffer
+  - s3cfb_register_framebuffer
+
+- 一些硬件操作
+    - s3cfb_set_clock
+    - s3cfb_set_window
+    - s3cfb_display_on
+
+- 驱动中处理中断
+    - platform_get_irq
+    - request_irq
+
+- logo显示
+```
+  s3cfb_probe
+  	fb_prepare_logo
+  		fb_find_logo			真正查找logo文件
+    fb_show_logo			
+  		fb_show_logo_line		真正显示logo
+  			fb_do_show_logo
+          info->fbops->fb_imageblit		实际操作硬件 fb 进行显示工作的函数
+```
+
+## 8. input 子系统
+
+### 8.1 什么是 input 子系统
+
+linux 系统中有各种各样的输入设备，为了统一不同的输入设备，需要使用一个统一的模型来描述。
+
+- struct input_event
+- input 子系统分4个部分：应用层 + input event + input core + 硬件驱动
+
+### 8.2 input设备应用层编程实践
+- 确定设备文件名
+    - 应用层操作驱动有2条路：/dev目录下的设备文件，/sys目录下的属性文件
+    - input 子系统用的 /dev 目录下的设备文件，具体一般都是在 /dev/input/eventn
+    - 用 cat 命令来确认某个设备文件名对应哪个具体设备。我在自己的 ubuntu 中实测的键盘是event1，而鼠标是 event3.
+
+- 标准接口打开并读取文件
+- 解析struct input_event
+
+### 8.3 input 子系统架构
+- input子系统分为三层
+    - 最上层：输入事件驱动层，evdev.c 和 mousedev.c 和 joydev.c 属于这一层
+    - 中间层：输入核心层，input.c 属于这一层
+    - 最下层：输入设备驱动层，drivers/input/xxx 文件夹下
+
+- input类设备驱动开发方法
+    - 输入事件驱动层和输入核心层不需要动，只需要编写设备驱动层
+    - 设备驱动层编写的接口和调用模式已定义好，驱动工程师的核心工作量是对具体输入设备硬件的操作和性能调优
+
+- 核心模块注册 input_init
+    - class_register
+    - input_proc_init
+    - register_chrdev
+
+- 设备驱动层的接口函数
+    - input_allocate_device
+    - input_set_capability
+    - input_register_device
+
+- handler 和 device的匹配
+    - input_attach_handler
+    - input_match_device		匹配 device 和 handler
+    - handler->connect(handler, dev, id)		连接 device 和 handler
+
+- 事件驱动层的接口函数
+    - input_register_handler
+    - input_register_handle
+
+- 输入事件驱动层源码
+    - input_handler
+    - evdev_connect
+    - evdev_event
+
+## 9. IIC 总线
+
+### 9.1 内核中的竞争状态和互斥
+- 一些概念
+    - 竞争状态（简称竟态）
+    - 临界段、互斥锁、死锁
+    - 同步（多CPU、多任务、中断）
+- 解决竟态的方法
+    - 原子操作 automic_t
+    - 信号量、互斥锁
+    - 自旋锁
+- 自旋锁和信号量的使用要点
+    - 自旋锁不能递归
+    - 自旋锁可以用在中断上下文（信号量不可以，因为可能睡眠），但是在中断上下文中获取自旋锁之前要先禁用本地中断
+    - 自旋锁的核心要求是：拥有自旋锁的代码必须不能睡眠，要一直持有CPU直到释放自旋锁
+    - 信号量和读写信号量适合于保持时间较长的情况，它们会导致调用者睡眠，因此只能在进程上下文使用，而自旋锁适合于保持时间非常短的情况，它可以在任何上下文使用。如果被保护的共享资源只在进程上下文访问，使用信号量保护该共享资源非常合适，如果对共享资源的访问时间非常短，自旋锁也可以。但是如果被保护的共享资源需要在中断上下文访问（包括底半部即中断处理句柄和顶半部即软中断），就必须使用自旋锁。自旋锁保持期间是抢占失效的，而信号量和读写信号量保持期间是可以被抢占的。自旋锁只有在内核可抢占或SMP（多处理器）的情况下才真正需要，在单CPU且不可抢占的内核下，自旋锁的所有操作都是空操作。
+
+### 9.2 中断的上下半部
+
+- 中断处理的注意点
+    - 中断上下文，不能和用户空间数据交互
+    - 不能交出CPU（不能休眠、不能schedule）
+    - ISR运行时间尽可能短，越长则系统响应特性越差
+- 中断下半部2种解决方案
+    - 为什么要分上半部（top half，又叫顶半部）和下半部（bottom half，又叫底半部）
+    - 下半部处理策略1：tasklet（小任务）
+    - 下半部处理策略2：workqueue（工作队列）
+
+- workqueue实战演示
+    - workqueue的突出特点是下半部会交给worker thead，因此下半部处于进程上下文，可以被调度，因此可以睡眠。
+    - include/linux/workqueue.h
+
+- 中断上下半部处理原则
+    - 必须立即进行紧急处理的极少量任务放入在中断的顶半部中，此时屏蔽了与自己同类型的中断，由于任务量少，所以可以迅速不受打扰地处理完紧急任务。
+    - 需要较少时间的中等数量的急迫任务放在 tasklet中。此时不会屏蔽任何中断（包括与自己的顶半部同类型的中断），所以不影响顶半部对紧急事务的处理；同时又不会进行用户进程调度，从而保证了自己急迫任务得以迅速完成。
+    - 需要较多时间且并不急迫（允许被操作系统剥夺运行权）的大量任务放在 workqueue 中。此时操作系统会尽量快速处理完这个任务，但如果任务量太大，期间操作系统也会有机会调度别的用户进程运行，从而保证不会因为这个任务需要运行时间将其它用户进程无法进行。
+    - 可能引起睡眠的任务放在 workqueue 中。因为在 workqueue 中睡眠是安全的。在需要获得大量的内存时、在需要获取信号量时，在需要执行阻塞式的 I/O 操作时，用 workqueue 很合适。
+
+## 10. 块设备驱动
+
+- 块设备和字符设备的差异
+    - 块和字符是两种不同的访问设备的策略
+    - 同一个设备可以同时支持块和字符两种访问策略
+    - 设备本身的物理特性决定了哪一种访问策略更适合
+    - 块设备本身驱动层支持缓冲区，而字符设备驱动层没有缓冲
+    - 块设备驱动最适合存储设备
+
+- 块设备驱动的特点
+    - 字符设备只能顺序访问（如串口发送数据顺序），而块设备可以随机访问（不连续块访问）
+    - 传统的机械式块设备（如硬盘、DVD）虽然可以随机访问，但是连续访问效率更高，因此块设备驱动中有排序逻辑将用户的随机访问重新调整成尽量连续访问以提升效率
+    - Nand、SD卡等随机访问效率等同于顺序访问
+
+- 块设备相关的几个单位
+    - 扇区（Sector），概念来自于早期磁盘，在硬盘、DVD中还有用，在Nand/SD中已经没意义了，扇区是块设备本身的特性，大小一般为512的整数倍，因为历史原因很多时候都向前兼容定义为512.
+    - 块（block），概念来自于文件系统，是内核对文件系统数据处理的基本单位，大小为若干个扇区，常见有512B、1KB、4KB等
+    - 段（Section），概念来自于内核，是内核的内存管理中一个页或者部分页，由若干个连续为块组成。
+    - 页（Page），概念来自于内核，是内核内存映射管理的基本单位。linux内核的页式内存映射名称来源于此。
+
+总结：块设备驱动对下以Sector为单位管理块设备，对上以Block为单位和文件系统交互。
+注意：块设备驱动和字符设备驱动不同，应用层对块设备驱动的访问一般不是直接操作设备文件（/dev/block/xxx，或者/dev/sdax），而是通过文件系统来简洁操作。   
+
+## 11. 结语
+
+很多时候，我们总是会低估完成一件事情所需要消耗的时间和精力，最终的结果往往是事情的完成被延期或者遥遥无期。 `Embedded Linux` 学习计划，本应在一两年前就完成，但是因为换了新的工作内容，暂时用不到的知识学习就被暂时搁置了，殊不知计算机基础知识才是嵌入式入门从业者急需补充的知识。
+
+捡起之前的计划需要再次熟悉相关的环境，重新理清思路，这样做必然要比一次性完成一项计划要耗费更多的时间。但是不管怎么样，多少件没有完成的也比不上一件圆满完成的计划。
+
+在积累了一些工作经验之后，我逐渐认识到那句话的背后的意义，**优秀的人首先追求完成，然后再追求完美，完成比完美更重要**。做一件事如果在计划内的时间里做不完，那么可能这辈子都再也做不完了，最终收获的结果会大打折扣。想要获得持续进步并不难，只需要少做一些事情，然后把必要的事情做得卓有成效就好了。
