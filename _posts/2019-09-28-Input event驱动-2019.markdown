@@ -5,14 +5,17 @@ Andrew Huang <bluedrum@163.com>
 
 
 Linux 专门对输入设备。
+
 键盘，鼠标，手柄，触摸屏。按键。封装一个类驱动。
+
 主要统一与应用程序接口。这一类的设备结点都是在/dev/input/eventn( 0<=n) 
+
 用户程序读驱动的输入都采用统一格式，即struct input_event,方便应用程序来读写
 
 
 
 
-
+```
 Linux/input.h
 
 struct input_event {
@@ -21,11 +24,11 @@ struct input_event {
     __u16 code;
     __s32 value;
 };
-
+```
 
 
 INPUT驱动查看
-
+```
 查看设备结点
 ls -l /dev/input
 查看设备信息
@@ -33,18 +36,19 @@ ls -l /proc/bus/input/
 cat /proc/bus/input/devices
 查看input class信息
  ls /sys/class/input
-
+```
 
 
 input device 优点
 
 统一应用程序使用外部输入设备的接口。这样简化编程。
+
 Input core是没有缓存队列的，如果应用程序没有及时取事件，则事件被丢弃。
 
 
 
 input输入驱动编程
-
+```
 输入驱动数据结构
  struct input_dev *input_dev;
 在驱动中必须动态分配input_dev结构，这里使用
@@ -52,16 +56,21 @@ input_allocate_device();
 初始化input_dev的参数
 调用 input_register_device()注册，
 退出时调用 input_unregister_device()
-
+```
 
 
 与应用程序的交互
 
 Input 驱动的子系统已经控制I/O，换句话read/write不需要驱动直接.
+
 驱动只需要input_report_xxx()上传信息
+
 input_report_key()上传按键
+
 input_report_abs() 绝对坐标
+
 它们最终调用input_event来向input core上传信息，并最后转交给应用程序.
+
 Input core没有缓存事件信息，这样在应用程序开始read前的信息全部被丢弃.
 
 
@@ -69,13 +78,15 @@ Input core没有缓存事件信息，这样在应用程序开始read前的信息
 input_dev 的初始化
 
 evbit 表示这个驱动支持哪一些事件,有两种等效的方法
+```
 set_bit(EV_KEY, input_dev->evbit); set_bit(EV_REL, input_dev->evbit);
-input_dev->evbit  = BIT_MASK(EV_KEY) | BIT_MASK(EV_REL);
 
+input_dev->evbit  = BIT_MASK(EV_KEY) | BIT_MASK(EV_REL);
+```
 
 
 初始化/proc/bus/input/devices的信息
-
+```
 #define DEVICE_NAME "s3c6410 gpio button"
 
     myinput_dev->name = DEVICE_NAME;
@@ -85,9 +96,9 @@ input_dev->evbit  = BIT_MASK(EV_KEY) | BIT_MASK(EV_REL);
     myinput_dev->id.vendor =  0x0001;
     myinput_dev->id.product = 0x0001;
     myinput_dev->id.version = 0x0001;
+```
 
-
-
+```
 cat /proc/bus/input/devices
 
 I: Bus=0019 Vendor=0001 Product=0001 Version=0001
@@ -98,11 +109,11 @@ U: Uniq=
 H: Handlers=kbd event2
 B: EV=3
 B: KEY=1680 0 0 10000002
+```
 
 
 
-
-
+```
 [root@urbetter 01]# insmod myinput.ko
  myinput_init 08:
 myinput_register_irq: rquest_irq: irq 101,name KYE1-UP
@@ -120,7 +131,7 @@ crw-rw----    1 root     root      13,  65 Mar 23  2000 event1
 crw-rw----    1 root     root      13,  66 Mar 23 12:08 event2
 crw-rw----    1 root     root      13,  63 Mar 23  2000 mice
 crw-rw----    1 root     root      13,  32 Mar 23  2000 mouse0
-
+```
 
 
 
@@ -128,7 +139,7 @@ crw-rw----    1 root     root      13,  32 Mar 23  2000 mouse0
 USB键盘测试
 
 USB键盘是在 hid/usbhid/usbkbd.c
-
+```
 I: Bus=0003 Vendor=413c Product=2003 Version=0110
 N: Name="Dell Dell USB Keyboard"
 P: Phys=usb-s3c24xx-1/input0
@@ -139,9 +150,9 @@ B: EV=120013
 B: KEY=10000 7 ff9f207a c14057ff febeffdf ffefffff ffffffff fffffffe
 B: MSC=10
 B: LED=7
+```
 
-
-
+```
 [root@urbetter 01]# ls -l /dev/input
 crw-rw----    1 root     root      13,  64 Mar 23  2000 event0
 crw-rw----    1 root     root      13,  65 Mar 23  2000 event1
@@ -155,3 +166,4 @@ usb 1-1: configuration #1 chosen from 1 choice
 input: Dell Dell USB Keyboard as /class/input/input2
 generic-usb 0003:413C:2003.0001: input: USB HID v1.10 Keyboard [Dell Dell USB Ke
 yboard] on usb-s3c24xx-1/input0
+```
