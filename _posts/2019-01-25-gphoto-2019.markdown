@@ -9,6 +9,7 @@ catalog: true                       # 是否归档
 tags:                               #标签
     - GPHOTO2
 ---
+[Linux-创建rc红外遥控平台设备,实现重复功能(2)](https://www.cnblogs.com/lifexy/p/9783914.html)  
 ### IR Control
 [The open hardware project to build an inexpensive and customizable infrared remote control for Nikon cameras](http://www.bigmike.it/ircontrol/)  
 [尼康 ML - L3 DIY IR Remote Hack Part I](https://bayesianadventures.wordpress.com/2013/08/09/nikon-ml-l3-ir-remote-hack/)  
