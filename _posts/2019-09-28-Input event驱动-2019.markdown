@@ -1,8 +1,16 @@
-Input event驱动
+---
+layout:     post                    # 使用的布局（不需要改）
+title:      Input event驱动                # 标题 
+subtitle:    第一篇                  #副标题
+date:       2019-08-29              # 时间
+author:     BY Edlward              # 作者
+header-img: img/post-bg-2015.jpg    #这篇文章标题背景图片
+catalog: true                       # 是否归档
+tags:                               #标签
+    - Linux
+---
 
-Andrew Huang <bluedrum@163.com>
-
-
+### Input event驱动
 
 Linux 专门对输入设备。
 
