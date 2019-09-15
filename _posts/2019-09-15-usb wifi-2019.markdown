@@ -1,3 +1,229 @@
 
 
 [210-MT7601-USB WIFI移植](https://blog.csdn.net/wangdapao12138/article/details/82559422)  
+
+一、开发环境
+硬件平台：我用的是TQ210核心板，板载S5PV210芯片
+软件平台：开发板移植的是Linux3.10.46内核，UBOOT移植的是2014.12版本
+
+二、资源简介
+WIFI模块已经可以驱动起来，可以连接没有密码的无线热点
+
+三、移植步骤
+（一）安装libnl
+
+1、下载源码
+
+http://www.infradead.org/~tgr/libnl/
+
+The latest stable release is: 3.2.25 (Released on Jul 16, 2014)
+
+
+
+2、解压源码
+
+
+34th_rtl8189es$ tar -zxf libnl-3.2.25.tar.gz
+
+3、进入文件夹
+
+/34th_rtl8189es$ cd libnl-3.2.25/
+
+4、配制
+
+./configure --host=arm-linux --prefix=$PWD/tmp --disable-static
+出现错误：
+
+configure: WARNING: bison not found. Please install before continuing.
+configure: WARNING: flex not found. Please install before continuing.
+configure: error: Required packages are missing. Please install them and rerun ./configure
+解决办法：
+确定系统的软件源是最新的，可以在这个网站更新：https://repogen.simplylinux.ch/
+
+
+/libnl-3.2.25$ sudo apt-get install bison
+/libnl-3.2.25$ sudo apt-get install flex
+
+5、编译安装
+
+/libnl-3.2.25$ make && make install
+
+在当前目录下的tmp目录下就生成了相关的文件，把相应的lib和include 复制到交叉编译工具链中。
+
+（二）安装libopenssl
+
+1、下载源码
+
+ftp://ftp.openssl.org/source/
+
+当前最新版是openssl-1.0.2m
+
+
+
+2、解压
+
+```
+th_rtl8189es$ tar -zxf openssl-1.0.2m.tar.gz 
+```
+3、进入文件夹
+```
+th_rtl8189es$ cd openssl-1.0.2m/
+```
+4、配置
+```
+/openssl-1.0.2m$ ./config shared no-asm --prefix=$PWD/tmp
+```
+5、修改Makefile
+```
+CC= arm-linux-gcc
+AR= arm-linux-ar $(ARFLAGS) r
+RANLIB= arm-linux-ranlib
+NM= arm-linux-nm
+MAKEDEPPROG= arm-linux-gcc
+```
+6、编译安装
+```
+/openssl-1.0.2m$ make && make install
+```
+在当前目录下的tmp目录下就生成了相关的文件，把相应的lib和include 复制到交叉编译工具链中。
+```
+/openssl-1.0.2m/tmp/lib$ sudo cp * -rd /opt/EmbedSky/4.4.6/arm-embedsky-linux-gnueabi/embedsky/usr/lib
+/openssl-1.0.2m/tmp/include$ sudo cp * -r /opt/EmbedSky/4.4.6/arm-embedsky-linux-gnueabi/embedsky/usr/include/
+```
+
+7、添加PKG_CONFIG_PATH路径
+```
+ export PKG_CONFIG_PATH=/opt/EmbedSky/4.4.6/arm-embedsky-linux-gnueabi/embedsky/usr/lib/pkgconfig/:$PKG_CONFIG_PATH
+```
+这样可避免后面出现错误：
+```
+Package libnl-3.0 was not found in the pkg-config search path.
+Perhaps you should add the directory containing `libnl-3.0.pc'
+to the PKG_CONFIG_PATH environment variable
+No package 'libnl-3.0' found
+```
+（三）安装wpa_supplicant
+
+1、下载源码
+```
+http://w1.fi/wpa_supplicant/
+```
+当前最新版是wpa_supplicant-2.6
+
+
+
+2、解压
+
+```
+th_rtl8189es$ tar -zxf wpa_supplicant-2.6.tar.gz
+```
+3、进入文件夹
+```
+th_rtl8189es$ cd wpa_supplicant-2.6/wpa_supplicant/
+```
+
+4、配置
+
+```
+/wpa_supplicant-2.6/wpa_supplicant$ cp defconfig .config
+```
+修改.config文件，增加以下内容：
+```
+CC=arm-linux-gcc
+CONFIG_LIBNL32=y
+```
+5、编译安装
+```
+/wpa_supplicant-2.6/wpa_supplicant$ make
+/wpa_supplicant-2.6/wpa_supplicant$ make DESTDIR=$PWD/tmp install
+```
+安装完成后，会在当前目录下的tmp目录中生成三个文件：wpa_cli、wpa_passphrase、wpa_supplicant
+至此，wpa_supplicant编译完成。
+
+四、使用wpa_supplicant
+1、在开发板上新建文件 /etc/my_wpa_supplicant.conf，内容如下：
+```
+ctrl_interface=/var/run/wpa_supplicant
+network={
+	ssid="TP-LINK_XXX"
+	psk="密码"
+}
+```
+2、添加库文件
+把前面编译 libnl 生成的/libnl-3.2.25/tmp/lib/libnl-3.so.200和libnl-genl-3.so.200文件复制到开发板上的/lib目录下
+把前面编译 libopenssl 生成的/openssl-1.0.2m/tmp/lib/libssl.so.1.0.0和libcrypto.so.1.0.0文件复制到开发板上的/lib目录下
+
+3、连接无线网络
+```
+wpa_supplicant -B -iwlan0 -c /etc/my_wpa_supplicant.conf
+或者
+wpa_supplicant -B -Dnl80211 -iwlan0 -c /etc/my_wpa_supplicant.conf
+```
+
+如果出现以下错误：
+```
+[root@$zjh: 34th_rtl8189es]# wpa_supplicant -B -i wlan0 -c /etc/my_wpa_supplican
+t.conf
+Successfully initialized wpa_supplicant
+nl80211: Driver does not support authentication/association or connect commands
+nl80211: deinit ifname=wlan0 disabled_11b_rates=0
+wlan0: Failed to initialize driver interface
+则可能是在编译网卡驱动时，没有加上这一句，可以看看我前一篇写的RTL8189模块驱动的移植：
+EXTRA_CFLAGS += -DCONFIG_IOCTL_CFG80211
+```
+4、设置IP
+```
+[root@$zjh: 34th_rtl8189es]# ifconfig wlan0 192.168.1.44
+[root@$zjh: 34th_rtl8189es]# ifconfig 
+wlan0     Link encap:Ethernet  HWaddr AC:A2:13:5F:F0:30  
+          inet addr:192.168.1.44  Bcast:192.168.1.255  Mask:255.255.255.0
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:54 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:21 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:19021 (18.5 KiB)  TX bytes:2296 (2.2 KiB)
+```
+5、PING网关
+```
+[root@$zjh: 34th_rtl8189es]# ping 192.168.1.1
+PING 192.168.1.1 (192.168.1.1): 56 data bytes
+64 bytes from 192.168.1.1: seq=0 ttl=64 time=1.621 ms
+64 bytes from 192.168.1.1: seq=1 ttl=64 time=1.347 ms
+64 bytes from 192.168.1.1: seq=2 ttl=64 time=2.576 ms
+64 bytes from 192.168.1.1: seq=3 ttl=64 time=2.805 ms
+^C
+--- 192.168.1.1 ping statistics ---
+4 packets transmitted, 4 packets received, 0% packet loss
+round-trip min/avg/max = 1.347/2.087/2.805 ms
+[root@$zjh: 34th_rtl8189es]# 
+```
+6、PING外网IP
+```
+[root@$zjh: 34th_rtl8189es]# ping 124.132.128.111
+PING 124.132.128.111 (124.132.128.111): 56 data bytes
+64 bytes from 124.132.128.111: seq=0 ttl=53 time=35.781 ms
+64 bytes from 124.132.128.111: seq=1 ttl=53 time=35.363 ms
+64 bytes from 124.132.128.111: seq=2 ttl=53 time=35.310 ms
+^C
+--- 124.132.128.111 ping statistics ---
+3 packets transmitted, 3 packets received, 0% packet loss
+round-trip min/avg/max = 35.310/35.484/35.781 ms
+[root@$zjh: 34th_rtl8189es]# 
+```
+7、PING外网
+```
+[root@$zjh: 34th_rtl8189es]# ping www.baidu.com
+PING www.baidu.com (61.135.169.121): 56 data bytes
+64 bytes from 61.135.169.121: seq=0 ttl=52 time=22.805 ms
+64 bytes from 61.135.169.121: seq=1 ttl=52 time=22.158 ms
+64 bytes from 61.135.169.121: seq=2 ttl=52 time=23.318 ms
+^C
+--- www.baidu.com ping statistics ---
+3 packets transmitted, 3 packets received, 0% packet loss
+round-trip min/avg/max = 22.158/22.760/23.318 ms
+[root@$zjh: 34th_rtl8189es]# 
+如果外网PING不通，可以查看我前一篇博文。
+```
+五、小结
+由于现在的无线路由器基本都是WPA加密了，而wireless-tools支持几乎所有的无线网卡和驱动，但它不能连接到那些只支持WPA的AP，所以wpa_supplicant是一个较好的选择，但缺点是它不支持所有的驱动。请浏览wpa_supplicant网站获得它所支持的驱动列表。
+
