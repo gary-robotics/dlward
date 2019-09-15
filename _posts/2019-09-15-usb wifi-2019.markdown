@@ -1,7 +1,7 @@
 
 
 [210-MT7601-USB WIFI移植](https://blog.csdn.net/wangdapao12138/article/details/82559422)  
-
+[hostapd和wpa_supplicant工具移植到ARM Linux](https://blog.csdn.net/zhaoxd200808501/article/details/74392453)  
 一、开发环境
 硬件平台：我用的是TQ210核心板，板载S5PV210芯片
 软件平台：开发板移植的是Linux3.10.46内核，UBOOT移植的是2014.12版本
