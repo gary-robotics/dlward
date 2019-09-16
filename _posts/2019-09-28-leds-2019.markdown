@@ -1,0 +1,73 @@
+---
+layout:     post                    # 使用的布局（不需要改）
+title:      leds                # 标题 
+subtitle:    第一篇                  #副标题
+date:       2019-09-29              # 时间
+author:     BY Edlward              # 作者
+header-img: img/post-bg-2015.jpg    #这篇文章标题背景图片
+catalog: true                       # 是否归档
+tags:                               #标签
+    - Linux
+---
+### /etc/rc.d/init.d/leds
+
+LED 服务器
+开机进入系统后，将会自动运行运行一个LED 服务程序(/etc/rc.d/init.d/leds)，它其实是调用了led-player 的一个脚本，led-player 开始运行后，将会在/tmp 目录下创建一个led-control 管道文件，向该管道发送不同的参数可以改变led 的闪烁模式：
+
+
+#echo 0 0.2 > /tmp/led-control
+运行该命令后，4 个用户led 将会以每个间隔0.2 秒的时间运行跑马灯。
+
+
+#echo 1 0.2 >/tmp/led-control
+运行该命令后，4 个用户led 将会以间隔0.2 秒的时间运行累加器。
+
+
+#/etc/rc.d/init.d/leds stop
+运行该命令后，4 个用户led 将会停止闪动。
+
+
+#/etc/rc.d/init.d/leds start
+运行该命令后，4 个用户led 将会重新开始闪动。
+
+ 
+
+单独控制LED
+/bin/leds 是一个可以控制单个led 的实用程序，要使用leds 必须先停止led-player，如下命令：
+
+
+#/etc/rc.d/init.d/leds stop
+该命令将停止led-player 对led 的操纵。
+
+ 
+
+led 的使用方法如下：
+[root@fa /]# led
+Usage: leds led_no 0|1
+led_no 是要操作的led(可为0，1，2，3)，0 和1 分别代表关闭和点亮。
+#led 2 1
+将点亮LED3
+
+ 
+
+ 
+
+#killall -9 ledplayer led停止闪动
+
+ 
+
+led 0 0   第一个灯灭
+
+led 0 1   第一个灯亮
+
+led 1 0   第二个灯灭
+
+led 1 1   。。。
+
+led 2 0   。。。
+
+led 2 1   。。。
+
+led 3 0   。。。
+
+led 3 1   。。。
