@@ -1,0 +1,186 @@
+最近用友善之臂的开发板tiny210运行MP3时出现了问题。
+在友善之臂提供的文件系统下，执行madplay  xx.mp3
+能出声音，但是自己用busybox做的却没有声音不知道为什么
+现在解决了这个问题
+一 运行流程
+  1. 启动脚本在/etc/init.d/rcS
+和声卡相关的是以下几句
+/etc/rc.d/init.d/alsaconf start
+进入相关目录展开后如下
+#!/bin/sh
+base=/usr/sbin/fa_codec_ctrl
+# See how we were called.
+case "$1" in
+  start)
+   modprobe snd-soc-wm8960 2>/dev/null
+   modprobe snd-soc-mini210-wm8960 2>/dev/null
+$base mini210
+;;
+  stop)
+;;
+esac
+exit 0
+相当于执行了
+modprobe snd-soc-wm8960 2>/dev/null
+   modprobe snd-soc-mini210-wm8960 2>/dev/nul
+/usr/sbin/fa_codec_ctrl  mini210
+两个驱动文件snd-soc-wm8960..ko以及snd-soc-mini210-wm8960.ko在这里
+rootfs_qtopia_qt4/lib/modules/3.0.8-FriendlyARM/kernel/sound/soc/s5pv2xx/snd-soc-wm8960.ko
+rootfs_qtopia_qt4/lib/modules/3.0.8-FriendlyARM/kernel/sound/soc/s5pv2xx/snd-soc-mini210-wm8960.ko
+所以你可以自己讲这里的驱动拷贝出来，自己去执行insmod
+modprobe 会到上面那边去找
+modprobe和insmod的区别
+http://blog.csdn.net/wenlifu71022/article/details/4256196
+2 执行以上流程的显示
+[root@cartvu /]# insmod snd-soc-wm8960.ko
+[root@cartvu /]# insmod snd-soc-mini210-wm8960.ko
+[   29.779492] asoc: wm8960-hifi <-> samsung-i2s.0 mapping ok
+[root@cartvu /]# fa_codec_ctrl mini210
+can't find control 4
+can't find control 5
+can't find control 7
+注意执行顺序
+这样将会在dev的目录下生成设备
+分别如下
+# ls -l  /dev/snd/
+crw-rw----    1 root     root      116,   0 Aug  2  2013 controlC0
+crw-rw----    1 root     root      116,  24 Aug  2  2013 pcmC0D0c
+crw-rw----    1 root     root      116,  16 Aug  2  2013 pcmC0D0p
+crw-rw----    1 root     root      116,  33 Aug  2  2013 timer
+# ls -l /dev/sound/
+crw-rw----    1 0        0          14,   4 Jul 31 20:56 audio
+crw-rw----    1 0        0          14,   3 Jul 31 20:56 dsp
+crw-rw----    1 0        0          14,   0 Jul 31 20:56 mixer
+当时就是因为创建的设备节点位置不对搞了一天
+然后执行
+[root@cartvu /]# my_madplay just_like_me.mp3
+MPEG Audio Decoder 0.15.2 (beta) - Copyright (C) 2000-2004 Robert Leslie et al.
+          Title: Just Like Me
+         Artist: Jeff Hanson
+          Album: Son
+          Track: 8
+           Year: 2003
+[  510.903592] EPLL Rate changes from 67738000 to 49152000
+[  510.910744] EPLL Rate changes from 49152000 to 67738000
+有时显示是正常的，但是却没有声音,是因为友善之臂的脚本执行问题
+在rcS在驱动加载之后才结束的话，会导致系统发送SIGHUP给rcS里面的包含的程序
+重新执行[root@FriendlyARM /]# fa_codec_ctrl mini210
+就可以了
+二 自己制作的文件系统
+1  /etc/inittable
+#this is run first except when booting in single-user mode.
+::sysinit:/etc/init.d/rcS
+# /bin/sh invocations on selected ttys
+# start an "askfirst" shell on the console (whatever that may be)
+::askfirst:-/bin/sh
+# stuff to do when restarting the init process
+::restart:/sbin/init
+# stuff to do before rebooting
+::ctrlaltdel:/sbin/reboot
+2 /etc/init.d/rcS
+#!/bin/sh
+echo "start...."
+/bin/hostname  cartvu
+#set the system clock from   rtc clock
+/sbin/hwclock  -s
+echo "making the auto_device"
+#it will call /etc//fstable
+/bin/mount  -a
+echo /sbin/mdev > /proc/sys/kernel/hotplug
+/sbin/mdev -s
+echo "make auto_device ok"
+echo "insmod touch screen"
+/sbin/insmod  /drivers/gt9xx10.ko > /dev/null
+echo "insmod tvp5150"
+/sbin/insmod  /drivers/tvp5150_tiny210.ko
+推荐：Android S5PV210 camera驱动测试程序
+分类：  Android  Samsung S5PV210 2012-07-04 13:47  480人阅读  评论(13)  收藏  举报 最近在调试S5PV210上的camera驱动，因为对Android的samsung camera hal
+#/test/tvp5150_test >/var/log/1.txt &
+/test/tvp5150_test &
+echo "start qt"
+/etc/qt_set_env.sh
+/bin/ps -o pgid,ppid,pid,nice,user,group,time,etime,comm
+/sbin/insmod  snd-soc-wm8960.ko
+/sbin/insmod  snd-soc-mini210-wm8960.ko
+/sound_bin/fa_codec_ctrl mini210
+echo "okokokokokokokokokokokokokokokokokokokokokokokokokokokokokokokokoko"
+3 /etc/fstable
+#device      mount-point        type        options        dump     fsck order
+proc          /proc            proc        defaults         0          0
+tmpfs         /tmp            tmpfs        defaults         0         0
+sysfs         /sys             sysfs         defaults         0          0
+tmpfs         /dev            tmpfs         defaults        0          0
+4 /etc/profile
+#!/bin/sh
+export HOSTNAME=cartvu
+export USER=root
+export HOME=root
+#show the command like [root@cartvu /]
+export PS1="[$USER@$HOSTNAME \W]\# "
+PATH=/bin:/sbin:/usr/bin:/usr/sbin
+LD_LIBRARY_PATH=/lib:/usr/lib:$LD_LIBRARY_PATH
+export PATH  LD_LIBRARY_PATH
+#############################################
+##tslib##
+export TSLIB_ROOT=/tslib
+export TSLIB_TSDEVICE=/dev/event1
+export TSLIB_CALIBFILE=/etc/pointercal
+export TSLIB_CONFFILE=$TSLIB_ROOT/etc/ts.conf
+export TSLIB_PLUGINDIR=$TSLIB_ROOT/lib/ts
+#export TSLIB_CONSOLEDEVICE=/dev/tty
+export TSLIB_CONSOLEDEVICE=none
+export TSLIB_FBDEVICE=/dev/fb0
+export LD_LIBRARY_PATH=$TSLIB_ROOT/lib:$LD_LIBRARY_PATH
+export PATH=$TSLIB_ROOT/bin:$PATH
+####################################
+##QT##
+export set QTDIR=/qt-everywhere
+export POINTERCAL_FILE=/etc/pointercal
+export QWS_SIZE=1280*800
+export QWS_MOUSE_PROTO=tslib:/dev/event1
+export QWS_DISPLAY="transformed:rot180:VNC:LinuxFB:LinuxFB:mmWidth200:mmHeight130:9"
+export LD_LIBRARY_PATH=/qt-everywhere/lib:$LD_LIBRARY_PATH
+export QT_QWS_FONTDIR=$QTDIR/lib/fonts
+export QWS_SW_CURSOR
+export set HOME=/root
+export QT_PLUGIN_PATH=$QTDIR/plugins
+#########sound and madplay lib###############
+export set MADPLAY_DIR=/sound_bin
+export LD_LIBRARY_PATH=$MADPLAY_DIR/lib:$LD_LIBRARY_PATH
+5 移植完了响应的qt库，tslib等之后
+启动s5pv210就会在dev下创建一堆设备
+6 移植madplay
+7 执行madplay just_like_me.mp3
+显示正确，但是却没有声音
+设备节点有了，驱动也加载了什么原因呢
+最后发现时设备创建的位置不对，用的是友善之臂的wm8960驱动
+没开源的，执行也没报什么错误
+8 变为手动执行时，
+fa_codec_ctrl mini210
+显示
+[root@cartvu /]# /sound_bin/fa_codec_ctrl mini210
+oops: No such file or directory
+而相应的设备都有了
+cd /dev/
+ls -l audio dsp mixer controlC0  pcmC0D0c pcmC0D0p timer  
+crw-rw----    1 0        0          14,   4 Jul 31 20:56 audio
+crw-rw----    1 0        0         116,   0 Jul 31 20:56 controlC0
+crw-rw----    1 0        0          14,   3 Jul 31 20:56 dsp
+crw-rw----    1 0        0          14,   0 Jul 31 20:56 mixer
+crw-rw----    1 0        0         116,  24 Jul 31 20:56 pcmC0D0c
+crw-rw----    1 0        0         116,  16 Jul 31 20:56 pcmC0D0p
+crw-rw----    1 0        0         116,  33 Jul 31 20:52 timer
+9 执行创建设备节点或建立软连接
+mkdir /dev/snd   /dev/sound
+mknod /dev/snd/controlC0 c 116 0
+mknod /dev/snd/pcmC0D0c c 116 24
+mknod /dev/snd/pcmC0D0p c 116 16
+mknod /dev/snd/timer c 116 33
+mknod /dev/sound/audio c 14 4
+mknod /dev/sound/dsp c 14 3
+mknod /dev/sound/mixer c 14 0
+10 重新执行fa_codec_ctrl mini210成功
+11执行madplay just_like_me.mp3出现声音了
+12  附别人的可以用的友善之臂没开源的，wm8960驱动源码
+测试过可以用
+
