@@ -1,26 +1,57 @@
-
+---
+layout:     post                    # 使用的布局（不需要改）
+title:      Qt系列软件包                # 标题 
+subtitle:    第一篇                  #副标题
+date:       2019-09-17              # 时间
+author:     BY Edlward              # 作者
+header-img: img/post-bg-2015.jpg    #这篇文章标题背景图片
+catalog: true                       # 是否归档
+tags:                               #标签
+    - Linux
+---
 ### Qt系列软件包 (搞不清Qtopia Core，Qt Extended，Qt-embedded.....的过来看看）
 一、Qt简介
+
 Qt工具包是一个跨平台的C++开发工具。Qt被主要用在了KDE桌面环境的开发中。它是挪威Trolltech公司的产品，2008年6月17日被芬兰的诺基亚（Nokia）公司收购，以增强该公司在跨平台软件研发方面的实力。
+
 使用Qt开发的软件，可以在任何支援的平台上编译与执行，而不需要修改源代码。可以实现本平台的图形界面风格，也可实现其它平台的图形界面风格。比如您可以在Microsoft Windows平台下编译出具有苹果公司Mac OS图形界面风格的应用程序。
+
 同时，经过多年发展，Qt不但拥有了完善的C++图形库，而且近年来的版本逐渐整合了数据库、OpenGL库、多媒体库(Phonon)、网络库、脚本库、XML库、WebKit库等等，其核心库也加入了进程间通信、多线程等模块，极大的丰富了Qt开发大规模复杂跨平台应用程序的能力，真正意义上实现了其研发宗旨“Code Less; Create More; Deploy Anywhere.”。
+
 Qt中使用了C++的非标准扩展，用在编译前增加一个名为moc的预处理器来实现，moc将Qt代码处理成标准C++代码。
 Qt开放源代码，并且提供自由软件的用户协议。使得它可以被广泛地应用在各平台上的开放源代码软件开发中。
 其官方网站为：http://www.qtsoftware.com/
+
 二、Qt的授权模式
+
 1.商业版：开发的软件是专属的或商业的，源代码不共享。
+
 2.开源版：遵循GNU GPL v.3.0，发布的程序也必须是基于GPL的。Qt 4.5.0 及以后的版本开始遵循 GNU LGPL v.2.1。
+
 三、Qt的平台支持
+
 Qt 的版本是按照不同的图形系统来划分的，目前分为五个版本：
+
 Win: 适用于Miccrosoft Windows
+
 X11: 适合于使用了x系统的各种 linux 和 unix的平台
+
 Mac: 适合于苹果Mac OS X
+
 embedded-linux: 适合于具有帧缓冲（frame buffer）的linux 的平台
+
 embedded-wince: 适合于Windows CE
+
 四、Qt各软件版本的区别
+
 1. Qt泛指Qt的所有桌面版本，比如Qt/X11，Qt Windows，Qt Mac等。由于Qt最早是在Linux中随着KDE流行开来的，因此通常很多人说的Qt都指用于Linux/Unix的Qt/X11。
+
 2. Qt/E（Qt/Embedded）最初是用于嵌入式Linux系统的Qt版本。Qt/E去掉了X Lib的依赖而直接工作于Frame Buffer上，因而效率更高。
+
 3. Qtopia最初是sourceforge.net上的一个开源项目，全称是Qt Palmtop Environment (QPE)，是一个构建于Qt/E之上的类似桌面系统的应用环境，包括了PDA和手机等掌上系统常见的功能如电话簿、日程表等。相比之下，Qt/E是基础类库。在QT4版本前要安装Qtopia需要先装Qt/E，但之后的就不需要了。版本4之后的Qtopia 已经带有QT/E库了。
+
 4. Qtopia Core：就是原来的Qt/E，从Qt 4开始改名为Qtopia Core，把Qtopia Core并到Qtopia的产品线中去了。在版本4之前，Qte和Qtopia是不同的两套程序，Qte是基础类库，Qtopia是构建于Qte之上的一系列应用程序。但从版本4开始，Trolltech将Qte并入了Qtopia，并推出了新的Qtopia4。在该版中，原来的Qte被称为Qtopia Core，作为嵌入式版本的核心，既可以与Qtopia配合，也可以独立使用。原来的Qtopia则被分成几层，核心的应用框架和插件系统被称为 Qtopia Platform，上层的应用程序则按照不同的目标用户分为不同的包，如Qtopai PDA，Qtopia Phone。但实际上Qtopia Core就相当于原来的Qt/E，仍然作为基础类库。从Qt4.4开始，其名称又改回Qt-embedded了，之前的Qtopia改名为Qt Extended了。其线路为Qt/E->Qtopia Core->Qt-embedded。
+
 5. Qt-all是qt的所有版本的源代码了，既可以编译成Linux版本也可以编译成Windows版本。
+
 6. Qt Extended（2008年9月30日前称Qtopia）是一个软件平台，主要用于采用嵌入式Linux系统的（embedded Linux-based system）的电子手机和移动电话。从4.4版本开始，Qtopia改名为Qt Extended，qt-embedded-4.4.x相当于qtopia-core,qt-extended相当于桌面。2009年3月3日，Qt Software宣布将停止开发作为独立产品的 Qt Extended。取而代之的是，Qt Extended 中的一些功能将被转入 Qt 框架，从而使 Qt 成为更加丰富的跨平台应用程序框架。Qt Extended 的最后一个版本是4.4.3。
