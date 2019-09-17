@@ -10,10 +10,8 @@ tags:                               #标签
     - Linux
 ---
 
-最近用友善之臂的开发板tiny210运行MP3时出现了问题。
-在友善之臂提供的文件系统下，执行madplay  xx.mp3
-能出声音，但是自己用busybox做的却没有声音不知道为什么
-现在解决了这个问题
+最近用友善之臂的开发板tiny210运行MP3时出现了问题。在友善之臂提供的文件系统下，执行madplay  xx.mp3 能出声音，但是自己用busybox做的却没有声音不知道为什么 现在解决了这个问题.
+```
 一 运行流程
   1. 启动脚本在/etc/init.d/rcS
 和声卡相关的是以下几句
@@ -182,7 +180,11 @@ crw-rw----    1 0        0          14,   0 Jul 31 20:56 mixer
 crw-rw----    1 0        0         116,  24 Jul 31 20:56 pcmC0D0c
 crw-rw----    1 0        0         116,  16 Jul 31 20:56 pcmC0D0p
 crw-rw----    1 0        0         116,  33 Jul 31 20:52 timer
+```
+
 9 执行创建设备节点或建立软连接
+
+```
 mkdir /dev/snd   /dev/sound
 mknod /dev/snd/controlC0 c 116 0
 mknod /dev/snd/pcmC0D0c c 116 24
@@ -191,8 +193,12 @@ mknod /dev/snd/timer c 116 33
 mknod /dev/sound/audio c 14 4
 mknod /dev/sound/dsp c 14 3
 mknod /dev/sound/mixer c 14 0
+```
+
 10 重新执行fa_codec_ctrl mini210成功
+
 11执行madplay just_like_me.mp3出现声音了
+
 12  附别人的可以用的友善之臂没开源的，wm8960驱动源码
 测试过可以用
 
