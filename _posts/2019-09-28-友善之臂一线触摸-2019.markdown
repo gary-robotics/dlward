@@ -1,0 +1,20 @@
+ 开源的tslib，适用于友善之臂一线触摸
+管理提醒： 本帖被 mindee 设置为精华(2011-11-08)
+为了方便用户的开发和使用，我们特意制作了一个开源的tslib，欢迎使用(不提供技术支持)
+
+注意：此程序仅适用于友善之臂提供的Linux系统
+
+使用方法：
+
+step1: 解压源代码包，执行make
+   #tar xvzf  one-wire-ts-input-src-20111026.tar.gz
+   #make
+  得到" one-wire-ts-input.so "，把它放入板子中，目录为：/usr/lib/ts/
+Step2: 修改板子中的文件“/etc/ts.conf  ”第一行为如下内容：
+   module_raw one-wire-ts-input
+   保存修改
+
+Step3:  重新启动即可
+
+下载：(为了增强论坛人气，以及调查对此关注的用户，特设置为回复可见，请谅解)
+http://www.arm9home.net/read.php?tid-16105.html
