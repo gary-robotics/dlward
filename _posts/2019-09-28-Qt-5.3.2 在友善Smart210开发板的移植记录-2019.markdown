@@ -1,0 +1,352 @@
+---
+layout:     post                    # 使用的布局（不需要改）
+title:      Qt-5.3.2 在友善Smart210开发板的移植记录                # 标题 
+subtitle:    第一篇                  #副标题
+date:       2019-09-29              # 时间
+author:     BY Edlward              # 作者
+header-img: img/post-bg-2015.jpg    #这篇文章标题背景图片
+catalog: true                       # 是否归档
+tags:                               #标签
+    - LINUX
+---
+### Qt-5.3.2 在友善Smart210开发板的移植记录
+1   平台说明
+主机平台： Ubuntu 14.04
+
+交叉工具链： FrendlyARM的 arm-linux-gcc-4.5.1-v6-vfp-20120301.tgz
+
+目标平台：FrendlyARM的Smart210开发板。（Soc是三星的S5PV210，内核是cortex-a8，下面的移植方法是普适的，不是此平台的也可参考下面的移植步骤）
+
+Qt版本： Qt-5.3.2
+
+
+
+2   Qt5.3.2在ARM-Linux平台（Mini210开发板）的移植
+进入Qt5.3.2的源码顶级目录，按照Linux系统中自编译软件通用的三个步骤依次执行 ./configure 、make 、make install 即可完成Qt5的编译安装。在执行之前，首先看一下configure的帮助，了解一下各个配置项的作用。
+
+$ ./configure --help >help.txt ; vi help.txt
+
+
+
+配置时需要注意的几点是：
+
+如果是交叉编译，需要配置 xplatform选项，比如要在arm-linux平台上移植Qt的话，就在配置项中加上 -xplatform linux-arm-gnueabi-g++ ，Qt5支持的交叉平台都可在源码顶层目录中的 /qtbase/mkspecs/ 下找到，每个子目录名代表一个交叉平台的名字，移植Qt时应根据自己的实际情况修改平台对应的子目录下的qmake.conf文件，它定义了一些与平台相关的环境变量，如交叉编译器等；
+
+最好不要在编译Qt时使能 c++11，一方面你的编译器可能不支持，另一方面使能这一项后可能出现一部分编译错误；
+
+如果需要openGL，就需要用 -opengl选项指定opengl的api，对于嵌入式平台，一般使用 opengl ES2，配置选项中加入" -opengl es2 " 。不过想使用openGL可能会比较麻烦，因为openGL一般在有硬件图形加速的条件下才能高效运行，而这需要显卡或Soc厂家提供openGL的支持库，但并不是所有Soc都能找到对应的支持库，比如三星就没有提供S5PV210的openGL库，所以我这里编译的Qt也是没有opengl的。(openGL的替代方案：如果没有厂家提供的硬件图形库，可以考虑使用纯软件实现的opengl，这样的软件库有很多是开源的，如mesa3D库等，不过纯软件实现的opengl在效率方面肯定要比带硬件加速的低很多，而且要想在嵌入式平台上使用，必须将opengl的软件库也交叉编译出来，我在交叉编译mesa3D时遇到了些问题，所以目前还没能在开发板上用上openGL)；
+
+如果想让Qt程序支持多点触摸，在配置时可能需要加上 -mtdev 和 -xinput2 选项，在help中可以找到这两个选项。mtdev包含了应用程序对多点触摸协议的支持，xinput2实现了Linux的输入子系统对多点触摸的支持。在我这里加上这两个选项的话配置会出错，可能还缺乏一些库，所以最后我没有使用这两个选项；
+
+另外，Qt5默认的qreal类型是64bit的double，如果希望用float类型定义qreal，则在配置选项中加入"-qreal float"。
+
+
+
+我的编译过程如下：
+
+首先修改 qtbase/mkspecs/linux-arm-gnueabi-g++/qmake.conf，内容如下：
+
+#
+# qmake configuration for building with arm-linux-gnueabi-g++
+#
+ 
+MAKEFILE_GENERATOR      = UNIX
+CONFIG                 += incrementar gdb_dwarf_index
+QMAKE_INCREMENTAL_STYLE = sublib
+QT_QPA_DEFAULT_PLATFORM = linux #eglfs
+QMAKE_CFLAGS_RELEASE   += -O2 -march=armv7-a  
+QMAKE_CXXFLAGS_RELEASE += -O2 -march=armv7-a  
+ 
+include(../common/linux.conf)
+include(../common/gcc-base-unix.conf)
+include(../common/g++-unix.conf)
+ 
+# modifications to g++.conf
+QMAKE_CC                = arm-none-linux-gnueabi-gcc
+QMAKE_CXX               = arm-none-linux-gnueabi-g++
+QMAKE_LINK              = arm-none-linux-gnueabi-g++
+QMAKE_LINK_SHLIB        = arm-none-linux-gnueabi-g++
+ 
+# modifications to linux.conf
+QMAKE_AR                = arm-none-linux-gnueabi-ar cqs
+QMAKE_OBJCOPY           = arm-none-linux-gnueabi-objcopy
+QMAKE_NM                = arm-none-linux-gnueabi-nm -P
+QMAKE_STRIP             = arm-none-linux-gnueabi-strip
+load(qt_config)
+
+
+然后执行：
+$ ./configure -release -opensource -xplatform linux-arm-gnueabi-g++ -prefix /opt/Qt-5.3.2/armv7-a -no-c++11 -qreal float
+配置结果为：
+
+   Configure summary
+ 
+Building on:   linux-g++ (i386, CPU features:)
+Building for:  linux-arm-gnueabi-g++ (arm, CPU features:)
+Platform notes:
+ 
+            - Also available for Linux: linux-kcc linux-icc linux-cxx
+        
+Build options:
+  Configuration .......... accessibility alsa audio-backend clock-gettime clock-monotonic compile_examples concurrent cross_compile evdev eventfd freetype full-config getaddrinfo getifaddrs iconv inotify ipv6ifname large-config largefile linuxfb medium-config minimal-config mremap nis no-harfbuzz no-pkg-config openssl pcre png posix_fallocate precompile_header qpa qpa reduce_exports release rpath shared small-config system-jpeg system-png system-zlib 
+  Build parts ............ libs examples
+  Mode ................... release
+  Using C++11 ............ no
+  Using PCH .............. yes
+  Target compiler supports:
+    iWMMXt/Neon .......... no/auto
+ 
+Qt modules and options:
+  Qt D-Bus ............... no
+  Qt Concurrent .......... yes
+  Qt GUI ................. yes
+  Qt Widgets ............. yes
+  Large File ............. yes
+  QML debugging .......... yes
+  Use system proxies ..... no
+ 
+Support enabled for:
+  Accessibility .......... yes
+  ALSA ................... yes
+  CUPS ................... no
+  Evdev .................. yes
+  FontConfig ............. no
+  FreeType ............... yes (bundled copy)
+  Glib ................... no
+  GTK theme .............. no
+  HarfBuzz ............... no
+  Iconv .................. yes
+  ICU .................... no
+  Image formats: 
+    GIF .................. yes (plugin, using bundled copy)
+    JPEG ................. yes (plugin, using system library)
+    PNG .................. yes (in QtGui, using system library)
+  journald ............... no
+  mtdev .................. no
+  Networking: 
+    getaddrinfo .......... yes
+    getifaddrs ........... yes
+    IPv6 ifname .......... yes
+    OpenSSL .............. yes (loading libraries at run-time)
+  NIS .................... yes
+  OpenGL / OpenVG: 
+    EGL .................. no
+    OpenGL ............... no
+    OpenVG ............... no
+  PCRE ................... yes (bundled copy)
+  pkg-config ............. no 
+  PulseAudio ............. no
+  QPA backends: 
+    DirectFB ............. no
+    EGLFS ................ no
+    KMS .................. no
+    LinuxFB .............. yes
+    XCB .................. no
+  Session management ..... yes
+  SQL drivers: 
+    DB2 .................. no
+    InterBase ............ no
+    MySQL ................ no
+    OCI .................. no
+    ODBC ................. no
+    PostgreSQL ........... no
+    SQLite 2 ............. no
+    SQLite ............... yes (plugin, using bundled copy)
+    TDS .................. no
+  udev ................... no
+  xkbcommon .............. no
+  zlib ................... yes (system library)
+ 
+
+
+配置完成后执行：
+
+$ make -j4
+$ sudo make install -j4
+
+3   添加 tslib 支持
+为了使单点触摸屏可用，还需要编译Qt的tslib插件，这需要首先交叉编译好tslib，tslib的编译过程参见：
+
+http://blog.csdn.net/newthinker_wei/article/details/8639276
+
+友善之臂的板子使用了 touchscreen-1wire，这需要按照上文中的步骤对tslib的源码打上补丁（在tslib的源码中添加了一个一线触摸屏的插件）。非友善之臂的板子一般不用打补丁。
+
+另一个有用的链接在这儿，这是友善专门为tslib做的一线触摸屏的插件，有源码，上面那篇文章应该也是参考这个源码的：
+
+http://www.arm9home.net/read.php?tid-16105.html
+
+
+
+注意，对于友善之臂的开发板，如果使用的是单点电阻触摸屏，使用上面的方式移植tslib就可以了。但是对于多点的电容触摸屏，上面的两个网址给出的源码都不适用了，友善的多点触摸屏使用的是goodix公司出的触摸屏，goodix驱动的接口跟友善之前用的触摸屏不一样。因此如果想使用tslib，需要再单独为goodix写个TSLIB插件。tslib源码的plugins目录中就是各个插件的代码，可以参考一下他们，都很简单（主要是实现一个read函数）。但要自己写电容屏的插件貌似比较困难，因为要对驱动程序中多点触摸的数据协议有所了解，这样才能从电容屏的数据中提取出单点数据。友善提供了friendlyarm-ts-mtinput.so 文件（但并没有源码），该文件就在友善自带的tslib中，默认目录为/usr/lib/ts/friendlyarm-ts-mtinput.so。把这个库拷贝到自己编译的tslib插件目录中，再修改配置文件ts.conf，即可使tslib工作。
+
+将编译出来的tslib拷贝到库开发板后，还需要在板子上设置TSLIB的环境变量，主要的几个变量如下：
+
+#! /bin/sh
+# "source" this file when wanna run a Qt application on the ARM Board.
+ 
+###############  the below lines are for stardard TSLIB ##################
+export TSLIB_ROOT=/opt/tslib
+export TSLIB_CALIBFILE=$TSLIB_ROOT/etc/pointercal
+export TSLIB_CONFFILE=$TSLIB_ROOT/etc/ts.conf
+export TSLIB_PLUGINDIR=$TSLIB_ROOT/lib/ts
+export TSLIB_TSDEVICE=/dev/touchscreen-1wire
+#export TSLIB_TSDEVICE=/dev/input/event2
+ 
+################  the below lines are optional ##############
+#export TSLIB_FBDEVICE=/dev/fb0
+#export TSLIB_CONSOLEDEVICE=none
+
+此外还要修改 ts.conf文件：
+#module_raw one_wire_ts_input
+module_raw friendlyarm-ts-mtinput #使用友善提供的电容屏TSLIB插件。需要先将friendlyarm-ts-mtinput.so拷贝到TSLIB_PLUGINDIR目录中
+ 
+module pthres pmin=1
+module variance delta=30
+module dejitter delta=100
+module linear
+到此为止 tslib 就基本能用了，首次使用时应先运行 ts_calibrate 进行触摸屏校准。我用的这个版本的tslib自带的ts_calibrate程序不太好用，所以我依然使用友善提供的ts_calibrate进行校准。
+
+有了tslib后，进入Qt源码目录中的 "qtbase/src/plugins/generic/tslib/"，运行 qmake 生成 Makefile，并在Makefile中将tslib的头文件和库文件路径添加到编译链接选项中（-I /...tslib/include  -L/.../tslib/lib）；然后运行 make 和 make install即可。这时，Qt5安装目录的 "plugins/generic/"目录下就出现"libqtslibplugin.so"这个库文件了。
+
+4   运行Qt程序
+需要说明的是，Qt5.0开始，Qt自身不再单独实现窗口系统，QWS不复存在，取而代之的新机制是QPA（Qt平台抽象），QPA使得Qt对不同平台的支持变得更加灵活，当需要支持一个新平台时，只需为该平台编写一个QPA插件。
+
+With the release of Qt 5.0, Qt no longer contains its own window system implementation: QWS is no longer a supported platform. For single-process use cases, theQt Platform Abstraction is a superior solution......参考 http://qt-project.org/doc/qt-5/embedded-linux.html
+
+编译完Qt后，只需将生成的lib和plugins文件夹拷贝到开发板，另外，当在嵌入式Linux平台上运行应用程序前，应根据自己平台的实际情况提前设置好下面几个环境变量：
+
+export QT_QPA_PLATFORM_PLUGIN_PATH=/opt/Qt-5.3.2/armv7-a/plugins/platforms
+export QT_QPA_PLATFORM=linuxfb:tty=/dev/fb0
+export QT_QPA_FONTDIR=/opt/Qt-5.3.2/armv7-a/lib/fonts
+export QT_QPA_GENERIC_PLUGINS=tslib:/dev/touchscreen-1wire  #使用tslib插件
+
+然后就可以运行Qt程序了
+
+以前Qt4的程序在嵌入式Linux平台运行时，需要在命令行输入-qws选项以启动Qt窗口系统服务，如" ./HelloWorld -qws"；而使用Qt5后，不再需要-qws，而需要通过-platform来指定要使用的QPA插件，如" ./HelloWorld -platform linuxfb"，如果不指定，则用默认的QPA插件，默认的QPA插件通过上面的QT_QPA_PLATFORM变量指定。
+
+附： 在Ubuntu 14.04上编译Qt ---（请注意，本小节编译的是PC版Qt，不是ARM版，ARM版Qt的编译过程请参考本文第2节）
+在Ubuntu 14.04上编译Qt就简单多了，缺少的组件可以很容易下载到。
+
+首先安装opengl支持（mesa3d），
+
+sudo apt-get install mesa-common-dev  libgl1-mesa-dev libglu1-mesa-dev freeglut3-dev
+如果需要，再安装Qt D-Bus的支持。
+
+然后configure，configure过程中可能出现一些错误，基本都是缺少某个库引起的，配置过程中根据错误提示，用apt-get install或Ubuntu Software Center搜索安装缺少的组件。
+
+./configure -release -opensource -prefix /opt/Qt-5.3.2/x86 -no-c++11 -qreal float -opengl
+配置结果为：
+
+   Configure summary
+ 
+Build type:    linux-g++ (i386, CPU features:)
+Platform notes:
+ 
+            - Also available for Linux: linux-kcc linux-icc linux-cxx
+        
+Build options:
+  Configuration .......... accessibility accessibility-atspi-bridge audio-backend avx avx2 clock-gettime clock-monotonic compile_examples concurrent dbus evdev eventfd fontconfig full-config getaddrinfo getifaddrs glib iconv inotify ipv6ifname large-config largefile libudev linuxfb medium-config minimal-config mremap nis no-harfbuzz opengl pcre png posix_fallocate precompile_header qpa qpa reduce_exports reduce_relocations release rpath shared small-config sse2 sse3 sse4_1 sse4_2 ssse3 system-freetype system-jpeg system-png system-zlib xcb xcb-glx xcb-plugin xcb-render xcb-sm xcb-xlib xinput2 xkbcommon-qt xlib xrender 
+  Build parts ............ libs tools examples
+  Mode ................... release
+  Using C++11 ............ no
+  Using PCH .............. yes
+  Target compiler supports:
+    SSE2/SSE3/SSSE3 ...... yes/yes/yes
+    SSE4.1/SSE4.2 ........ yes/yes
+    AVX/AVX2 ............. yes/yes
+ 
+Qt modules and options:
+  Qt D-Bus ............... yes (loading dbus-1 at runtime)
+  Qt Concurrent .......... yes
+  Qt GUI ................. yes
+  Qt Widgets ............. yes
+  Large File ............. yes
+  QML debugging .......... yes
+  Use system proxies ..... no
+ 
+Support enabled for:
+  Accessibility .......... yes
+  ALSA ................... no
+  CUPS ................... no
+  Evdev .................. yes
+  FontConfig ............. yes
+  FreeType ............... yes (system library)
+  Glib ................... yes
+  GTK theme .............. no
+  HarfBuzz ............... no
+  Iconv .................. yes
+  ICU .................... no
+  Image formats: 
+    GIF .................. yes (plugin, using bundled copy)
+    JPEG ................. yes (plugin, using system library)
+    PNG .................. yes (in QtGui, using system library)
+  journald ............... no
+  mtdev .................. no
+  Networking: 
+    getaddrinfo .......... yes
+    getifaddrs ........... yes
+    IPv6 ifname .......... yes
+    OpenSSL .............. no
+  NIS .................... yes
+  OpenGL / OpenVG: 
+    EGL .................. no
+    OpenGL ............... desktop
+    OpenVG ............... no
+  PCRE ................... yes (bundled copy)
+  pkg-config ............. yes 
+  PulseAudio ............. no
+  QPA backends: 
+    DirectFB ............. no
+    EGLFS ................ no
+    KMS .................. no
+    LinuxFB .............. yes
+    XCB .................. yes (system library)
+      EGL on X ........... no
+      GLX ................ yes
+      MIT-SHM ............ yes
+      Xcb-Xlib ........... yes
+      Xcursor ............ yes (loaded at runtime)
+      Xfixes ............. yes (loaded at runtime)
+      Xi ................. no
+      Xi2 ................ yes
+      Xinerama ........... yes (loaded at runtime)
+      Xrandr ............. yes (loaded at runtime)
+      Xrender ............ yes
+      XKB ................ no
+      XShape ............. yes
+      XSync .............. yes
+      XVideo ............. yes
+  Session management ..... yes
+  SQL drivers: 
+    DB2 .................. no
+    InterBase ............ no
+    MySQL ................ no
+    OCI .................. no
+    ODBC ................. no
+    PostgreSQL ........... no
+    SQLite 2 ............. no
+    SQLite ............... yes (plugin, using bundled copy)
+    TDS .................. no
+  udev ................... yes
+  xkbcommon .............. yes (bundled copy, XKB config root: /usr/share/X11/xkb)
+  zlib ................... yes (system library)
+ 
+NOTE: libxkbcommon and libxkbcommon-x11 0.4.1 or higher not found on the system, will use 
+the bundled version from 3rd party directory.
+
+
+最后make和make install即可。
+
+
+另外，编译完Qt5.3.2后，发现Qt assistant打开之后内容是空的，查询不到任何东西。需要打开assistant，点击Edit->preference菜单，选择Documents选项卡，点击add向assistant添加文档，文档类型为 *.qch 。但Qt5中似乎文档并不是现成的，需要在编译完Qt后再去编译他的文档。步骤为：
+
+进入已经编译过的Qt源码顶层目录，输入
+
+$ make docs
+这条指令会生成Qt各个模块的文档，但这些文档分散于不同的子源码目录中，最好将他们集中拷贝出来放到Qt的安装目录中，我的做法如下，当执行完make docs后，在源码顶层目录输入：(/opt/Qt-5.3.2是我的安装目录)
+$ sudo mkdir /opt/Qt-5.3.2/docs_for_assistant
+$ sudo cp `find ./ -name *.qch` /opt/Qt-5.3.2/docs_for_assistant
+然后打开assistant，将 /opt/Qt-5.3.2/docs_for_assistant 目录中的*.qch文件全部add进去。
+————————————————
+版权声明：本文为CSDN博主「newthinker_wei」的原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接及本声明。
+原文链接：https://blog.csdn.net/newthinker_wei/article/details/39560109
