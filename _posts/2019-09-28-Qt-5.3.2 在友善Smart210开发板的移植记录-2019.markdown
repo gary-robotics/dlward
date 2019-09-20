@@ -45,7 +45,7 @@ $ ./configure --help >help.txt ; vi help.txt
 我的编译过程如下：
 
 首先修改 qtbase/mkspecs/linux-arm-gnueabi-g++/qmake.conf，内容如下：
-
+```
 #
 # qmake configuration for building with arm-linux-gnueabi-g++
 #
@@ -157,30 +157,30 @@ Support enabled for:
   xkbcommon .............. no
   zlib ................... yes (system library)
  
-
+```
 
 配置完成后执行：
-
+```
 $ make -j4
 $ sudo make install -j4
-
+```
 3   添加 tslib 支持
 为了使单点触摸屏可用，还需要编译Qt的tslib插件，这需要首先交叉编译好tslib，tslib的编译过程参见：
-
+```
 http://blog.csdn.net/newthinker_wei/article/details/8639276
-
+```
 友善之臂的板子使用了 touchscreen-1wire，这需要按照上文中的步骤对tslib的源码打上补丁（在tslib的源码中添加了一个一线触摸屏的插件）。非友善之臂的板子一般不用打补丁。
 
 另一个有用的链接在这儿，这是友善专门为tslib做的一线触摸屏的插件，有源码，上面那篇文章应该也是参考这个源码的：
-
+```
 http://www.arm9home.net/read.php?tid-16105.html
-
+```
 
 
 注意，对于友善之臂的开发板，如果使用的是单点电阻触摸屏，使用上面的方式移植tslib就可以了。但是对于多点的电容触摸屏，上面的两个网址给出的源码都不适用了，友善的多点触摸屏使用的是goodix公司出的触摸屏，goodix驱动的接口跟友善之前用的触摸屏不一样。因此如果想使用tslib，需要再单独为goodix写个TSLIB插件。tslib源码的plugins目录中就是各个插件的代码，可以参考一下他们，都很简单（主要是实现一个read函数）。但要自己写电容屏的插件貌似比较困难，因为要对驱动程序中多点触摸的数据协议有所了解，这样才能从电容屏的数据中提取出单点数据。友善提供了friendlyarm-ts-mtinput.so 文件（但并没有源码），该文件就在友善自带的tslib中，默认目录为/usr/lib/ts/friendlyarm-ts-mtinput.so。把这个库拷贝到自己编译的tslib插件目录中，再修改配置文件ts.conf，即可使tslib工作。
 
 将编译出来的tslib拷贝到库开发板后，还需要在板子上设置TSLIB的环境变量，主要的几个变量如下：
-
+```
 #! /bin/sh
 # "source" this file when wanna run a Qt application on the ARM Board.
  
@@ -204,22 +204,23 @@ module pthres pmin=1
 module variance delta=30
 module dejitter delta=100
 module linear
+```
 到此为止 tslib 就基本能用了，首次使用时应先运行 ts_calibrate 进行触摸屏校准。我用的这个版本的tslib自带的ts_calibrate程序不太好用，所以我依然使用友善提供的ts_calibrate进行校准。
 
 有了tslib后，进入Qt源码目录中的 "qtbase/src/plugins/generic/tslib/"，运行 qmake 生成 Makefile，并在Makefile中将tslib的头文件和库文件路径添加到编译链接选项中（-I /...tslib/include  -L/.../tslib/lib）；然后运行 make 和 make install即可。这时，Qt5安装目录的 "plugins/generic/"目录下就出现"libqtslibplugin.so"这个库文件了。
 
 4   运行Qt程序
 需要说明的是，Qt5.0开始，Qt自身不再单独实现窗口系统，QWS不复存在，取而代之的新机制是QPA（Qt平台抽象），QPA使得Qt对不同平台的支持变得更加灵活，当需要支持一个新平台时，只需为该平台编写一个QPA插件。
-
+```
 With the release of Qt 5.0, Qt no longer contains its own window system implementation: QWS is no longer a supported platform. For single-process use cases, theQt Platform Abstraction is a superior solution......参考 http://qt-project.org/doc/qt-5/embedded-linux.html
-
+```
 编译完Qt后，只需将生成的lib和plugins文件夹拷贝到开发板，另外，当在嵌入式Linux平台上运行应用程序前，应根据自己平台的实际情况提前设置好下面几个环境变量：
-
+```
 export QT_QPA_PLATFORM_PLUGIN_PATH=/opt/Qt-5.3.2/armv7-a/plugins/platforms
 export QT_QPA_PLATFORM=linuxfb:tty=/dev/fb0
 export QT_QPA_FONTDIR=/opt/Qt-5.3.2/armv7-a/lib/fonts
 export QT_QPA_GENERIC_PLUGINS=tslib:/dev/touchscreen-1wire  #使用tslib插件
-
+```
 然后就可以运行Qt程序了
 
 以前Qt4的程序在嵌入式Linux平台运行时，需要在命令行输入-qws选项以启动Qt窗口系统服务，如" ./HelloWorld -qws"；而使用Qt5后，不再需要-qws，而需要通过-platform来指定要使用的QPA插件，如" ./HelloWorld -platform linuxfb"，如果不指定，则用默认的QPA插件，默认的QPA插件通过上面的QT_QPA_PLATFORM变量指定。
@@ -228,15 +229,16 @@ export QT_QPA_GENERIC_PLUGINS=tslib:/dev/touchscreen-1wire  #使用tslib插件
 在Ubuntu 14.04上编译Qt就简单多了，缺少的组件可以很容易下载到。
 
 首先安装opengl支持（mesa3d），
-
+```
 sudo apt-get install mesa-common-dev  libgl1-mesa-dev libglu1-mesa-dev freeglut3-dev
 如果需要，再安装Qt D-Bus的支持。
-
+```
 然后configure，configure过程中可能出现一些错误，基本都是缺少某个库引起的，配置过程中根据错误提示，用apt-get install或Ubuntu Software Center搜索安装缺少的组件。
-
+```
 ./configure -release -opensource -prefix /opt/Qt-5.3.2/x86 -no-c++11 -qreal float -opengl
+```
 配置结果为：
-
+```
    Configure summary
  
 Build type:    linux-g++ (i386, CPU features:)
@@ -334,19 +336,20 @@ Support enabled for:
 NOTE: libxkbcommon and libxkbcommon-x11 0.4.1 or higher not found on the system, will use 
 the bundled version from 3rd party directory.
 
-
+```
 最后make和make install即可。
 
 
 另外，编译完Qt5.3.2后，发现Qt assistant打开之后内容是空的，查询不到任何东西。需要打开assistant，点击Edit->preference菜单，选择Documents选项卡，点击add向assistant添加文档，文档类型为 *.qch 。但Qt5中似乎文档并不是现成的，需要在编译完Qt后再去编译他的文档。步骤为：
 
 进入已经编译过的Qt源码顶层目录，输入
-
+```
 $ make docs
+```
 这条指令会生成Qt各个模块的文档，但这些文档分散于不同的子源码目录中，最好将他们集中拷贝出来放到Qt的安装目录中，我的做法如下，当执行完make docs后，在源码顶层目录输入：(/opt/Qt-5.3.2是我的安装目录)
+```
 $ sudo mkdir /opt/Qt-5.3.2/docs_for_assistant
 $ sudo cp `find ./ -name *.qch` /opt/Qt-5.3.2/docs_for_assistant
+```
 然后打开assistant，将 /opt/Qt-5.3.2/docs_for_assistant 目录中的*.qch文件全部add进去。
-————————————————
-版权声明：本文为CSDN博主「newthinker_wei」的原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接及本声明。
-原文链接：https://blog.csdn.net/newthinker_wei/article/details/39560109
+
