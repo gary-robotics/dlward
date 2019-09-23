@@ -1,4 +1,16 @@
- 开源的tslib，适用于友善之臂一线触摸
+---
+layout:     post                    # 使用的布局（不需要改）
+title:      友善之臂一线触摸                # 标题 
+subtitle:    第一篇                  #副标题
+date:       2019-04-29              # 时间
+author:     BY Edlward              # 作者
+header-img: img/post-bg-2015.jpg    #这篇文章标题背景图片
+catalog: true                       # 是否归档
+tags:                               #标签
+    - LINUX
+---
+
+开源的tslib，适用于友善之臂一线触摸
 管理提醒： 本帖被 mindee 设置为精华(2011-11-08)
 为了方便用户的开发和使用，我们特意制作了一个开源的tslib，欢迎使用(不提供技术支持)
 
