@@ -10,5 +10,11 @@ tags:                               #标签
     - Linux
 ---
 
+#### 简介
+[wiki](http://wiki.banana-pi.org/Banana_Pi_BPI-M2U) 
 
+
+### 内核
 [BPI-M2U-bsp](https://github.com/BPI-SINOVOIP/BPI-M2U-bsp)    
+
+ 
