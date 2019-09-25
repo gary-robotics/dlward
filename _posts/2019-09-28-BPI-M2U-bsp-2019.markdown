@@ -16,6 +16,11 @@ tags:                               #标签
 ### 使用
 [入门](http://wiki.banana-pi.org/Getting_Started_with_M2_Ultra_%26_Berry)  
 
+
+### 烧录
+[快速入门Banana pi SBC](http://wiki.banana-pi.org/Quick_Start_Banana_pi_SBC)  
+
+
 ### 内核
 [BPI-M2U-bsp](https://github.com/BPI-SINOVOIP/BPI-M2U-bsp)    
 
