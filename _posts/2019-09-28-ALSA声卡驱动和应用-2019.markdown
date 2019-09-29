@@ -1,3 +1,14 @@
+---
+layout:     post                    # 使用的布局（不需要改）
+title:      ALSA声卡驱动和应用                # 标题 
+subtitle:    第一篇                  #副标题
+date:       2019-08-29              # 时间
+author:     BY Edlward              # 作者
+header-img: img/post-bg-2015.jpg    #这篇文章标题背景图片
+catalog: true                       # 是否归档
+tags:                               #标签
+    - Linux
+---
 36、ALSA声卡驱动和应用
 （注意；内核上电的时候会把一些没运行的控制器模块的时钟都关掉，所有在写驱动的时候需要在使用的使用使用clk_get和clk_enable使能时钟）
 
