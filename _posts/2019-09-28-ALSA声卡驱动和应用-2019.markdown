@@ -1,0 +1,1131 @@
+36、ALSA声卡驱动和应用
+（注意；内核上电的时候会把一些没运行的控制器模块的时钟都关掉，所有在写驱动的时候需要在使用的使用使用clk_get和clk_enable使能时钟）
+
+（说明：与ALSA声卡对应的是OSS架构，第二期视频中的声卡驱动就是指的OSS架构驱动，ALSA可以模拟OSS）
+
+（amixer controls执行后返回的可设置属性里面input mux表示录音的时候的通道，在mini2440和tq2440上两者不同，需要修改）
+
+1．裸板
+WAV文件格式：http://blog.chinaunix.net/uid-21977330-id-3976817.html
+
+涉及的操作：A、SOC（2440）部分的IIS操作，DMA操作（一般就是设置IIS管脚和寄存器，通过DMA把数据拷贝到IIS的FIFO寄存器）
+
+　　　　　　B、Codec（编解码芯片）部分的设置（初始化、格式、音量）
+
+　　　　       C、Machine（单板）部分的控制引脚不同，使用控制引脚来初始化Codec
+
+裸版程序也是分为这三个部分来操作
+
+2．驱动
+
+sound.c是顶层驱动框架，里面会注册个file_operations,其只有一个open函数，在open函数中已次设备号在snd_minors数组中找到一项，取出真正的file_operation结构体，入口函数会创建一个字符设备register_chrdev
+
+说明：
+
+snd_card_create(init.c)
+
+　　snd_ctl_create(同一个声卡有多个逻辑设备，ctl应该是控制类的逻辑设备)
+
+　　　　.dev_register = snd_ctl_dev_register
+
+　　　　snd_device_new（创建声卡的ctl逻辑设备，通过参数SNDRV_DEV_CONTROL指定，其会导致dev_register 被调用，也就是snd_ctl_dev_register被调用）　　　　
+
+　　　　　　snd_ctl_dev_register(control.c中)
+
+　　　　　　　　snd_register_device(这个函数有个参数snd_ctl_f_ops,其是真正的file_operation结构体)
+
+　　　　　　　　　　snd_register_device_for_dev（用数据填充preg）
+
+　　　　　　　　　　　　snd_minors[minor]=preg;
+
+　　　　　　　　　　　　device_create(在class下创建设备)
+
+snd_pcm_new(某个声卡驱动里面调用snd_pcm_new)
+
+　　_snd_pcm_new
+
+　　　　snd_pcm_new_stream(pcm,.....PLAYBACK,playback_count);//创建播放 
+
+　　　　snd_pcm_new_stream(pcm,.....CAPTURE,capture_count);//创建录音
+
+　　　　.dev_register = snd_pcm_dev_register
+
+　　　    snd_device_new（创建声卡的pcm逻辑设备，通过参数SNDRV_DEV_PCM指定，其会导致dev_register 被调用，也就是snd_pcm_dev_register被调用）　　　
+
+　　　　　　snd_pcm_dev_register()
+
+　　　　　　　　for（执行两次，声卡具有录音和播放功能）
+
+　　　　　　　　　　snd_register_device_for_dev(pcm.c中)（有个snd_pcm_f_ops[]数组，是真正的file_operation结构体）
+
+　　　　　　　　　　　　snd_minors[minor]=preg;
+
+　　　　　　　　　　　　device_create(在class下创建设备,class是在sound_core.c中的init_soundcore中被调用)
+
+ 
+
+怎么写ALSA声卡驱动？（参考：Linux ALSA声卡驱动.pdf）
+
+1、调用snd_card_create接口创建snd_card的一个实例
+
+2、初始化,调用snd_pcm_new和snd_ctl_create（snd_ctl_create在snd_card_create中已被默认调用）等接口创建声卡的功能部件（逻辑设备）
+
+3、snd_card_register
+
+ 
+
+linux在ALSA架构的基础上又封装了一个ASOC（alsa system on chip），使用ASOC的代码不用安装ALSA的架构写驱动，ASOC把驱动分为三部分：
+
+1、machine：单板相关，表面platform是哪个，cpu DAI是哪个（cpu与codes相连的接口是哪个），DMA是哪个（负责数据传输）
+
+　　　　　　　　　　　 表面codec是哪个，codec DAI是哪个（codec与cpu相连的接口是哪个）
+
+machine这块的代码对应linux内核中s3c24xx_uda134x.c，通过注册一个platform_driver,当通过总线发现有同名时，调用probe(A)函数，在内核中搜索注册的名字，发现在mach-mini2440.c中有个platform_device;
+
+同时，在probe(A)函数中会通过platform_device_alloc("soc-audio")来创建一个device，因此肯定会有一个同名的driver，在内核中搜索，发现在soc-core.c中有个同名的driver，查看此结构中probe（B），其会调用snd_soc_register_card(card),这个card就是在probe(A)中通过platform_set_drvdata设置的核心结构体(struct snd_soc_card) snd_soc_s3c24XX_uda134x，这个核心结构体有一个dai_link的子结构体，里面有很多名字，比如：
+
+codec_name = "uda134x-codec"//指定了用哪个codec
+
+codec_dai_name = "uda134x-hifi"//指定了用codec芯片里的哪一个DAI（比如哪个IIS接口）
+
+cpu_dai_name = "s3c24xx-iis"//指定了用CPU（比如2440）的那个DAI（比如哪个IIS接口）
+
+platform_name = "samsung_audio"//指定了CPU端的DMA
+
+根据这里设置的名字来找到对应的platform和codec驱动程序
+
+2、platform：DAI  设置接口用来初始化codec及数据传输（对外），需要构造struct snd_soc_dai_driver s3c24xx_i2s_dai结构体（里面有接口支持的最小和最大通道数（左右声道））
+
+　　　　　　DMA 数据传输（内部），需要构造struct snd_soc_platform_driver samsung_asoc_platform结构体
+
+根据 "s3c24xx-iis"名字在内核中搜索，找到s3c24xx-i2s.c文件中的platform_driver,devs.c文件中的platrom_device,这两者是一对，platform_driver中的probe函数调用snd_soc_register_dai(注册了一个dai)，有个核心的结构体s3c24xx_i2s_dai，该结构体里面的函数用于操作cpu-DAI（比如提供设置2440端IIS控制器的函数等）
+
+根据 "samsung_audio"名字在内核中搜索，找到sound/soc/samsung/dma.c文件中的platform_driver,sound/arm/plat-samsung/devs.c文件中的platrom_device,这两者是一对，platform_driver中的probe函数调用snd_soc_register_platform,其也有个核心结构体samsung_asoc_platform，该结构体里面的函数用于操作cpu的DMA
+
+3、codec：DAI 要实现uda134x_dai
+
+　　　　　控制接口 要实现soc_codec_dev_uda134x
+
+根据 "uda134x-codec"名字在内核中搜索，找到sound/soc/codecs/uda134x.c文件中的platform_driver,arch/arm/mach-s3c24xx/mach-mini2440.c文件中的platrom_device,这两者是一对,platform_driver中的probe函数调用snd_soc_register_codec,关键结构体有struct snd_soc_codec_driver  soc_codec_dev_uda134x和struct snd_soc_dai_driver uda134x_dai,其中soc_codec_dev_uda134x就是提供了函数来完成控制接口初始化的工作，uda134x_dai提供DAI接口相关操作和参数
+
+ 
+
+ASOC和ALSA这么关联起来：
+
+1. platform:
+1.1 s3c24xx-i2s.c : 把s3c24xx_i2s_dai放入链表dai_list, .name = "s3c24xx-iis",
+s3c24xx_iis_dev_probe
+　　snd_soc_register_dai(&pdev->dev, &s3c24xx_i2s_dai);
+　　　　list_add(&dai->list, &dai_list);
+
+1.2 sound/soc/samsung/dma.c : 把samsung_asoc_platform放入了链表platform_list, .name = "samsung-audio",
+samsung_asoc_platform_probe
+　　snd_soc_register_platform(&pdev->dev, &samsung_asoc_platform);
+　　　　list_add(&platform->list, &platform_list);
+
+2. codec: uda134x.c
+uda134x_codec_probe
+　　snd_soc_register_codec(&pdev->dev,&soc_codec_dev_uda134x, &uda134x_dai, 1);
+　　　　struct snd_soc_codec *codec;
+　　　　codec->driver = codec_drv; （codec_drv= &soc_codec_dev_uda134x）
+
+　　　　snd_soc_register_dais(dev, dai_drv, num_dai); // dai_drv就是uda134x_dai
+　　　　　　list_add(&dai->list, &dai_list); : 把uda134x_dai放入了链表dai_list，dai_list里面既有uda134x_dai，也有s3c24xx_i2s_dai
+　　　　list_add(&codec->list, &codec_list);
+
+3. machine:
+s3c24xx_uda134x_probe
+　　s3c24xx_uda134x_snd_device = platform_device_alloc("soc-audio", -1);
+　　platform_set_drvdata(s3c24xx_uda134x_snd_device, &snd_soc_s3c24xx_uda134x);
+　　platform_device_add(s3c24xx_uda134x_snd_device);//device添加的时候会导致soc-core.c里面的同名（名字是在上面设置的"soc-audio"）driver的probe（soc_probe）函数被调用
+
+　　　　.....
+　　　　soc_probe
+　　　　　　snd_soc_register_card(card); // card = &snd_soc_s3c24xx_uda134x
+
+　　　　　　　　card->rtd = devm_kzalloc(card->dev,...
+　　　　　　　　card->rtd[i].dai_link = &card->dai_link[i]; // &s3c24xx_uda134x_dai_link
+
+　　　　　　　　list_add(&card->list, &card_list);
+
+　　　　　　　　snd_soc_instantiate_cards(); // 实例化声卡
+
+　　　　　　　　　　//对card_list里面的每一个card调用snd_soc_instantiate_card
+　　　　　　　　　　snd_soc_instantiate_card(card);
+　　　　　　　　　　　　3.1 /* bind DAIs */
+　　　　　　　　　　　　for (i = 0; i < card->num_links; i++)//soc-core.c是公共函数，这里的num_links是指的源码里面的各个平台的数目，比如samsung、mips、atmel，对各个平台的card绑定machine、platform、codec
+　　　　　　　　　　　　　　soc_bind_dai_link(card, i);
+　　　　　　　　　　　　　　　　3.1.1 /*根据名字在dai_list 中find CPU DAI */
+　　　　　　　　　　　　　　　　rtd->cpu_dai = cpu_dai; = //&s3c24xx_i2s_dai
+　　　　　　　　　　　　　　　　3.1.2 /*根据名字在codec_list 中 find_codec */
+　　　　　　　　　　　　　　　　rtd->codec = codec; = // codec, codec->driver=&soc_codec_dev_uda134x
+　　　　　　　　　　　　　　　　3.1.3 /*根据名字在dai_list 中 find CODEC DAI */
+　　　　　　　　　　　　　　　　rtd->codec_dai = codec_dai; // = &uda134x_dai
+　　　　　　　　　　　　　　　　3.1.4 /*根据名字在platform_list 中 find_platform（DMA） */
+　　　　　　　　　　　　　　　　rtd->platform = platform; // = &samsung_asoc_platform
+　　　　　　　　　　　　3.2 /* initialize the register cache for each available codec */
+　　　　　　　　　　　　ret = snd_soc_init_codec_cache(codec, compress_type);//初始化codec的寄存器
+
+　　　　　　　　　　　　3.3 snd_card_create（这里开始是ALSA驱动框架了，可以看前面的怎么写ALSA驱动）
+
+　　　　　　　　　　　　3.4 /* early DAI link probe */
+　　　　　　　　　　　　soc_probe_dai_link
+　　　　　　　　　　　　　　/* probe the cpu_dai *///调用cpu_dai的probe函数来做一些初始化，下面的一样
+　　　　　　　　　　　　　　/* probe the CODEC */
+　　　　　　　　　　　　　　/* probe the platform */ 
+　　　　　　　　　　　　　　/* probe the CODEC DAI */
+　　　　　　　　　　　　　　/* create the pcm */
+　　　　　　　　　　　　　　ret = soc_new_pcm(rtd, num);
+　　　　　　　　　　　　　　　　struct snd_pcm_ops *soc_pcm_ops = &rtd->ops;
+　　　　　　　　　　　　　　　　soc_pcm_ops->open = soc_pcm_open;
+　　　　　　　　　　　　　　　　soc_pcm_ops->close = soc_pcm_close;
+　　　　　　　　　　　　　　　　soc_pcm_ops->hw_params = soc_pcm_hw_params;
+　　　　　　　　　　　　　　　　soc_pcm_ops->hw_free = soc_pcm_hw_free;
+　　　　　　　　　　　　　　　　soc_pcm_ops->prepare = soc_pcm_prepare;
+　　　　　　　　　　　　　　　　soc_pcm_ops->trigger = soc_pcm_trigger;
+　　　　　　　　　　　　　　　　soc_pcm_ops->pointer = soc_pcm_pointer;
+　　　　　　　　　　　　
+　　　　　　　　　　　　　　　　snd_pcm_new （这里开始是ALSA驱动框架了，可以看前面的怎么写ALSA驱动）
+
+
+　　　　　　　　　　　　3.5 snd_card_register（这里开始是ALSA驱动框架了，可以看前面的怎么写ALSA驱动）
+
+
+2.1 配置内核支持UDA1341:
+CONFIG_SND_S3C24XX_I2S // s3c24xx-i2s.c
+CONFIG_SND_SOC_SAMSUNG // dma.c
+
+CONFIG_SND_SOC_UDA134X // uda134x.c
+
+CONFIG_SND_SOC_SAMSUNG_S3C24XX_UDA134X // s3c24xx_uda134x.c
+
+CONFIG_S3C24XX_DMA
+
+-> Device Drivers
+　　-> Sound card support
+　　　　-> Advanced Linux Sound Architecture
+　　　　　　-> ALSA for SoC audio support
+　　　　　　　<*> ASoC support for Samsung // CONFIG_SND_SOC_SAMSUNG
+　　　　　　　<*> SoC I2S Audio support UDA134X wired to a S3C24XX // CONFIG_SND_SOC_SAMSUNG_S3C24XX_UDA134X // s3c24xx_uda134x.c
+
+-> System Type
+　　[*] S3C2410 DMA support
+
+2.2 修改代码
+
+（根据上面的分析platform_device都是在mach_mini2440.c中被注册（定义有的在dev.c中），我们jz2440需要照样修改，如下）
+a. 修改mach-smdk2440.c 添加"s3c24xx_uda134x"平台设备（machine）
+b. 修改mach-smdk2440.c 添加"s3c24xx-iis"平台设备（platform IIS）
+c. 修改mach-smdk2440.c 添加"samsung-audio"平台设备（platform DMA）
+d. 修改mach-smdk2440.c 添加"uda134x-codec"平台设备
+
+2.3 修改bug: sound\soc\samsung\dma.c
+pos += prtd->dma_period;
+改为
+pos += prtd->dma_period*limit;
+
+
+3. 编译alsa-lib, alsa-util以使用声卡:
+3.1 alsa-lib（是库，应用程序使用库可以简化对声卡的操作）  :
+sudo mv /usr /usr_bak
+export PATH=/usr_bak/local/sbin:/usr_bak/local/bin:/usr_bak/sbin:/usr_bak/bin:/sbin:/bin:/usr_bak/games:/usr_bak/local/arm/4.3.2/bin
+./configure --host=arm-linux（alsa-lib在编译的时候如果指定了prefix=A，即安装目录A，则必须把生成的库放到开发板上同名目录A，如果不指定则默认的是/usr,而PC机上usr目录下有很多问题，这样安装会破坏PC机usr目录，所有有上面的mv操作，先保存usr）
+make
+sudo mkdir /usr
+sudo chown book:book /usr
+make install
+sudo cp -rf /usr /work/projects/alsa/
+sudo rm -rf /usr
+sudo mv /usr_bak /usr
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/arm/4.3.2/bin
+
+把头文件和库复制进交叉工具链里
+cd /work/projects/alsa/usr/include
+sudo cp * -rfd /usr/local/arm/4.3.2/arm-none-linux-gnueabi/libc/usr/include
+
+cd /work/projects/alsa/usr/lib
+sudo cp * -rfd /usr/local/arm/4.3.2/arm-none-linux-gnueabi/libc/armv4t/lib
+
+把库复制到根文件系统的lib目录下
+cd /work/projects/alsa
+sudo -rfd usr /work/nfs_root/fs_mini_mdev_new
+
+3.2 alsa-util（是应用程序，通过alse-lib来访问声卡）
+3.2.1 先编译依赖：ncurses-5.9.tar.gz
+./configure --host=arm-linux --prefix=$PWD/tmp --with-shared（./configure --help会看到--with-shared表示会生成共享lib）
+make && make install（会出错，不用理会，在tmp目录下已经生成lib了）
+
+把头文件和库复制进交叉工具链里
+cd /work/projects/alsa/ncurses-5.9/tmp/include/ncurses（必须还把ncurses目录拷贝到include中去，因为有些头文件回去ncurses目录下去找）
+sudo cp * -rfd /usr/local/arm/4.3.2/arm-none-linux-gnueabi/libc/usr/include
+cd /work/projects/alsa/ncurses-5.9/tmp/include/
+sudo cp * -rfd /usr/local/arm/4.3.2/arm-none-linux-gnueabi/libc/usr/include
+
+cd /work/projects/alsa/ncurses-5.9/tmp/lib
+sudo cp * -rfd /usr/local/arm/4.3.2/arm-none-linux-gnueabi/libc/armv4t/lib
+
+把库复制到根文件系统的lib目录下
+cd /work/projects/alsa/ncurses-5.9/tmp/lib
+sudo cp *so* -rfd /work/nfs_root/fs_mini_mdev_new/lib
+
+
+3.2.2 编译alsa-util:
+./configure --host=arm-linux --prefix=$PWD/tmp --with-curses=ncurses --disable-xmlto --disable-nls
+make
+sudo make install 
+
+cd ./tmp
+
+sudo cp * -rfd /work/nfs_root/fs_mini_mdev_new/usr
+
+3.2.3 测试(alsa-util生成的应用程序是访问/dev/snd下的声卡设备节点，所有需要生成链接文件)
+mkdir /dev/snd
+cd /dev/snd/
+ln -s /dev/controlC0
+ln -s /dev/pcmC0D0p
+ln -s /dev/pcmC0D0c
+
+播放:
+aplay Windows.wav
+调音量:
+amixer controls
+
+（执行上面的指令后会获得可以设置声卡的哪些属性，有个numid，再通过numid来设置具体的值）
+amixer cget numid=1
+amixer cset numid=1 30
+
+
+4. 编译新的strace工具以跟踪声卡调用过程:(旧的工具识别不了alsa-util的ioctl)
+
+见第二期视频blog，编译完成后把生成的bin目录下的工具全部拷贝到网络文件系统的bin目录下
+
+执行strace -o aplay.log aplay Windows.wax  生成的log见后面或者“asoc分析.txt”
+
+strace分析： aplay Windows.wav
+1. /dev/snd/controlC0 对应的file_operations是snd_ctl_f_ops
+open : snd_ctl_open
+SNDRV_CTL_IOCTL_PVERSION : snd_ctl_ioctl -> put_user(SNDRV_CTL_VERSION, ip)
+SNDRV_CTL_IOCTL_CARD_INFO : snd_ctl_ioctl -> snd_ctl_card_info(card, ctl, cmd, argp);
+　　　　　　　　　　　　　　　　　　　　　　　　copy_to_user
+
+SNDRV_CTL_IOCTL_PCM_PREFER_SUBDEVICE : snd_ctl_ioctl -> snd_pcm_control_ioctl -> get_user后control->prefer_pcm_subdevice = val;
+（snd_ctl_ioctl 没有SNDRV_CTL_IOCTL_PCM_PREFER_SUBDEVICE 命令，其是在snd_control_ioctls这个东西中取出snd_pcm_control_ioctl结构体，snd_pcm_control_ioctl在alsa_pcm_init函数中通过snd_ctl_register_ioctl函数注册到 snd_control_ioctls中
+close
+上述三个ioctl不涉及硬件操作
+
+2. /dev/snd/pcmC0D0p 对应的file_operations是snd_pcm_f_ops[0]
+open : snd_pcm_playback_open
+　　snd_pcm_open
+　　　　snd_pcm_open_file
+　　　　　　struct snd_pcm_substream *substream;（这个结构体很有用）
+　　　　　　snd_pcm_open_substream（会对*substream;赋值）
+　　　　　　　　err = snd_pcm_hw_constraints_init(substream);
+　　　　　　　　　　　　snd_mask_any
+　　　　　　　　　　　　snd_interval_any
+　　　　　　　　　　　　......
+　　　　　　　　err = substream->ops->open(substream) // substream->ops : snd_pcm_ops结构体（就是在soc_new_pcm里面设置的soc_pcm_ops）
+　　　　　　　　　　　　　　　　　　　　soc_pcm_open
+　　　　　　　　　　　　　　　　　　　　　　依次调用cpu_dai, dma, codec_dai, machine的open或startup函数
+uda134x_startup 里：snd_pcm_hw_constraint_minmax(SNDRV_PCM_HW_PARAM_RATE),snd_pcm_hw_constraint_minmax(SNDRV_PCM_HW_PARAM_SAMPLE_BITS)
+dma_open里: snd_pcm_hw_constraint_integer,snd_soc_set_runtime_hwparams
+runtime->hw.info = hw->info; = SNDRV_PCM_INFO_INTERLEAVED |
+　　　　SNDRV_PCM_INFO_BLOCK_TRANSFER |
+　　　　SNDRV_PCM_INFO_MMAP |
+　　　　SNDRV_PCM_INFO_MMAP_VALID |
+　　　　SNDRV_PCM_INFO_PAUSE |
+　　　　SNDRV_PCM_INFO_RESUME,
+　　　　　　　　snd_pcm_hw_constraints_complete
+　　　　　　pcm_file->substream = substream;
+　　　　　　file->private_data = pcm_file;
+
+注意：substream->ops = soc_new_pcm函数里的soc_pcm_ops
+
+以下的ioctl入口都是：snd_pcm_playback_ioctl
+SNDRV_PCM_IOCTL_INFO ： snd_pcm_info_user(substream, arg);
+　　　　　　　　　　　　　　　　substream->ops->ioctl(substream,
+　　　　　　　　　　　　　　　　　　snd_pcm_lib_ioctl
+
+SNDRV_PCM_IOCTL_PVERSION : put_user(SNDRV_PCM_VERSION, (int __user *)arg)
+SNDRV_PCM_IOCTL_TTSTAMP : snd_pcm_tstamp(substream, arg);
+
+SNDRV_PCM_IOCTL_SYNC_PTR : snd_pcm_sync_ptr(substream, arg); 先不管
+
+SNDRV_PCM_IOCTL_HW_REFINE(规范硬件参数) .... ： snd_pcm_hw_refine_user(substream, arg);
+　　　　　　　　　　　　　　　　　　　　　　　　　　　　memdup_user（获取用户空间的参数）
+　　　　　　　　　　　　　　　　　　　　　　　　　　　　snd_pcm_hw_refine(substream, params); （把参数根据硬件修改下）先不管
+　　　　　　　　　　　　　　　　　　　　　　　　　　　　copy_to_user（把修改的参数传回去）
+SNDRV_PCM_IOCTL_HW_PARAMS : snd_pcm_hw_params_user(substream, arg);
+（设置硬件参数）　　　　　　　　　　　　 memdup_user
+　　　　　　　　　　　　　　　　　　　　snd_pcm_hw_params
+　　　　　　　　　　　　　　　　　　　　　　substream->ops->hw_params(substream, params);（substream->ops就是在 soc_new_pcm函数里设置的soc_pcm_ops
+）
+　　　　　　　　　　　　　　　　　　　　　　　　　soc_pcm_hw_params
+　　　　　　　　　　　　　　　　　　　　　　　　　　　　依次调用dai_link(machine),codec_dai,cpu_dai,platform(dma)的hw_params函数
+SNDRV_PCM_IOCTL_SYNC_PTR (同步指针)
+SNDRV_PCM_IOCTL_SW_PARAMS : snd_pcm_sw_params_user(substream, arg);
+(软件参数设置)　　　　　　　　　　　　 snd_pcm_sw_params 不涉及硬件操作
+
+SNDRV_PCM_IOCTL_SYNC_PTR
+SNDRV_PCM_IOCTL_PREPARE : snd_pcm_prepare(substream, file);
+　　　　　　　　　　　　　　　　　　snd_power_wait // 电源管理相关，先不管
+　　　　　　　　　　　　　　　　　　.... 调用到platform里的prepare
+
+SNDRV_PCM_IOCTL_SYNC_PTR
+SNDRV_PCM_IOCTL_SW_PARAMS
+
+循环:
+SNDRV_PCM_IOCTL_WRITEI_FRAMES : copy_from_user（从用户空间拿到音频相关数据）
+　　　　　　　　　　　　　　　　　　　snd_pcm_lib_write
+　　　　　　　　　　　　　　　　　　　　snd_pcm_lib_write1(substream, (unsigned long)buf, size, nonblock, snd_pcm_lib_write_transfer)
+　　　　　　　　　　　　　　　　　　　　　　snd_pcm_lib_write_transfer
+　　　　　　　　　　　　　　　　　　　　　　　　copy_from_user
+　　　　　　　　　　　　　　　　　　　　　　　　snd_pcm_start(substream); // 启动传输，依次调用dai_link(machine),codec_dai,cpu_dai,platform(dma)的trigger函数
+
+
+SNDRV_PCM_IOCTL_SYNC_PTR
+
+SNDRV_PCM_IOCTL_DRAIN
+SNDRV_PCM_IOCTL_DROP
+SNDRV_PCM_IOCTL_HW_FREE
+close
+
+ 
+
+strace分析： amixer cset numid=1 30 (设置音量)
+/dev/snd/controlC0
+open
+SNDRV_CTL_IOCTL_CARD_INFO
+SNDRV_CTL_IOCTL_PVERSION
+SNDRV_CTL_IOCTL_ELEM_INFO
+SNDRV_CTL_IOCTL_ELEM_READ
+SNDRV_CTL_IOCTL_ELEM_WRITE : snd_ctl_elem_write_user
+　　　　　　　　　　　　　　　　　　snd_ctl_elem_write
+　　　　　　　　　　　　　　　　　　　　// 找到一个snd_kcontrol
+　　　　　　　　　　　　　　　　　　　　kctl = snd_ctl_find_id(card, &control->id);
+　　　　　　　　　　　　　　　　　　　　// 调用它的put
+　　　　　　　　　　　　　　　　　　　　result = kctl->put(kctl, control);
+（在内核源码uda134X.c中定义两个snd_kcontrol_new结构体，这个结构体提供了声卡芯片的属性参数信息及操作函数，然后用snd_soc_add_codec_controls函数根据这个结构体来构造snd_kcontrol）
+
+
+附：
+static struct snd_soc_card snd_soc_s3c24xx_uda134x = {
+.name = "S3C24XX_UDA134X",
+.owner = THIS_MODULE,
+.dai_link = &s3c24xx_uda134x_dai_link,
+.num_links = 1,
+};
+
+static struct snd_soc_dai_link s3c24xx_uda134x_dai_link = {
+.name = "UDA134X",
+.stream_name = "UDA134X",
+.codec_name = "uda134x-codec",
+.codec_dai_name = "uda134x-hifi",
+.cpu_dai_name = "s3c24xx-iis",
+.ops = &s3c24xx_uda134x_ops,
+.platform_name = "samsung-audio",
+};
+
+5. 从零写ALSA声卡驱动
+5.1 写框架
+
+见代码
+5.2 实现参数设置
+open: soc_pcm_open 依次调用cpu_dai, dma, codec_dai, machine的open或startup函数
+
+只在dma的open函数里添加参数相关的代码
+
+SNDRV_PCM_IOCTL_HW_PARAMS: soc_pcm_hw_params 依次调用machine,codec_dai,cpu_dai,platform(dma)的hw_params函数来设置参数
+
+在uda1341.c, s3c2440-iis.c里实现hw_params函数
+
+(s3c2440-dma.c 主要涉及数据传输（dma寄存器的设置），在下一节实现hw_params函数)
+
+（uda1341的寄存器值支持写，不支持读，所有说如果不保存设置寄存器的时候写入的值时，根本不知道寄存器里面的值，所以需要在写入前先保存）
+5.3 实现数据传输
+
+5.4 调试
+
+a. 修改语法错误 11th_myalsa
+b. 配置内核去掉原来的声卡驱动
+-> Device Drivers
+-> Sound card support
+-> Advanced Linux Sound Architecture
+-> ALSA for SoC audio support
+
+c. 使用新内核启动
+
+d. 安装新驱动
+
+insmod alsa/driver/myalsa/platform/s3c2440_iis.ko
+insmod alsa/driver/myalsa/platform/s3c2440_dma.ko
+insmod alsa/driver/myalsa/codec/uda1341.ko
+insmod alsa/driver/myalsa/machine/s3c2440_uda1341.ko
+mkdir /dev/snd
+cd /dev/snd/
+ln -s /dev/controlC0
+ln -s /dev/pcmC0D0p
+ln -s /dev/pcmC0D0c
+cd /
+
+
+e. aplay来测试
+
+insmod ker_rw.ko
+regeditor r32 0x4B000080 9
+regeditor r32 0x55000000 5
+
+5.5 添加音量控制
+
+5.6 从零写WM8976声卡驱动程序
+insmod alsa/driver/myalsa/platform/s3c2440_iis.ko
+insmod alsa/driver/myalsa/platform/s3c2440_dma.ko
+insmod alsa/driver/myalsa/codec/wm8976.ko
+insmod alsa/driver/myalsa/machine/s3c2440_uda1341.ko
+mkdir /dev/snd
+cd /dev/snd/
+ln -s /dev/controlC0
+ln -s /dev/pcmC0D0p
+ln -s /dev/pcmC0D0c
+cd /
+
+aplay Groove_Coverage-she.wav &
+
+amixer controls
+amixer cget numid=1
+amixer cset numid=1 30
+
+5.7 移植WM8976声卡驱动程序（源码中01th_wm8976都是在自己写的驱动中测试）
+http://www.wolfsonmicro.com/products/audio-hubs-%28codecs%29/stereo-low-power-codecs/wm8976/
+http://opensource.wolfsonmicro.com/content/linux-drivers-wolfson-devices
+https://gitorious.org/slimlogic/linux-omap/source/36d409f2c6306cb407f5d862afe987ba245e455a:sound/soc/codecs/wm8976.c
+
+insmod alsa/driver/myalsa/platform/s3c2440_iis.ko
+insmod alsa/driver/myalsa/platform/s3c2440_dma.ko
+insmod alsa/driver/myalsa/codec/wm8976.ko
+insmod alsa/driver/myalsa/machine/s3c2440_uda1341.ko
+mkdir /dev/snd
+cd /dev/snd/
+ln -s /dev/controlC0
+ln -s /dev/pcmC0D0p
+ln -s /dev/pcmC0D0c
+cd /
+
+aplay Groove_Coverage-she.wav &
+
+amixer cset numid=45 30
+
+
+把wm8976放入内核：
+a. 把wm8976.c, wm8976.h放入sound\soc\codecs目录
+b. 修改sound\soc\codecs的Makefile, Kconfig
+c. 把sound\soc\samsung\s3c24xx_uda134x.c复制为s3c2440_wm8976.c
+修改codec, codec_dai的name
+d. 修改sound\soc\samsung的Makefile, Kconfig
+
+mkdir /dev/snd
+cd /dev/snd/
+ln -s /dev/controlC0
+ln -s /dev/pcmC0D0p
+ln -s /dev/pcmC0D0c
+cd /
+
+aplay Groove_Coverage-she.wav &
+amixer cset numid=45 30
+
+
+5.8 修改内核声卡BUG
+
+1、sound/soc/samsung/dma.c中
+
+（dma传输完成后调用audio_buffdone处理dma中已取数据的period，period是用链表串起来，之前的代码在audio_buffdone和dma_enqueue中都执行了移动当前period指针的操作，多做了一次，所有需要先删除audio_buffdone中的移动操作，把执行的从链表中删除period的操作提前，之后移动当前指针，并将已使用的period加入链表最后面，最后数据都处理好后才是snd_pcm_period_elapsed更新参数到内核）（其实这里的链表应该说成队列跟合适）
+
+static void audio_buffdone(void *data)
+{
+struct snd_pcm_substream *substream = data;
+struct runtime_data *prtd = substream->runtime->private_data;
+
+pr_debug("Entered %s\n", __func__);
+
+if (prtd->state & ST_RUNNING) {
+prtd->dma_pos += prtd->dma_period;//去掉
+if (prtd->dma_pos >= prtd->dma_end);//去掉
+prtd->dma_pos = prtd->dma_start;;//去掉
+
+if (substream)
+snd_pcm_period_elapsed(substream);
+
+spin_lock(&prtd->lock);    //下面所有代码移动到上面删除的地方
+if (!samsung_dma_has_circular()) {
+prtd->dma_loaded--;
+dma_enqueue(substream);
+}
+spin_unlock(&prtd->lock);
+}
+}
+
+ 
+
+static void dma_enqueue(struct snd_pcm_substream *substream)
+{
+
+　　dma_info.len = prtd->dma_period*limit;改为dma_info.len = prtd->dma_period
+
+}
+
+
+5.9 编写简单的声卡应用程序
+a. ALSA声卡使用体验:使用arecord录音,使用aplay播放
+准备:
+cd linux-3.4.2
+patch -p1 < ../linux-3.4.2_alsa_wm8976_uda1341_jz2440_mini2440_tq2440.patch
+cp config_wm8976_jz2440 .config 或 cp config_uda1341_tq2440_mini2440 .config
+make uImage
+
+
+jz2440:
+i. 声音差
+arecord test.wav（录音指令）
+aplay test.wav
+
+ii. 声音好
+arecord -f cd test.wav
+aplay test.wav
+
+mini2440:
+把MIC2通道打开（uda1341有两个录音接口，根据看电路图看麦克风链接到那个接口来设置）
+amixer cset numid=11 2
+
+i. 声音差
+arecord test.wav
+
+（录音的时候wm8976.c中的struct snd_soc_dai_driver wm8976_dai变量的capture对应的channels_min和max都是1（变量录音只能单声道），而s3c24xx-i2s.c的struct snd_soc_dai_driver s3c24xx_i2s_dai变量的capture对应的channels_min和max都是2（表示录音只能双声道），把wm8976.c中的channels_max改为2就可以了，表示两者都支持）
+
+aplay test.wav
+
+ii. 声音好
+arecord -f cd test.wav（修改采样率和数据位数可以提高声音质量）
+aplay test.wav
+
+tq2440:
+把MIC1通道打开
+amixer cset numid=11 1
+
+i. 声音差
+arecord test.wav
+aplay test.wav
+
+ii. 声音好
+arecord -f cd test.wav
+aplay test.wav
+
+
+b. 编写一个应用程序：一边录音一边播放（可以仿照alsa_util的源码，两者都在源码的aplay.c中）
+A Tutorial on Using the ALSA Audio API:
+alsa-lib使用方法
+open_the_device();
+set_the_parameters_of_the_device();
+while (!done) {
+/* one or both of these */
+receive_audio_data_from_the_device();
+deliver_audio_data_to_the_device();
+}
+close the device
+
+ 应用程序依赖alse-lib库，可以去查看我们之前编译的alse-lib，查看find -name "*so*",发现基本都是libasound.so,所有我们在应用程序中执行arm-linux-gcc的时候加上-lasound就可以
+
+
+Alsa中PCM参数设置
+http://blog.chinaunix.net/uid-10995602-id-2918643.html
+
+ 
+
+ 
+
+mkdir /dev/snd
+cd /dev/snd/
+ln -s /dev/controlC0
+ln -s /dev/pcmC0D0p
+ln -s /dev/pcmC0D0c
+
+修改: arch\arm\mach-s3c24xx\mach-smdk2440.c
+
+CONFIG_SND_SOC_SAMSUNG
+CONFIG_SND_S3C24XX_I2S
+
+CONFIG_SND_SOC_SAMSUNG_S3C24XX_UDA134X
+
+CONFIG_SND_SOC_UDA134X
+CONFIG_S3C24XX_DMA
+
+
+tar xjf alsa-lib-1.0.27.2.tar.bz2
+./configure --host=arm-linux
+make
+
+
+ncurse:
+./configure --host=arm-linux --prefix=$PWD/tmp --with-curses=ncurses
+make
+make install
+cd tmp/lib
+sudo cp * -rfd /usr/local/arm/4.3.2/arm-none-linux-gnueabi/libc/armv4t/lib
+cd tmp/include/ncurses
+sudo cp * -rfd /usr/local/arm/4.3.2/arm-none-linux-gnueabi/libc/usr/include
+
+
+tar xjf alsa-utils-1.0.27.2
+./configure --host=arm-linux --prefix=$PWD/tmp --with-curses=ncurses --disable-xmlto --disable-nls
+aplay /Windows.wav
+ALSA lib conf.c:3707:(snd_config_update_r) Cannot access file /work/projects/alsa/alsa-lib-1.0.27.2/tmp/share/alsa/alsa.conf
+
+./configure --host=arm-linux --with-curses=ncurses --disable-xmlto --disable-nls
+
+
+make
+
+sudo make install
+
+configure: error: required curses helper header not found
+
+要先编译安装ncurses-5.9
+./configure --host=arm-linux --prefix=$PWD/tmp --with-shared
+
+
+/bin/bash: xmlto: command not found
+http://blog.csdn.net/lamdoc/article/details/12563061
+sudo apt-get install xmlto // 安装失败, 配置时加上 --disable-xmlto
+
+sudo apt-get install gettext
+
+3．应用
+
+ 
+
+sound\core\sound.c
+register_chrdev(major, "alsa", &snd_fops)
+
+
+snd_open
+struct snd_minor *mptr = NULL;
+mptr = snd_minors[minor];
+file->f_op = fops_get(mptr->f_ops);
+err = file->f_op->open(inode, file);
+
+
+用strace跟踪:
+open("/dev/snd/controlC0", O_RDWR|0x80000 /* O_??? */) = 3
+ioctl(3, USBDEVFS_CONTROL, 0xbe96a5bc) = 0 SNDRV_CTL_IOCTL_PVERSION
+ioctl(3, 0x40045532, 0xbe96a5a8) = 0 #define _IOW('U',0x32,size) _IOC(_IOC_WRITE,(type),(nr),(_IOC_TYPECHECK(size)))
+SNDRV_CTL_IOCTL_PCM_PREFER_SUBDEVICE
+close(3) = 0
+
+SNDRV_CTL_IOCTL_CARD_INFO
+SNDRV_CTL_IOCTL_PVERSION
+SNDRV_CTL_IOCTL_PCM_PREFER_SUBDEVICE
+
+alsa_pcm_init
+snd_ctl_register_ioctl(snd_pcm_control_ioctl);
+_snd_ctl_register_ioctl(fcn, &snd_control_ioctls);
+
+snd_ctl_ioctl 用到 snd_control_ioctls
+
+static const struct file_operations snd_ctl_f_ops =
+.unlocked_ioctl = snd_ctl_ioctl,
+}
+
+snd_card_create
+snd_ctl_create
+snd_device_new(card, SNDRV_DEV_CONTROL, card, &ops) , ops里有 snd_ctl_dev_register > snd_register_device (snd_ctl_f_ops)
+
+snd_card_register
+snd_device_register_all
+dev->ops->dev_register
+snd_ctl_dev_register
+snd_register_device
+
+open("/dev/snd/pcmC0D0p", O_RDWR|O_NONBLOCK|0x80000) = 4
+
+soc_probe
+snd_soc_register_card
+snd_soc_instantiate_cards
+snd_soc_instantiate_card
+soc_probe_dai_link
+soc_new_pcm
+
+soc_pcm_ops->open = soc_pcm_open;
+soc_pcm_ops->close = soc_pcm_close;
+soc_pcm_ops->hw_params = soc_pcm_hw_params;
+soc_pcm_ops->hw_free = soc_pcm_hw_free;
+soc_pcm_ops->prepare = soc_pcm_prepare;
+soc_pcm_ops->trigger = soc_pcm_trigger;
+soc_pcm_ops->pointer = soc_pcm_pointer;
+
+snd_pcm_new
+static struct snd_device_ops ops = {
+.dev_free = snd_pcm_dev_free,
+.dev_register = snd_pcm_dev_register,
+.dev_disconnect = snd_pcm_dev_disconnect,
+};
+
+snd_device_new
+
+if (playback)
+snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_PLAYBACK, soc_pcm_ops);
+
+if (capture)
+snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_CAPTURE, soc_pcm_ops);
+snd_pcm_dev_register
+err = snd_register_device_for_dev(devtype, pcm->card,
+pcm->device,
+&snd_pcm_f_ops[cidx],
+pcm, str, dev);
+
+pcm设备的 file_operations 来自 snd_pcm_f_ops
+
+#define _IOC_NRSHIFT 0
+#define _IOC_TYPESHIFT 8
+#define _IOC_SIZESHIFT 16
+#define _IOC_DIRSHIFT 30
+
+
+open("/dev/snd/pcmC0D0p", O_RDWR|O_NONBLOCK|0x80000) = 4
+
+SNDRV_PCM_IOCTL_INFO : snd_pcm_info_user
+SNDRV_PCM_IOCTL_PVERSION : put_user(SNDRV_PCM_VERSION, (int __user *)arg) ? -EFAULT : 0;
+SNDRV_PCM_IOCTL_TTSTAMP : snd_pcm_tstamp(substream, arg), 传入的值是SNDRV_PCM_TSTAMP_TYPE_GETTIMEOFDAY或SNDRV_PCM_TSTAMP_TYPE_MONOTONIC
+SNDRV_PCM_IOCTL_SYNC_PTR : snd_pcm_sync_ptr(substream, arg)
+SNDRV_PCM_IOCTL_HW_REFINE : snd_pcm_hw_refine_user(substream, arg) > snd_pcm_hw_refine >
+SNDRV_PCM_IOCTL_SYNC_PTR :
+SNDRV_PCM_IOCTL_SW_PARAMS : snd_pcm_sw_params_user(substream, arg) > snd_pcm_sw_params >
+SNDRV_PCM_IOCTL_SYNC_PTR
+SNDRV_PCM_IOCTL_PREPARE : snd_pcm_prepare(substream, file) >
+SNDRV_PCM_IOCTL_SYNC_PTR
+SNDRV_PCM_IOCTL_SW_PARAMS
+SNDRV_PCM_IOCTL_WRITEI_FRAMES : snd_pcm_lib_write >
+SNDRV_PCM_IOCTL_SYNC_PTR
+SNDRV_PCM_IOCTL_DRAIN : snd_pcm_drain
+SNDRV_PCM_IOCTL_DROP : snd_pcm_drop(substream)
+SNDRV_PCM_IOCTL_HW_FREE : snd_pcm_hw_free(substream)
+
+fcntl64(4, F_SETFD, FD_CLOEXEC) = 0
+ioctl(4, AGPIOC_ACQUIRE or APM_IOC_STANDBY, 0xbe9a749c) = 0 SNDRV_PCM_IOCTL_INFO
+fcntl64(4, F_GETFL) = 0x80802 (flags O_RDWR|O_NONBLOCK|0x80000)
+ioctl(4, AGPIOC_INFO, 0xbe9a75c0) = 0 SNDRV_PCM_IOCTL_PVERSION
+ioctl(4, AGPIOC_SETUP, 0xbe9a7490) = 0 SNDRV_PCM_IOCTL_TTSTAMP
+ioctl(4, 0xc0844123, 0xbe9a73b8) = 0 SNDRV_PCM_IOCTL_SYNC_PTR
+fcntl64(4, F_GETFL) = 0x80802 (flags O_RDWR|O_NONBLOCK|0x80000)
+fcntl64(4, F_SETFL, O_RDWR|0x80000 /* O_??? */) = 0
+ioctl(4, AGPIOC_ACQUIRE or APM_IOC_STANDBY, 0xbe9a7be8) = 0 SNDRV_PCM_IOCTL_INFO
+ioctl(4, 0xc25c4110, 0xbe9a7520) = 0 SNDRV_PCM_IOCTL_HW_REFINE
+ioctl(4, 0xc25c4110, 0xbe9a7180) = 0 SNDRV_PCM_IOCTL_HW_REFINE
+ioctl(4, 0xc25c4110, 0xbe9a7180) = 0
+ioctl(4, 0xc25c4110, 0xbe9a7520) = 0
+ioctl(4, 0xc25c4110, 0xbe9a7180) = 0
+ioctl(4, 0xc25c4110, 0xbe9a7180) = 0
+ioctl(4, 0xc25c4110, 0xbe9a7520) = 0
+ioctl(4, 0xc25c4110, 0xbe9a7280) = 0
+ioctl(4, 0xc25c4110, 0xbe9a6ee0) = 0
+ioctl(4, 0xc25c4110, 0xbe9a6ee0) = 0
+ioctl(4, 0xc25c4110, 0xbe9a7280) = 0
+ioctl(4, 0xc25c4110, 0xbe9a7280) = 0
+ioctl(4, 0xc25c4110, 0xbe9a6ee0) = 0
+ioctl(4, 0xc25c4110, 0xbe9a6ee0) = 0
+ioctl(4, 0xc25c4110, 0xbe9a7280) = 0
+ioctl(4, 0xc25c4110, 0xbe9a7280) = 0
+ioctl(4, 0xc25c4110, 0xbe9a6ee0) = 0
+ioctl(4, 0xc25c4110, 0xbe9a6ee0) = 0
+ioctl(4, 0xc25c4110, 0xbe9a7280) = 0
+ioctl(4, 0xc25c4110, 0xbe9a7280) = 0
+ioctl(4, 0xc25c4110, 0xbe9a6ee0) = 0
+ioctl(4, 0xc25c4110, 0xbe9a6ee0) = 0
+ioctl(4, 0xc25c4110, 0xbe9a7280) = 0
+ioctl(4, 0xc25c4110, 0xbe9a7280) = 0
+ioctl(4, 0xc25c4110, 0xbe9a6ee0) = 0
+ioctl(4, 0xc25c4110, 0xbe9a6ee0) = 0
+ioctl(4, 0xc25c4110, 0xbe9a7280) = 0
+ioctl(4, 0xc25c4110, 0xbe9a6d68) = 0
+ioctl(4, 0xc25c4110, 0xbe9a69c8) = 0
+ioctl(4, 0xc25c4110, 0xbe9a69c8) = 0
+ioctl(4, 0xc25c4110, 0xbe9a69c8) = 0
+ioctl(4, 0xc25c4110, 0xbe9a6d68) = 0
+ioctl(4, 0xc25c4110, 0xbe9a6d68) = 0
+ioctl(4, 0xc25c4110, 0xbe9a6d68) = 0
+ioctl(4, 0xc25c4110, 0xbe9a69c8) = 0
+ioctl(4, 0xc25c4110, 0xbe9a69c8) = 0
+ioctl(4, 0xc25c4110, 0xbe9a6d68) = 0
+ioctl(4, 0xc25c4110, 0xbe9a6fd8) = 0
+ioctl(4, 0xc25c4110, 0xbe9a6fd8) = 0
+ioctl(4, 0xc25c4110, 0xbe9a6fd8) = 0
+ioctl(4, 0xc25c4110, 0xbe9a6fd8) = 0
+ioctl(4, 0xc25c4110, 0xbe9a6fd8) = 0
+ioctl(4, 0xc25c4110, 0xbe9a6fd8) = 0
+ioctl(4, 0xc25c4110, 0xbe9a6fd8) = 0
+ioctl(4, 0xc25c4110, 0xbe9a6fd8) = 0
+ioctl(4, 0xc25c4110, 0xbe9a6fd8) = 0
+ioctl(4, 0xc25c4110, 0xbe9a6fd8) = 0
+ioctl(4, 0xc25c4110, 0xbe9a6d68) = 0
+ioctl(4, 0xc25c4110, 0xbe9a6d68) = 0
+ioctl(4, 0xc25c4110, 0xbe9a6d68) = 0
+ioctl(4, 0xc25c4110, 0xbe9a6d68) = 0
+ioctl(4, 0xc25c4110, 0xbe9a6d68) = 0
+ioctl(4, 0xc25c4110, 0xbe9a6d68) = 0
+ioctl(4, 0xc25c4110, 0xbe9a6d68) = 0
+ioctl(4, 0xc25c4110, 0xbe9a6d68) = 0
+ioctl(4, 0xc25c4110, 0xbe9a6d68) = 0
+ioctl(4, 0xc25c4110, 0xbe9a6d68) = 0
+ioctl(4, 0xc25c4110, 0xbe9a6d68) = 0
+ioctl(4, 0xc25c4110, 0xbe9a6d68) = 0
+ioctl(4, 0xc25c4110, 0xbe9a6fd8) = 0
+ioctl(4, 0xc25c4110, 0xbe9a6fd8) = 0
+ioctl(4, 0xc25c4110, 0xbe9a6fd8) = 0
+ioctl(4, 0xc25c4110, 0xbe9a6fd8) = 0
+ioctl(4, 0xc25c4110, 0xbe9a6fd8) = 0
+ioctl(4, 0xc25c4110, 0xbe9a7470) = 0
+ioctl(4, 0xc25c4110, 0xbe9a7470) = 0
+ioctl(4, 0xc25c4110, 0xbe9a7470) = 0
+ioctl(4, 0xc25c4110, 0xbe9a7470) = 0
+ioctl(4, 0xc25c4110, 0xbe9a7418) = 0
+ioctl(4, 0xc25c4110, 0xbe9a7418) = 0
+ioctl(4, 0xc25c4110, 0xbe9a7418) = 0
+ioctl(4, 0xc25c4110, 0xbe9a7418) = 0
+ioctl(4, 0xc25c4110, 0xbe9a7418) = 0
+ioctl(4, 0xc25c4110, 0xbe9a7490) = 0
+ioctl(4, 0xc25c4110, 0xbe9a7490) = 0
+ioctl(4, 0xc25c4110, 0xbe9a7490) = 0
+ioctl(4, 0xc25c4110, 0xbe9a7860) = 0
+ioctl(4, 0xc25c4111, 0xbe9a7860) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0 SNDRV_PCM_IOCTL_SYNC_PTR
+ioctl(4, 0xc0684113, 0xbe9a7404) = 0 SNDRV_PCM_IOCTL_SW_PARAMS
+ioctl(4, 0xc0844123, 0x2e868) = 0 SNDRV_PCM_IOCTL_SYNC_PTR
+ioctl(4, 0x4140, 0xc54f8) = 0 SNDRV_PCM_IOCTL_PREPARE
+ioctl(4, 0xc0844123, 0x2e868) = 0 SNDRV_PCM_IOCTL_SYNC_PTR
+ioctl(4, 0xc0684113, 0xbe9a77f0) = 0 SNDRV_PCM_IOCTL_SW_PARAMS
+read(3, "^\0\0\0\363\377\0\0\5\0\0\0\374\377\0\0\3\0\0\0\375\377"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0 SNDRV_PCM_IOCTL_WRITEI_FRAMES
+ioctl(4, 0xc0844123, 0x2e868) = 0 SNDRV_PCM_IOCTL_SYNC_PTR
+read(3, "\222\3,\0\207\1%\1$\377\261\1\330\374\246\1\5\373\377\0"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, ",\5\246\374(\5\274\375\317\4\365\376\30\4N\0001\3\323\1"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "Z\n\214\6\345\n\353\6\265\n\26\7\36\n,\7+\t\21\7\3\10\354"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "\262\n\20\rs\nJ\f\370\t;\vL\t\25\nF\10\350\10&\7\236\7"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "\302\17\n\22\203\v\305\20\5\7\312\16\211\2\17\f1\376\313"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "Z\r4\0172\fh\16\356\nx\r\366\10E\fl\6\314\n.\3\340\10\224"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "^\0\303\10\371\0\273\t\361\1\245\n)\4u\v\\\6\30\f\263\7"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "\362\365\331\27_\367\273\27g\367\373\26\323\366.\25\302"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "\305\25N\t\202\22%\fS\20\223\16q\16C\20O\v\355\20/\7\342"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "&\3)\5\374\5y\2?\10\363\377w\10\303\374X\10\276\371\273"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "l\374\23\373g\370\16\371\345\363(\367\375\356.\365{\351"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "O\4G\6R\6-\0076\t\222\7\371\v\234\10\221\rK\n\363\r]\v"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "\237\320d\327*\332\317\333\325\342\344\341\227\352\21\351"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "\214\337*\342i\343\260\346\276\346B\352n\350\n\355j\353"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "\340\326\354\3569\324b\357\24\324\305\356\270\321e\355"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "\354\23\351\0M\21M\3\320\n\234\5\235\2\267\7\224\372m\t"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "\377\6`\362\257\3\224\367\35\0\361\374;\373\31\1\2\365"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "Q\20\342\3\230\37t\5\37,]\6\311/U\00401\360\1\2410m\1w"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "\353\371\f\370c\373\252\366\336\374[\364\316\373\317\361"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "\305\363n\365i\371\216\365*\1e\367%\t\10\372\350\17\t\376"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "C\37\200\35\363\36|\32*\34:\25\21\30\325\17\6\26\235\n"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "\266\16\305\2\177\f:\2A\v\311\1V\v\377\2\4\v\177\5\207"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "C\330m\0\330\331\262\377\376\335\224\376\234\345\324\374"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "\344\0\333\27.\374\n\27\217\370\254\0246\367\261\21\207"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "\214\17\251\373\326\27B\375>\35\327\376\202\37\311\0\262"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "\\\f\357\374\213\t\244\375\254\6I\376x\5\224\376*\5\204"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "\234\3T\363S\2\177\366+\0\253\371/\3765\373\203\3748\373"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "\267\6\233\377\212\6>\1\333\5\217\1\n\5\17\2%\5k\4\274"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "\373\10\222\351`\7\r\350\274\5\5\347O\0040\346%\3\213\345"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "\241\373\336\372\317\373e\372r\374\225\371\"\375\231\370"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "\t\367\301\370]\366m\370\315\365W\370\204\365\243\370\236"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "e\3\227\376f\3\260\376\245\3\324\376\345\3\353\376 \4\347"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "\1\0\10\376\302\377\22\376o\377+\376\0\3770\376\205\376"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "\334\372\317\376\305\372>\377\271\372\250\377\301\372\6"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "\225\3770\4\234\377\27\4\254\377\342\3\251\377\235\3\220"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "\316\0\v\0\345\0\364\377\366\0\326\377\373\0\255\377\371"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "\307\1\350\1\336\1\247\1\346\1g\1\345\1!\1\333\1\321\0"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "\267\377\34\1\270\377G\1\301\377p\1\320\377\216\1\344\377"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "\351\377 \0\2\0D\0\33\0e\0+\0\203\0009\0\234\0C\0\262\0"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "\240\0R\377\232\0L\377\232\0O\377\237\0R\377\244\0Y\377"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "\257\377)\0\276\377\24\0\317\377\7\0\344\377\377\377\367"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "\210\377\17\0\215\377\r\0\227\377\22\0\250\377\25\0\267"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "\16\0x\0\6\0x\0\0\0y\0\373\377v\0\365\377r\0\361\377r\0"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "\16\0\2\0\f\0\5\0\r\0\7\0\r\0\f\0\16\0\21\0\16\0\24\0\20"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "\356\377\n\0\363\377\23\0\365\377\36\0\370\377$\0\373\377"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "\337\377\337\377\334\377\341\377\332\377\344\377\330\377"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "\"\0\353\377 \0\351\377\37\0\352\377\35\0\350\377\31\0"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "\370\377\0\0\370\377\0\0\370\377\377\377\371\377\376\377"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "\0\0\r\0\0\0\17\0\1\0\r\0\0\0\r\0\0\0\r\0\0\0\f\0\0\0\f"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0
+ioctl(4, 0xc0844123, 0x2e868) = 0
+read(3, "\7\0\16\0\10\0\16\0\5\0\17\0\7\0\r\0\6\0\f\0\6\0\n\0\5"..., 8192) = 8192
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0 SNDRV_PCM_IOCTL_WRITEI_FRAMES
+ioctl(4, 0xc0844123, 0x2e868) = 0 SNDRV_PCM_IOCTL_SYNC_PTR
+read(3, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 6808) = 6808
+ioctl(4, 0x400c4150, 0xbe9a7ab8) = 0 SNDRV_PCM_IOCTL_WRITEI_FRAMES
+ioctl(4, 0xc0844123, 0x2e868) = 0 SNDRV_PCM_IOCTL_SYNC_PTR
+fcntl64(4, F_GETFL) = 0x80002 (flags O_RDWR|0x80000)
+fcntl64(4, F_SETFL, O_RDWR|0x80000 /* O_??? */) = 0
+ioctl(4, 0x4144, 0xc50a4) = 0 SNDRV_PCM_IOCTL_DRAIN
+fcntl64(4, F_GETFL) = 0x80002 (flags O_RDWR|0x80000)
+fcntl64(4, F_SETFL, O_RDWR|0x80000 /* O_??? */) = 0
+close(3) = 0
+ioctl(4, 0x4143, 0xc51ac) = 0 SNDRV_PCM_IOCTL_DROP
+ioctl(4, 0x4112, 0) = 0 SNDRV_PCM_IOCTL_HW_FREE
+close(4) = 0
+
+insmod regmap-i2c.ko
+insmod regmap-spi.ko
+insmod snd-soc-core.ko
+
+echo "8 4 1 7" > /proc/sys/kernel/printk
+insmod alsa/driver/platform/s3c2440-i2s.ko
+insmod alsa/driver/platform/s3c2440-dma.ko
+insmod alsa/driver/codec/uda1341.ko
+insmod alsa/driver/machine/s3c2440_sound.ko
+mkdir /dev/snd
+cd /dev/snd/
+ln -s /dev/controlC0
+ln -s /dev/pcmC0D0p
+ln -s /dev/pcmC0D0c
+cd /
+echo "8 4 1 7" > /proc/sys/kernel/printk
+
+regeditor r32 0x55000000 5; regeditor r32 0x4B000080 9
+
+修改BUG：sound\soc\samsung\dma.c
+
+static void dma_enqueue(struct snd_pcm_substream *substream)
+
+//pos += prtd->dma_period;
+pos += prtd->dma_period*limit;
+
+ 
+
+http://wenku.baidu.com/link?url=B2U2f2vK5gHvVVUrMrgmEaS3N0xAampnfPj5-MNfJsF63BwL3qU7bNOhf0Jmwrqx75y5LSk8C13ppaHvfw24YOjtf6GppFOI25INP7WVKOO
+
+A close look at ALSA
+http://www.volkerschatz.com/noise/alsa.html
+
+
+Linux音频子系统 - DroidPhone的专栏 - 博客频道 - CSDN.NET.htm
+http://blog.csdn.net/droidphone/article/category/1118446
+
+
+Linux ALSA声卡驱动之一：ALSA架构简介
+http://blog.csdn.net/droidphone/article/details/6271122
+
+Linux ALSA声卡驱动之二：声卡的创建
+http://blog.csdn.net/droidphone/article/details/6289712
+
+Linux ALSA声卡驱动之三：PCM设备的创建
+http://blog.csdn.net/droidphone/article/details/6308006
+
+Linux ALSA声卡驱动之四：Control设备的创建
+http://blog.csdn.net/droidphone/article/details/6409983
+
+Linux ALSA声卡驱动之五：移动设备中的ALSA（ASoC）
+http://blog.csdn.net/droidphone/article/details/7165482
+
+Linux ALSA声卡驱动之六：ASoC架构中的Machine
+http://blog.csdn.net/droidphone/article/details/7231605
+
+Linux ALSA声卡驱动之七：ASoC架构中的Codec
+http://blog.csdn.net/droidphone/article/details/7283833
+
+Linux ALSA声卡驱动之八：ASoC架构中的Platform
+http://blog.csdn.net/droidphone/article/details/7316061
+
+snd_soc_register_codec(,snd_soc_codec_driver,snd_soc_dai_driver,num_dai)
