@@ -1,0 +1,1 @@
+[Linux ALSA驱动框架(一)--ALSA架构简介--声卡的创建](https://blog.csdn.net/sinat_37817094/article/details/80490830)  
