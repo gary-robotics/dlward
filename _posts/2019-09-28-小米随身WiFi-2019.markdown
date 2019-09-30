@@ -1,1 +1,12 @@
-[【L】小米随身WiFi，Linux下AP热点驱动（开源）](https://blog.csdn.net/sumang_87/article/details/38168877)  
+---
+layout:     post                    # 使用的布局（不需要改）
+title:      小米随身WiFi                # 标题 
+subtitle:    第一篇                  #副标题
+date:       2019-09-29              # 时间
+author:     BY Edlward              # 作者
+header-img: img/post-bg-2015.jpg    #这篇文章标题背景图片
+catalog: true                       # 是否归档
+tags:                               #标签
+    - Linux
+---
+[小米随身WiFi，Linux下AP热点驱动（开源）](https://blog.csdn.net/sumang_87/article/details/38168877)  
