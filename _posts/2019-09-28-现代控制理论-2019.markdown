@@ -17,3 +17,5 @@ tags:                               #标签
 [Matlab & Simulink学控制](https://zhuanlan.zhihu.com/control-system)  
 [web](http://ctms.engin.umich.edu/CTMS/index.php?example=InvertedPendulum&section=SystemAnalysis)  
 [【ROS-SLAM】四足机器人SLAM仿真](https://zhuanlan.zhihu.com/p/63061134)  
+
+[控制理论--奈奎斯特稳定判据学习笔记](http://bbs.21dianyuan.com/thread-289441-1-1.html)  
