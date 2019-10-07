@@ -10,6 +10,10 @@ catalog:    true
 tags:
     - android
 ---
+
+
+[USB摄像头(V4L2接口)的图片采集](https://www.cnblogs.com/liusiluandzhangkun/p/8690379.html)  
+
 ### Uboot  
 [用uboot烧写内核到smart210](https://blog.csdn.net/u012075739/article/details/39551009)  
 
