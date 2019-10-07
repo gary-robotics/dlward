@@ -10,4 +10,5 @@ tags:                               #标签
     - linux
 ---
 [朱老师笔记](https://www.cnblogs.com/biaohc/p/6629113.html)  
+[朱老师笔记](https://www.cnblogs.com/liusiluandzhangkun/)  
 [uboot引导kernel - 2-> uboot/kernel需要放在DDR什么位置的问题](https://blog.csdn.net/wowricky/article/details/83218356)  
