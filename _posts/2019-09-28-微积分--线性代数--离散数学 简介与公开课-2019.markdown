@@ -13,6 +13,8 @@ tags:                               #标签
 [可汗学院公开课：微分方程](http://open.163.com/special/Khan/differential.html)  
 [[高等微積分] 第1講、數學的本質](https://www.youtube.com/watch?v=yYEMYP8u0sc)  
 
+[第2课：练习X射线和时移视觉](https://betterexplained.com/calculus/lesson-2/)  
+
 ### 微积分--线性代数--离散数学（简介与公开课）
 最近准备全面系统的学习计算机基础理论了。所以呢，我就把微积分、线性代数、离散数学作为学习的重点，也算高等数学的主要内容。自己高中时候学了一些，不过大学就没学高数，搁置了很多年，现在捡起来还不晚，还二十几岁嘛。今年准备在计算机基础理论上狠下功夫，把算法、android系统作为核心。
 
