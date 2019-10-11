@@ -9,6 +9,8 @@ catalog: true                       # 是否归档
 tags:                               #标签
     - FOC
 ---
+[TI](http://www.ti.com/download/trng/docs/c2000/TI_MotorControlCompendium_2010.pdf)  
+
 [电机数学模型与仿真](https://wenku.baidu.com/view/4718e510c381e53a580216fc700abb68a982ad06.html?rec_flag=default&pn=101)  
 
 [ZDOC-永磁直线同步电机建模、特性分析及推力控制 [司纪凯 著] 2014年.pdf 永磁直线同步电机建模、特性分析及推力控制 ](http://www.zbgb.org/e/down.php?id=3866759)  
