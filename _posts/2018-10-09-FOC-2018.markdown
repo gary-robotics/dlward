@@ -9,6 +9,9 @@ catalog: true                       # 是否归档
 tags:                               #标签
     - FOC
 ---
+#### MATLAB
+[matlab PMSM_id_zero](https://github.com/blockahead/PMSM_id_zero)   
+
 [TI](http://www.ti.com/download/trng/docs/c2000/TI_MotorControlCompendium_2010.pdf)  
 
 [电机数学模型与仿真](https://wenku.baidu.com/view/4718e510c381e53a580216fc700abb68a982ad06.html?rec_flag=default&pn=101)  
