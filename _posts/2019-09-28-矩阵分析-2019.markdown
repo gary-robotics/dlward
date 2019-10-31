@@ -9,6 +9,7 @@ catalog: true                       # 是否归档
 tags:                               #标签
     - 数学
 ---
+[矩阵分析与计算](https://wenku.baidu.com/view/0f60d5234b35eefdc8d333b2.html)  
 [课件](http://web.xidian.edu.cn/lexu/course.html)  
 [blog](http://zhangzhenyuan163.blog.163.com/blog/#m=0&t=1&c=fks_085067080083084065084084087095092083089066093085094074)  
 [大学](http://www.gcjzl.com/content/?sid=4&lang=zh)  
