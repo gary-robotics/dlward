@@ -28,13 +28,16 @@ tags:                               #标签
   也有重力加速度的从地理坐标系变换到机体坐标系使用的就是上面这个公式。
   
 5.然后的话看看这个视频，这个讲的也蛮好的。
+
   https://www.bilibili.com/video/av13035245/?spm_id_from=333.338.recommend_report.5
+  
   这位明显是大佬，首先理论搞得十分清楚，其次代码讲解也很强
   
 6.配合着上面这个视频，还可以看下这几个博文，基本上姿态解算就差不多了，先学会一种方法（Mahony的互补滤波算法），
   然后先飞起来等了解的差不多了再去了解一些其他的方法（梯度下降法之类的）。
   
   链接如下
+  
   http://www.crazepony.com/book/about-algorithm.html  这个是Crazypony的 WIKI，关于姿态这块讲的还行。
   
   http://blog.sina.com.cn/s/blog_d0b80cdd0102x2gt.html
