@@ -9,6 +9,8 @@ catalog: true                       # 是否归档
 tags:                               #标签
     - 卡尔曼滤波与组合导航原理
 --- 
+[IMU数据融合：互补，卡尔曼和Mahony滤波器](http://www.olliw.eu/2013/imu-data-fusing/)  
+
 [卡尔曼滤波与组合导航原理](https://wenku.baidu.com/view/84a1bf34f78a6529647d539f.html)  
 [EKF_IMU_GPS](https://github.com/Edlward/Indirect_EKF_IMU_GPS)  
 [计算机科学数学基础及教材推荐(转)](https://blog.csdn.net/baixiaozhe/article/details/8263643)  
