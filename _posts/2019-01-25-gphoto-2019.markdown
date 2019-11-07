@@ -9,6 +9,9 @@ catalog: true                       # 是否归档
 tags:                               #标签
     - GPHOTO2
 ---
+
+[相机镜头控制协议的分析与转换](https://wenku.baidu.com/view/01c4010531b765ce04081454.html)  
+
 ### MTP USB数据抓包分析
 [MTP工具](https://github.com/Edlward/usbmtp_dissector)  
 [MTP工具](https://github.com/Edlward/mtp-tools)  
