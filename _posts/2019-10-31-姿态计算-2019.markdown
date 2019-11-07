@@ -12,6 +12,8 @@ tags:                               #标签
 ### matlab
 [欧拉角，DCM，四元数和欧拉矢量转换/示教GUI](https://ww2.mathworks.cn/matlabcentral/fileexchange/27653-euler-angle-dcm-quaternion-and-euler-vector-conversion-teaching-gui)  
 
+### CSDN
+[IMU姿态融合（MPU9250从校正到滤波步骤）](https://blog.csdn.net/u013236946/article/details/72934934)  
 
 ### 姿态计算
 关于这方面，姿态计算的理解大致需要经过以下几个步骤。
