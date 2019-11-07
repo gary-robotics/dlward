@@ -14,6 +14,7 @@ tags:                               #标签
 
 ### CSDN
 [IMU姿态融合（MPU9250从校正到滤波步骤）](https://blog.csdn.net/u013236946/article/details/72934934)  
+[感知与大脑——2.带自校准九轴数据融合IMU惯性传感器](https://www.cnblogs.com/hiram-zhang/p/10398959.html)  
 
 ### 姿态计算
 关于这方面，姿态计算的理解大致需要经过以下几个步骤。
