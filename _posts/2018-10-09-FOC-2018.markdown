@@ -9,6 +9,12 @@ catalog: true                       # 是否归档
 tags:                               #标签
     - FOC
 ---
+### TI
+http://www.ti.com.cn/tool/cn/controlsuite?keyMatch=controlSUITE&tisearch=Search-CN-Everything
+
+http://www.ti.com.cn/cn/lit/ug/sprui45a/sprui45a.pdf
+
+
 #### MATLAB
 [matlab PMSM_id_zero](https://github.com/blockahead/PMSM_id_zero)   
 ### DEBUG
