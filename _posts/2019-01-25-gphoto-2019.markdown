@@ -19,6 +19,246 @@ tags:                               #标签
 [Linux-创建rc红外遥控平台设备,实现重复功能(2)](https://www.cnblogs.com/lifexy/p/9783914.html)  
 
 ### IR Control
+[Research Sony Multi Interface Research](https://github.com/Aeronavics/ValleyForge/wiki/Research-Sony-Multi-Interface-Research)  
+```
+# Introduction
+Modern Sony consumer still and video camera have changed from using the LANC comminucation interface to a new serial one operating over UART. This document details research carried out so far in determining the operation of this protocol by analysing the operation of the CAMremote. Using this knowledge to make communication attempts with a Bus Pirate or resistors between IO lines and ground or 3.3V. To access the electrical connection in the connector on a CAMremote cable was dissasembled to to expose connections. Where required breakout wires were soldered to the back to provide attachment points for exrernal connections.
+
+## Cameras Used For Testing
+* HX400 Still
+* a6000 Still
+* PJ670 Video
+
+# Connector Pinout
+The following [pinout](http://peterwedege.blogspot.co.nz/2016/01/analyzing-sonys-new-multiport-protocol.html) as found online has been found to be correct on scoping the lines to observe behaviour. 
+
+    1: "VBUS" - 5V-Input voltage from the USB host
+    2: "D-" - USB-data (negative)
+    3: "D+" - USB-data (positive)
+    4: "USB_ID" - For USB-OnTheGo
+    5: "GND" - Connected in camera with Pin 14 ("AV GND")
+    -----------------------------------------------------------------------------------------------------------------
+    6: "D_3.1V" / "LANC_DC" - Output for 3.3V
+    7: "XRESET_REQ" - Input for reset request, small capacitances (i.e. scope probe) to ground are enough to trigger.
+    8: "UART_TX" - Optional output for serial interface
+    9: "UART_RX" - Optional output for serial interface
+    10: "AD_JACK_IN" - Analog input for resistance to detect the connected cable / accessory type
+    11: "LINEOUT_R" / "XAE_LOCK_SW" - Optional audio output (right, decoupled in the camera with capacitor) and / or input for release (1st stage) in the photo mode with proper resistance at AD_JACK_IN
+    12: "LINEOUT_L" / "XSHUT_SW" - Optional audio output (left, decoupled in the camera with capacitor) and / or input for release (2nd stage) in the photo mode with proper resistance at AD_JACK_IN
+    13: "VIDEO" - Optional composite video output
+    14: "AV_GND" - Connected the camera to pin 5 ("GND")
+    15: "XPWR_ON" - Input for external ON / OFF switch pull to GND to toggle.
+
+Layout from the back of the connector
+
+    1  | | | | | 5
+	6 |||||||||| 15
+
+Layout for the purchased connectors
+
+    A1 -> 1
+    ..
+    A5 -> 5
+
+    1 -> 15
+    ..
+    10 -> 6
+
+# CAMremote connector
+The CAMremote has most connector pins used wired directly into the cable with a few components on the PCB. This circuitry is
+
+    Pins On Connector
+	  15    14       10
+      |     |        |
+      |     |--100k--|
+      |     3        |
+      |     K        |
+      |_D   9        |
+       _|---|        |
+      | S G |        |
+      |     |        |
+	  
+	  CAMremote cable
+
+The 100k resistor between pins 10 and 14 appears to be for the resistance detect circuit in AD_JACK_IN to detect the acessory type. If this is pulled with a smaller resistor to GND or 3.3V the CAMremote is no longer able to control the camera. The FET and 3.9k pull down resistor are used to power the camera on and off. The camera has an internal pullup on pin 15 holding it at 3.3V if the CAMremote cable is only plugged into the camera and not the remote the FET stays off allowing the camera to power on. When PIN 15 is pulled to GND it will toggle the power state from ON to sleep or sleep to ON.
+
+# Serial Format
+Anaysing the serial comminications between the CAMremote and camera it was found to be UART with the following format. Idle 1 at 3.3V, 0 at GND, 9600 baud rate, 8 data bits, even parity and one stop bit. When zooming with the CAMremote the format the CAMremote uses changes to no parity and two stop bits. This is assumed to be a bug as later when the zoom commands were send with a Bus Pirate using the original format the camera responded corrently. This indicates that the camera possibly doesn't use the parity bits.
+
+# On Connecting the CAMremote cable to the camera
+When the cable is plugged into the camera while connected to the CAMremote the camera sends a packet consisting of ''0x25, 0x30, 0x30, 0x30, 0x2A'' and the CAMremote replys with ''0x26, 0x30, 0x30, 0x30, 0x38, 0x30, 0x2A''. No further activity occurs on the serial lines until the CAMremote sends a command. If the CAMremote is turned off or disconnected when the camble is plugged into the camera the camera sends the same packet 11 times at approximatly 55ms to 65ms intervals. After this the camera does not respond to commands from the CAMremote.
+
+# Focus and Shutter
+The CAMremote is able to focus and activate the shutter with still cameras only. This is done by pulling the XAE_LOCK_SW and XSHUT_SW lines to GND. XAE_LOCK_SW activates focus and XSHUT_SW the shutter. XAE_LOCK_SW must stay low when XSHUT_SW is pulled to ground. At no point during this process is there communication on the serial lines.
+
+ It seems on the A6000, that pulling the UART_TX, and UART_RX to ground will activate the shutter. This seems weird as this also happens when the shutter button is pushed (one is for focus and the other is for shutter). However this must mean that the UART is disabled for the entire time the button is pressed.  
+
+# Other CAMremote Commands
+The other commands that the CAMremote is able to send to the camera are start/stop video recording, zoom tele with variable speed and zoom wide with variable speed.
+
+With the Sony HX400 the following commands were sent and received.
+
+    Delay           Camera                                 CAMremote
+                                      Start Recording
+                                                 0x23 0x37 0x31 0x30 0x30 0x2A
+    320us 0x24 0x37 0x31 0x30 0x30 0x30 0x2A
+     43ms                                        0x23 0x37 0x31 0x31 0x30 0x2A
+    360us 0x24 0x37 0x31 0x31 0x30 0x30 0x2A
+    1.2s  0x25 0x37 0x36 0x31 0x30 0x2A
+     11ms                                        0x26 0x37 0x36 0x31 0x30 0x30 0x2A
+                                      Stop Recording 
+                                                 0x23 0x37 0x31 0x30 0x30 0x2A
+    320us 0x24 0x37 0x31 0x30 0x30 0x30 0x2A
+     43ms                                        0x23 0x37 0x31 0x31 0x30 0x2A
+    360us 0x24 0x37 0x31 0x31 0x30 0x30 0x2A
+    580ms 0x25 0x37 0x36 0x30 0x30 0x2A
+     11ms                                        0x26 0x37 0x36 0x30 0x30 0x30 0x2A
+                                      Zoom Wide
+                                                 0x23 0x37 0x35 0x31 0x30 0x2A
+    320us 0x24 0x37 0x35 0x31 0x30 0x30 0x2A
+                                      Zoom Tele
+                                                 0x23 0x37 0x34 0x31 0x30 0x2A
+    320us 0x24 0x37 0x34 0x31 0x30 0x30 0x2A
+    For both zoom directions the 4th byte controls speed ranges from 0x31 to 0x38.*
+                                    Zoom Stop
+                                                 0x23 0x37 0x35 0x39 0x30 0x2A
+    320us 0x24 0x37 0x35 0x39 0x30 0x30 0x2A
+
+\* If the zoom speed selected is greater than the camera supports the fastest zoom speed supported is used.
+
+
+# Protocol
+* 1st byte remote: initiates with '#' and replies with '&'. Camera initiates with '%' and replies with '$'
+* 2nd byte always a '7'
+* 3rd byte command byte - refer to full list
+* 4th byte option byte - refer to full list
+* 5th byte always '0' but actually not needed
+* 6th byte always '0', but is '2' if the command is not supported
+* 7th byte always '*'
+
+Known aspects from above excluding handshake.
+* 1st byte remote initiates with 0x23 , replys with 0x26. Camera initiates with 0x25, replys with 0x24.
+* 2nd byte no change.
+* 3rd byte is a command byte.
+* 4th byte is a command option byte.
+* 5th byte always 0x30.
+* 6th byte always 0x2A for command and 0x30 for reply.
+* 7th byte reply only always 0x2A.
+
+The response packet always has the 2nd through 5th bytes identical to the command packet. This indicates that the response echos back the command that has been sent.
+
+A handshake is required before commands can be sent over the serial link. This consists of the camera sending ''0x25, 0x30, 0x30, 0x30, 0x2A'' and the remote replying with ''0x26, 0x30, 0x30, 0x30, 0x38, 0x30, 0x2A''.
+
+# Extra Command Search
+By using the CAMremote to complete the handshake and then disconnecting to allows a Bis Pirate to send commands to the camera. This was done to allows arbitrary packets to be sent to the camera to search for valid command options. Initially only changed the command option and command option bytes. From this it was found that if a command and/or command option is unsupported the 6th byte of the response is 0x32. Modifying the 5th byte had no noticeable effect, it was always echoed back unchanged.
+
+Command packets with all combinations of command and command option bytes were sent to the camera, HX400 only, using the Bus Pirate. The responses were checked for 0x30 as the 6th byte. This found the following commands and options.
+
+    Command   Option    Action
+      0x30     0x30     Grid on/on
+      0x30     0x31
+      0x32     0x30     Focus
+      0x32     0x31
+      0x33     0x30     Shutter
+      0x33     0x31
+
+0x30 cycles through grid line options when the option is 0x30 and requires the command with option 0x31 to be sent before accepting option 0x30 again. On the still cameras commands 0x32 and 0x33 have no effect. On the video camera 0x32 activates focus in still mode with option 0x30 and 0x31 releases it, can be released before and must be after capturing a still image. 0x33 captures a still image on the video camera with option 0x30 and option 0x31 must be sent to release it. Still images are able to be captured while recording video using command 0x33 and focusing is not required.
+
+Using the Bus Pirate to cycle over the 2nd byte the camera only replys when the 2nd byte is 0x37. Possibly an addressing feature as it is one less than the 5th byte sent to the camera from the remote in its handshake reply. No action was taken with the 1st byte as this is assumed to be a data direction indicator.
+
+Any change to the 6th byte and the camera does not reply. If bytes are added or removed betwen the commadn option and the last byte with it being 0x2A the reply echoes back the changes and does not start replying until after 0x2A has been sent. This indicates that the final byte is a stop byte and must be 0x2A.
+
+## Video Recording
+If the camera does not receive a reply to the the message that it sends after the start record command it attempts 5 times at approximately 60ms intervals. Of note in these transmissions is that the second to last byte increments by one every time from 0x30 to 0x34, so this is potentially an attempt counter. If no reply is sent after all attempts 300ms later the handshake process is started again. This requires any remote to send a reply packet after any transmission from the camera. Also until it can be tested by replying to the camera transmission it is assumed that the command has to be sent with option 0x30 and then 0x31 to release it.
+
+# Camera Features Supported
+
+### HX400
+* Focus with XAE_LOCK_SW
+* Shutter with XSHUT_SW
+* Start/Stop video recording
+* Zoom tele two speeds; 0x31, 0x32
+* Zoom wide two speeds; 0x31, 0x32
+* Power On/Off
+
+### a6000
+* Focus with XAE_LOCK_SW
+* Shutter with XSHUT_SW
+* Start/Stop video recording
+* Zoom tele lens dependent
+* Zoom wide lens dependent
+* Power On/Off
+
+### PJ670
+* Focus via Serial Command
+* Shutter via Serial Command
+* Start/Stop video recording
+* Zoom tele two speeds; 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38
+* Zoom wide two speeds; 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38
+* Power On/Off
+
+## Full Command List Found
+    Command   Option    Action
+      0x30     0x30     Grid on/on
+      0x30     0x31     Finish grid command
+      0x31     0x30     Start/Stop video recording
+      0x31     0x31     Finish Start/Stop command
+      0x32     0x30     Focus
+      0x32     0x31     Finish focus command
+      0x33     0x30     Shutter
+      0x33     0x31     Finish shutter command
+      0x34     0x31     Zoom Tele speed 1
+      0x34     0x32     Zoom Tele speed 2
+      0x34     0x33     Zoom Tele speed 3
+      0x34     0x34     Zoom Tele speed 4
+      0x34     0x35     Zoom Tele speed 5
+      0x34     0x36     Zoom Tele speed 6
+      0x34     0x37     Zoom Tele speed 7
+      0x34     0x38     Zoom Tele speed 8
+      0x35     0x31     Zoom Wide speed 1
+      0x35     0x32     Zoom Wide speed 2
+      0x35     0x33     Zoom Wide speed 3
+      0x35     0x34     Zoom Wide speed 4
+      0x35     0x35     Zoom Wide speed 5
+      0x35     0x36     Zoom Wide speed 6
+      0x35     0x37     Zoom Wide speed 7
+      0x35     0x38     Zoom Wide speed 8
+      0x35     0x39     Zoom Stop
+
+
+These commands make much more sense if we convert them to ASCII
+
+## Full Command List Found
+    Command   Option    Action
+      0     0     Grid on/on
+      0     1     Finish grid command
+      1     0     Start/Stop video recording
+      1     1     Finish Start/Stop command
+      2     0     Focus
+      2     1     Finish focus command
+      3     0     Shutter
+      3     1     Finish shutter command
+      4     1     Zoom Tele speed 1
+      4     2     Zoom Tele speed 2
+      4     3     Zoom Tele speed 3
+      4     4     Zoom Tele speed 4
+      4     5     Zoom Tele speed 5
+      4     6     Zoom Tele speed 6
+      4     7     Zoom Tele speed 7
+      4     8     Zoom Tele speed 8
+      5     1     Zoom Wide speed 1
+      5     2     Zoom Wide speed 2
+      5     3     Zoom Wide speed 3
+      5     4     Zoom Wide speed 4
+      5     5     Zoom Wide speed 5
+      5     6     Zoom Wide speed 6
+      5     7     Zoom Wide speed 7
+      5     8     Zoom Wide speed 8
+      5     9     Zoom Stop
+```
+
+
+
 [相机远程释放引脚列表](https://www.doc-diy.net/photo/remote_pinout/)  
 
 [The open hardware project to build an inexpensive and customizable infrared remote control for Nikon cameras](http://www.bigmike.it/ircontrol/)  
