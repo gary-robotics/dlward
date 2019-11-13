@@ -10,6 +10,7 @@ tags:                               #标签
     - 其他
 ---
 [wangz](https://www.aliexpress.com/popular/15-pin-male-to-usb-adapter.html)   
-[SorenK_BrushlessGimbal]()  
+
 [SorenK_BrushlessGimbal](https://github.com/Edlward/SorenK_BrushlessGimbal)  
+[simplebgc32bit](https://www.basecamelectronics.com/simplebgc32bit/)  
 
