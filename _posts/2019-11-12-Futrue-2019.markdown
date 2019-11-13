@@ -14,3 +14,20 @@ tags:                               #标签
 [SorenK_BrushlessGimbal](https://github.com/Edlward/SorenK_BrushlessGimbal)  
 [simplebgc32bit](https://www.basecamelectronics.com/simplebgc32bit/)  
 
+
+642/5000
+// **************************************************** **
+//基于“互补过滤器”的简化IMU
+//灵感来自http://starlino.com/imu_guide.html
+//
+//由ziss_dm改编：http://www.multiwii.com/forum/viewtopic.php?f=8&t=198
+//
+//此项目中使用了以下想法：
+// 1）旋转矩阵：http：//en.wikipedia.org/wiki/Rotation_matrix
+// 2）小角度逼近：http://en.wikipedia.org/wiki/Small-angle_approximation
+// 3）C.atan2（）的黑斯廷斯逼近
+// 4）优化技巧：http://www.hackersdelight.org/
+//
+//当前磁力仪使用单独的CF，仅用于
+//用于航向近似。
+//
