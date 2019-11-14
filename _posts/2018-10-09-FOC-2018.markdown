@@ -10,7 +10,7 @@ tags:                               #标签
     - FOC
 ---
 [低速大转矩永磁同步电机在线参数辨识策略研究](https://wenku.baidu.com/view/655d0e041711cc7931b716cd)  
-
+[永磁同步电机参数测量试验方法](https://wenku.baidu.com/view/588376a2f524ccbff121849a.html)  
 ### code
 [foc-pmsm-test](https://github.com/haoyang877/foc-pmsm-test)  
 
