@@ -9,6 +9,9 @@ catalog: true                       # 是否归档
 tags:                               #标签
     - FOC
 ---
+### code
+[foc-pmsm-test](https://github.com/haoyang877/foc-pmsm-test)  
+
 ### TI
 http://www.ti.com.cn/tool/cn/controlsuite?keyMatch=controlSUITE&tisearch=Search-CN-Everything
 
