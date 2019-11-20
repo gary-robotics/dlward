@@ -9,6 +9,9 @@ catalog: true                       # 是否归档
 tags:                               #标签
     - FOC
 ---
+https://www.rcgroups.com/forums/index.php  
+https://endless-sphere.com/forums/  
+
 ### 电机参数测量
 [电机参数测量](https://wenku.baidu.com/view/fb2831595e0e7cd184254b35eefdc8d376ee14d6.html?rec_flag=default&sxts=1574212625812&pn=32)  
 
