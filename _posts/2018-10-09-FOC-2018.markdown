@@ -9,6 +9,10 @@ catalog: true                       # 是否归档
 tags:                               #标签
     - FOC
 ---
+### 电机参数测量
+[电机参数测量](https://wenku.baidu.com/view/fb2831595e0e7cd184254b35eefdc8d376ee14d6.html?rec_flag=default&sxts=1574212625812&pn=32)  
+
+
 [滤波器的延时计算问题](https://blog.csdn.net/fangbingxiao/article/details/78089073)  
 
 ### FOC之PLL锁相环
