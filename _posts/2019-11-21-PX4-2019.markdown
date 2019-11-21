@@ -14,7 +14,7 @@ tags:                               #标签
 [PX4](https://docs.px4.cc/)  
 [dimianzhan](http://shequ.dimianzhan.com/)    
 [一天精通无人机](http://shequ.dimianzhan.com/askpure?page=2)   
-
+[QGC地面站教学无人机使用教程](https://wenku.baidu.com/view/b0f102566d175f0e7cd184254b35eefdc8d31592.html)  
 
 ### Code
 [px4_command](https://github.com/potato77/px4_command/blob/master/src/px4_pos_estimator.cpp)  
