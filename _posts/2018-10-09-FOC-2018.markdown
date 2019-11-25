@@ -11,6 +11,8 @@ tags:                               #标签
 ---
 https://www.rcgroups.com/forums/index.php  
 https://endless-sphere.com/forums/  
+### 死区设置
+(STM32定时器输出带有死区时间的PWM波形)[https://blog.csdn.net/dazhou158/article/details/8806174]  
 
 ### 动画
 [动画](https://zhuanlan.zhihu.com/p/82694816)  
