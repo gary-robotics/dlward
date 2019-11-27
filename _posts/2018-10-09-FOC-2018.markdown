@@ -35,6 +35,8 @@ https://endless-sphere.com/forums/
 [永磁同步电机参数测量试验方法](https://wenku.baidu.com/view/588376a2f524ccbff121849a.html)  
 ### code
 [foc-pmsm-test](https://github.com/haoyang877/foc-pmsm-test)  
+[hoverboard-firmware-hack-FOC](https://github.com/EmanuelFeru/hoverboard-firmware-hack-FOC)  
+[ODrive](https://github.com/madcowswe/ODrive)  https://odriverobotics.com/
 
 ### TI
 http://www.ti.com.cn/tool/cn/controlsuite?keyMatch=controlSUITE&tisearch=Search-CN-Everything
