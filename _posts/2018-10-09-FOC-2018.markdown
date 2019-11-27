@@ -14,6 +14,10 @@ https://endless-sphere.com/forums/
 ### 死区设置
 (STM32定时器输出带有死区时间的PWM波形)[https://blog.csdn.net/dazhou158/article/details/8806174]  
 
+### 矢量控制电流环的内模解耦控制
+[矢量控制电流环的内模解耦控制](https://wenku.baidu.com/view/56811a6825c52cc58bd6befb.html?sxts=1574824277281)  
+
+
 ### 动画
 [动画](https://zhuanlan.zhihu.com/p/82694816)  
 
