@@ -38,6 +38,8 @@ https://endless-sphere.com/forums/
 [hoverboard-firmware-hack-FOC](https://github.com/EmanuelFeru/hoverboard-firmware-hack-FOC)  
 [ODrive](https://github.com/madcowswe/ODrive)  https://odriverobotics.com/
 
+https://github.com/bipropellant/bipropellant-hoverboard-firmware/issues/41
+
 ### TI
 http://www.ti.com.cn/tool/cn/controlsuite?keyMatch=controlSUITE&tisearch=Search-CN-Everything
 
