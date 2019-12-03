@@ -23,6 +23,7 @@ https://endless-sphere.com/forums/
 
 ### 电机参数测量
 [电机参数测量](https://wenku.baidu.com/view/fb2831595e0e7cd184254b35eefdc8d376ee14d6.html?rec_flag=default&sxts=1574212625812&pn=32)  
+[PMSM电感测量](https://wenku.baidu.com/view/794aaad2482fb4daa48d4b04.html)  
 
 
 [滤波器的延时计算问题](https://blog.csdn.net/fangbingxiao/article/details/78089073)  
