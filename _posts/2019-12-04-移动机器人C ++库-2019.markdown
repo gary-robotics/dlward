@@ -10,5 +10,7 @@ tags:                               #标签
     - 数学
 ---
 [移动机器人C ++库](https://www.mrpt.org/)  
-《移动机器人导航、控制与遥感》
+《移动机器人导航、控制与遥感》  
 [qiaozhijian](https://github.com/qiaozhijian)  
+[惯性导航课程设计与实习](http://lab.sgg.whu.edu.cn/a/xiazai/dagang/20180312/517.html)  
+https://wenku.baidu.com/view/34726eb3aa00b52acec7ca37.html
