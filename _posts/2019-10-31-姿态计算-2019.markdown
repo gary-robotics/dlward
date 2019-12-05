@@ -9,6 +9,11 @@ catalog: true                       # 是否归档
 tags:                               #标签
     - 姿态计算
 ---
+[EvvGC](https://github.com/EvvGC/Firmware)  
+[SorenK_BrushlessGimbal](https://github.com/dongfang/SorenK_BrushlessGimbal)  
+[BGC32](https://github.com/dongfang/BGC32)  
+
+
 ### matlab
 [欧拉角，DCM，四元数和欧拉矢量转换/示教GUI](https://ww2.mathworks.cn/matlabcentral/fileexchange/27653-euler-angle-dcm-quaternion-and-euler-vector-conversion-teaching-gui)  
 
