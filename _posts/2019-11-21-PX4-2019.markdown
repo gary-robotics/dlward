@@ -19,3 +19,4 @@ tags:                               #标签
 ### Code
 [px4_command](https://github.com/potato77/px4_command/blob/master/src/px4_pos_estimator.cpp)  
 [实时视频稳定](https://github.com/3PTelephant/Real-Time-Video-Stabilization)  
+[四旋翼飞行器的建模仿真和控制](https://ww2.mathworks.cn/videos/quadcopter-simulation-and-control-made-easy-116297.html)   
