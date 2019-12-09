@@ -1,0 +1,80 @@
+一直想些篇文章来总结下研一上看的一些东西，然而一直拖拖拖，研一主要还是上课，其他学校好像很少课，为啥我电这么…，剩余的时间是看文献啥的，
+
+整理一下行人导航定位的一些资料，看了这些资料，应该会有很大的帮助！
+
+书籍方面的推荐，以前读书的时候没觉得什么，现在发现研究的领域当中，有一本入门的书籍真的是非常好，有利于自己快速了解自己的研究领域。
+
+1.书籍方面的推荐
+
+与行人导航主题最相关的书籍有如下推荐:
+
+Pedestrian localisation for indoor environments （虽然我没看过，但肯定是好书，剑桥大学的)
+
+还有一本是国内的《室内空间信息支持下的行人导航定位方法》（讲的还不错哈哈）
+
+其他的虽然不是行人导航，但是也有利于加深自己理解定位的书籍有：
+
+机器人学的状态估计（数学推导非常多，正在看）
+
+概率机器人（大概看了一点）
+
+视觉SLAM14讲（好书，推荐，即使是做行人的，看下其他领域的方法会有更多想法）
+
+2.综述性文章（必看必看，重点）
+
+A Review of Pedestrian Indoor Positioning Systems for Mass Market Applications （强烈推荐，下面有各个方向的文章索引）
+
+A Survey of Indoor Inertial Positioning Systems for Pedestrians
+
+Survey of Inertial/magnetic Sensors Based pedestrian dead reckoning by multi-sensor fusion
+method
+
+3.有代码的文章应该重点看，这样才知道大概怎么实行构建（必看）
+
+Tutorial:implementing a Pedestrian Tracker Using inertial Sensors （必看）
+
+Pedestrian Tracking with Shoe-Mounted Inertial Sensors （必看）
+
+http://www.openshoe.org/?page_id=87
+
+上面的网站是国外另外一个大佬的实验室，代码非常棒，不仅帮你了解怎么实施，还能提高你代码水平，他们的每篇论文都值得一看
+
+4.进阶：多惯导以及多传感器
+
+Dual MIMU Pedestrian Navigation by Inequality Constraint Kalman Filtering
+
+Fusing the information from Two Navigation System Using Bound on Their Maximum Spatial Separation
+
+Research on Pedestrian Location Based on Dual MIMU/ Magnetometer/ Ultrasonic Module
+
+Data Fusion Algorithms for Multiple Inertial Measurement Units **Jared B. Bancroft
+
+当然单惯导已经不够用了，于是开始有学者研究多惯导
+
+如果考虑到多传感器的融合，首先要面对的一个问题是两个传感器时间怎么对上，这在学术界里有一个专有的名词，叫做时间配准算法，也有叫时空配准，不过靠软件对齐真是吃力不讨好，建议还是如果能用硬件做就用硬件做。
+
+5.重要的技术方法（重点）
+
+零速更新，双脚约束，卡尔曼滤波（推荐看下优达学诚Artifical Intelligent中谷歌无人车之父的卡尔曼讲解，没有人讲地比他好）还有用无迹卡尔曼，拓展卡尔曼做的…
+
+6.机器学习方法
+
+除了用传统的方法做之外，也有用机器学习的方法进行辅助
+
+Lightweight Map Matching for Indoor Localisation using Conditional Random Fields （安利一下自己实验室老师听说是顶会最佳论文，实验室大佬）
+
+Research on Dual-MIMU Trajectory Tracking Based on Support Vector Machine Constraint
+
+Indoor Pedestrian Tracking Using Consumer-Grade Inertial Sensors With PZTD Heading Correction
+
+6.行人导航的应用与挑战
+
+Indoor location based services challenges, requirements and usability of
+current solutions
+
+当然也要知道其他的术语，比如有FootSLAM,ActionSLAM，以上的文章绝大多数是基于惯性导航绑在脚上的论文，不过我觉得更有市场的是 在手机上实现SLAM，要让每双鞋子都配有惯导以及通信模块感觉不太现实呀，footslam主要也是用在一些比如矿场，消防员的应用场景下面。
+
+emmmm，现在已经不做这块了，给做这块的同学们点方便哈哈。虽然不做这块了，不过还有其他同学做，如果有其他好东西也会叫他们发下哈。
+————————————————
+版权声明：本文为CSDN博主「MrZhuangzhipeng」的原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接及本声明。
+原文链接：https://blog.csdn.net/MrZhuangzhipeng/article/details/88725678
