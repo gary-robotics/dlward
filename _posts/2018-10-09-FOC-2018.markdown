@@ -9,6 +9,9 @@ catalog: true                       # 是否归档
 tags:                               #标签
     - FOC
 ---
+[SVPWM分析、各个扇区详细计算以及Matlab仿真](https://blog.csdn.net/michaelf/article/details/94013805)  
+
+
 https://www.rcgroups.com/forums/index.php  
 https://endless-sphere.com/forums/  
 ### 死区设置
