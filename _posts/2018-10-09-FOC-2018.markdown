@@ -9,6 +9,8 @@ catalog: true                       # 是否归档
 tags:                               #标签
     - FOC
 ---
+[horychen](https://horychen.github.io/tech/Creating_2D_Pareto_Front_with_Python/)  
+
 [SVPWM分析、各个扇区详细计算以及Matlab仿真](https://blog.csdn.net/michaelf/article/details/94013805)  
 
 
