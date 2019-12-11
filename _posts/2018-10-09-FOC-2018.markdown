@@ -9,6 +9,12 @@ catalog: true                       # 是否归档
 tags:                               #标签
     - FOC
 ---
+### 位置前馈
+
+### 电流环解耦
+
+[矢量控制电流环的内模解耦控制](https://wenku.baidu.com/view/56811a6825c52cc58bd6befb.html)  
+
 [horychen](https://horychen.github.io/tech/Creating_2D_Pareto_Front_with_Python/)  
 
 [SVPWM分析、各个扇区详细计算以及Matlab仿真](https://blog.csdn.net/michaelf/article/details/94013805)  
