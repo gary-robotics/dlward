@@ -2,3 +2,4 @@
 
 
 [此项目包括stm32f10x iic驱动程序lib和mpu6050，HMC5883L，MS561101BA的驱动程序](https://github.com/Edlward/stm32F103MPU9150)  
+[MPU6050 HMC5883 Kalman 融合算法移植](https://www.cnblogs.com/zjutlitao/p/3915786.html)  
