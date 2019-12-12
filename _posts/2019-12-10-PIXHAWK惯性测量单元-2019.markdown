@@ -1,1 +1,4 @@
 [PIXHAWK惯性测量单元（pxIMU）上使用的自动驾驶仪软件 http://pixhawk.ethz.ch/software/imu/](https://github.com/FrauBluher/imu_autopilot)  
+
+
+[此项目包括stm32f10x iic驱动程序lib和mpu6050，HMC5883L，MS561101BA的驱动程序](https://github.com/Edlward/stm32F103MPU9150)  
