@@ -9,7 +9,171 @@ catalog: true                       # 是否归档
 tags:                               #标签
     - GPHOTO2
 ---
+```
+转载 移植libgphoto
+编译所需软件包：
 
+libusb
+
+http://ftp.cn.debian.org/debian/pool/main/libu/libusb/libusb_0.1.12.orig.tar.gz
+
+libtool
+
+http://ftp.cn.debian.org/debian/pool/main/libt/libtool/libtool_2.4.orig.tar.gz
+
+popt
+
+http://ftp.cn.debian.org/debian/pool/main/p/popt/popt_1.16.orig.tar.gz
+
+libgphoto2
+
+http://ftp.cn.debian.org/debian/pool/main/libg/libgphoto2/libgphoto2_2.4.11.orig.tar.gz
+
+gphoto2
+
+http://ftp.cn.debian.org/debian/pool/main/g/gphoto2/gphoto2_2.4.11.orig.tar.gz
+
+fuse
+
+http://ftp.cn.debian.org/debian/pool/main/f/fuse/fuse_2.8.5.orig.tar.gz
+
+gphotofs
+
+http://ftp.cn.debian.org/debian/pool/main/g/gphotofs/gphotofs_0.4.0.orig.tar.gz
+
+ 
+
+首先创建你自己的程序目录，如：mkdir /home/gphoto 下载以上所需软件包到 /home/gphoto目录下
+
+创建你自己的程序安装目录，如：mkdir /home/install
+
+创建编译环境变量, /home/arm/cross-tool/bin 更换成你的ARM交叉编译工具路径
+
+export PATH=$PATH:/home/arm/cross-tool/bin
+
+export gp_dir=/home/gphoto/install
+
+export myhost=arm-none-linux-gnueabi
+
+ 
+
+1.编译libusb
+
+cd /home/gphoto
+
+tar xvf libusb_0.1.12.orig.tar.gz
+
+cd libusb-0.1.12
+
+ ./configure --prefix=$gp_dir --host=$myhost
+
+make
+
+make install
+
+ 
+
+2.编译libtool
+
+cd /home/gphoto
+
+tar xvf libtool_2.4.orig.tar.gz
+
+cd libtool-2.4
+
+ ./configure --prefix=$gp_dir --host=$myhost
+
+make
+
+make install
+
+ 
+
+3.编译popt
+
+cd /home/gphoto
+
+tar xvf popt_1.16.orig.tar.gz
+
+cd popt-1.16
+
+ ./configure --prefix=$gp_dir --host=$myhost
+make
+
+make install
+
+ 
+
+4.编译libgphoto2
+
+cd /home/gphoto
+
+tar xvf libgphoto2_2.4.11.orig.tar.gz
+
+cd libgphoto2-2.4.11
+
+./configure --prefix=$gp_dir --host=$myhost \
+
+LDFLAGS='-ldl' \
+
+LIBLTDL=$gp_dir/lib/libltdl.a \
+
+LTDLINCL=-I$gp_dir/include/ \
+
+LIBUSB_LIBS=$gp_dir/lib/libusb.a \
+
+LIBUSB_CFLAGS=-I$gp_dir/include/ \
+
+--with-libexif=no
+
+make
+
+make install
+
+ 
+
+5.编译 gphoto2
+
+cd /home/gphoto
+
+tar xvf gphoto2_2.4.11.orig.tar.gz
+
+cd gphoto2-2.4.11
+
+ ./configure --prefix=$gp_dir --host=$myhost \
+LDFLAGS='-ldl' \
+POPT_CFLAGS=-I$gp_dir/include/ \
+POPT_LIBS="-L$gp_dir/lib/ -lpopt" \
+LIBLTDL=$gp_dir/lib/libltdl.a \
+LTDLINCL=-I$gp_dir/include/ \
+LIBUSB_LIBS=$gp_dir/lib/libusb.a \
+LIBUSB_CFLAGS=-I$gp_dir/include/ \
+--with-libexif=no \
+--with-libgphoto2=$gp_dir \
+--without-cdk \
+--without-readline \
+--without-aalib \
+--without-jpeg \
+--without-pthread
+
+make
+
+make install
+
+ 
+
+6.编译 fuse
+
+cd /home/gphoto
+
+tar xvf fuse_2.8.5.orig.tar.gz
+cd fuse-2.8.5
+ ./configure --prefix=$gp_dir --host=$myhost
+
+make
+make install 
+
+```
 [相机镜头控制协议的分析与转换](https://wenku.baidu.com/view/01c4010531b765ce04081454.html)  
 
 ### MTP USB数据抓包分析
