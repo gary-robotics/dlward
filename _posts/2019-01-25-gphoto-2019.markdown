@@ -10,7 +10,7 @@ tags:                               #标签
     - GPHOTO2
 ---
 ```
-转载 移植libgphoto
+
 编译所需软件包：
 
 libusb
