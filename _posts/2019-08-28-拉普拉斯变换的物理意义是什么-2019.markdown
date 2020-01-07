@@ -10,7 +10,7 @@ tags:                               #标签
     - 数学
 ---
 [基于FFT算法的MTALAB傅里叶级数3D可视化](https://zhuanlan.zhihu.com/p/63634275)  
-
+[matlab](https://github.com/ooooooliver/WRITE-IN-MATLAB/tree/c6735c3d823db05bdb501c614c017d1a549da370/MATLAB-Statistical-Analysis-And-Application)  
 ### 拉普拉斯变换的物理意义是什么？
 作者：刘牧之
 链接：https://www.zhihu.com/question/22102732/answer/26371173
