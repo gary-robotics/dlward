@@ -13,7 +13,7 @@ tags:                               #标签
 
 [SorenK_BrushlessGimbal](https://github.com/Edlward/SorenK_BrushlessGimbal)  
 [simplebgc32bit](https://www.basecamelectronics.com/simplebgc32bit/)  
-
+[STM32CubeMX_ProjectTest](https://github.com/lichengxiang0/STM32CubeMX_ProjectTest.git)  
 
 
 基于“互补过滤器”的简化IMU
