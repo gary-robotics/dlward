@@ -12,3 +12,9 @@ tags:
 ---
 
 ### 数值分析
+华东师范大学潘建瑜教授 [数值分析](https://link.zhihu.com/?target=http%3A//math.ecnu.edu.cn/~jypan/Teaching/NA/index.html)   ，[矩阵计算](https://link.zhihu.com/?target=http%3A//math.ecnu.edu.cn/~jypan/Teaching/MatrixComp/index.html)  
+中南大学韩旭里 教授 [中南大学精品课程数值分析](https://link.zhihu.com/?target=http%3A//netclass.csu.edu.cn/jpkc2008/China/09WebMaths/Teach_Method/Course_Main.htm)  
+大连理工大学张宏伟教授以及董波副教授 [精品课程建设](https://link.zhihu.com/?target=http%3A//netclass.dlut.edu.cn/wlzy_1.aspx%3Fbh%3D059%26id%3D193)  
+[华北理工大学刘春凤教授 数值计算方法 - 华北理工大学 - 刘春凤](https://link.zhihu.com/?target=http%3A//www.icourses.cn/coursestatic/course_6302.html)  
+[武汉大学黄正华教授 黄正华的教学信息页面](https://link.zhihu.com/?target=http%3A//aff.whu.edu.cn/huangzh/)  
+[苏州大学数学院 微积分的教与学 （这个网站查了好几天才找到这个源头）](https://link.zhihu.com/?target=http%3A//kczx.suda.edu.cn/G2S/Template/View.aspx%3Faction%3Dview%26courseType%3D0%26courseId%3D27601)  
