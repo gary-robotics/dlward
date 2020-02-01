@@ -9,17 +9,21 @@ catalog: true                       # 是否归档
 tags:                               #标签
     - 数学
 ---
+[线性代数可视化](https://textbooks.math.gatech.edu/ila/vectors.html)  
+[線代啟示錄](https://ccjou.wordpress.com/%e5%b0%88%e9%a1%8c%e6%8e%a2%e7%a9%b6/%e7%9f%a9%e9%99%a3%e7%9a%84%e7%89%b9%e5%be%b5%e5%80%bc%e8%88%87%e7%89%b9%e5%be%b5%e5%90%91%e9%87%8f/)  
+[如何理解矩阵特征值和特征向量？](https://www.matongxue.com/madocs/228.html)  
+
+
 ### 画图工具
 [画图工具](https://www.geogebra.org/)  
 ### 
-[線代啟示錄](https://ccjou.wordpress.com/%e5%b0%88%e9%a1%8c%e6%8e%a2%e7%a9%b6/%e7%9f%a9%e9%99%a3%e7%9a%84%e7%89%b9%e5%be%b5%e5%80%bc%e8%88%87%e7%89%b9%e5%be%b5%e5%90%91%e9%87%8f/)
+
 
 [课程](http://www.doc88.com/p-663159263402.html)  
 [微分方程与线性代数](https://zhuanlan.zhihu.com/p/46533077)  
 [适合程序员的线性代数教程！](https://zhuanlan.zhihu.com/p/65002126)  
 [当我们在学线代的时候，我们究竟在学什么？](https://zhuanlan.zhihu.com/p/22121735)  
 [神奇的矩阵第二季](https://wenku.baidu.com/view/a3b69df316fc700aba68fc7b.html)  
-[如何理解矩阵特征值和特征向量？](https://www.matongxue.com/madocs/228.html)  
 [图解高等数学|线性代数](https://mp.weixin.qq.com/s?__biz=MzAxNzg3MTE3Ng==&mid=2247488295&idx=1&sn=9f83afda8442d877a3615b832401fb8b&chksm=9bdfab00aca822162f0c1014fcd6155dbcfa0565f664d7c04632e910e4ca5c3b7cbbcc9d3915&scene=21#wechat_redirect)  
 [书](http://www.ituring.com.cn/tag/448)  
 
