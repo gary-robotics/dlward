@@ -11,7 +11,7 @@ tags:                               #标签
 ---
 ### 资源
 
-https://www.cnki.net账号：Shutu33密码：St123456账号：tjmsxy001 ~ tjmsxy020密码：ms123456账号：cmc_tsg01 ~ cmc_tsg10密码：cmc_tsg01 ~ cmc_tsg10 Sep 15, 2019 维普期刊资源
+账号：Shutu33密码：St123456账号：tjmsxy001 ~ tjmsxy020密码：ms123456账号：cmc_tsg01 ~ cmc_tsg10密码：cmc_tsg01 ~ cmc_tsg10 Sep 15, 2019 维普期刊资源
 
 
 
@@ -104,8 +104,8 @@ ms123456
 ```
 
 
-·	读览天下(账号：hnjclib 密码：123456)	2017/07/26 	
-·	CNKI中国知网(用户名：dx0873 密码：hngagz 选择“登录”)
+读览天下(账号：hnjclib 密码：123456)	2017/07/26 	
+中国知--网(用户名：dx0873 密码：hngagz 选择“登录”)
 
 
   
